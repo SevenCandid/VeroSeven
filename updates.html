@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Updates — VEROSEVEN</title>
+  <link rel="icon" type="image/png" href="assets/vero_logo_favicon.png" />
+  <meta name="description" content="Stay up to date with VEROSEVEN's journey — product launches, behind-the-scenes development, and startup stories." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    .blog-card {
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: all var(--transition-normal);
+      cursor: pointer;
+    }
+    .blog-card:hover {
+      background: var(--color-surface-hover);
+      border-color: rgba(212, 175, 55, 0.3);
+      transform: translateY(-4px);
+    }
+    .blog-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.45);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .blog-meta .dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.3); }
+    .blog-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--color-white);
+      margin: 0;
+      line-height: 1.3;
+      transition: color var(--transition-fast);
+    }
+    .blog-card:hover .blog-title { color: var(--color-accent); }
+    .blog-excerpt {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.9375rem;
+      line-height: 1.7;
+      margin: 0;
+    }
+    .blog-tag {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: rgba(212,175,55,0.1);
+      color: var(--color-accent);
+      border: 1px solid rgba(212,175,55,0.2);
+    }
+    .blog-read-more {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--color-accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="logo">
+        <img src="assets/vero_logo1.png" alt="VEROSEVEN Logo" />
+        VEROSEVEN
+      </a>
+      <div class="nav-links" id="navLinks">
+        <button class="nav-close" id="navClose" aria-label="Close Menu">✕</button>
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="products.html" class="nav-link">Products</a>
+        <a href="ecosystem.html" class="nav-link">Ecosystem</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="updates.html" class="nav-link active">Updates</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="https://whatsapp.com/channel/0029VbCP2pc2ER6ZSRBTLx2l" target="_blank" class="btn btn-primary" style="padding:0.6rem 1.2rem; font-size:0.9rem;">
+          <svg style="margin-right:6px" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          Join WhatsApp Channel
+        </a>
+      </div>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <section class="section bg-gradient" style="padding-top: 5.5rem; padding-bottom: 1.5rem;">
+    <div class="container text-center">
+      <span class="badge fade-up">Startup Journal</span>
+      <h1 class="fade-up" style="margin-top:1rem;">Updates &amp; <span class="text-gold">Stories</span></h1>
+      <p class="fade-up" style="margin: 1rem auto 0; animation-delay:0.2s;">Follow along as we build — product updates, behind-the-scenes stories, and thoughts on innovation.</p>
+    </div>
+  </section>
+
+  <!-- Blog Grid -->
+  <section class="section">
+    <div class="container">
+      <!-- Featured Post -->
+      <div class="glass-panel blog-card fade-up" style="margin-bottom:2rem; border-left:4px solid var(--color-accent);" id="post-welcome">
+        <div class="blog-meta">
+          <span class="blog-tag">Announcement</span>
+          <span class="dot"></span>
+          <span>May 2026</span>
+          <span class="dot"></span>
+          <span>3 min read</span>
+        </div>
+        <h2 class="blog-title" style="font-size:2rem;">Welcome to VEROSEVEN</h2>
+        <p class="blog-excerpt">This is the beginning. After months of planning, building, and refining our vision, VEROSEVEN is officially announcing its technology ecosystem. We're starting with a bold mission and a clear direction — to build technology that truly matters. Here's what we're about and where we're headed.</p>
+        <div class="blog-read-more">Read More <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      </div>
+
+      <div class="grid grid-2" style="gap:1.5rem;">
+        <div class="glass-panel blog-card fade-up" id="post-building-nexra">
+          <div class="blog-meta">
+            <span class="blog-tag">Product</span>
+            <span class="dot"></span>
+            <span>May 2026</span>
+          </div>
+          <h3 class="blog-title">Building Nexra</h3>
+          <p class="blog-excerpt">Nexra began as a question: why is bulk messaging still so complicated? We're building the answer — a clean, modern, and powerful communication platform.</p>
+          <div class="blog-read-more">Read More <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        </div>
+
+        <div class="glass-panel blog-card fade-up" style="animation-delay:0.1s;" id="post-vision">
+          <div class="blog-meta">
+            <span class="blog-tag">Vision</span>
+            <span class="dot"></span>
+            <span>May 2026</span>
+          </div>
+          <h3 class="blog-title">Our Vision for Innovation</h3>
+          <p class="blog-excerpt">Innovation isn't about doing something new for the sake of novelty. It's about solving real problems with real craft. Here's how VEROSEVEN thinks about building.</p>
+          <div class="blog-read-more">Read More <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        </div>
+
+        <div class="glass-panel blog-card fade-up" style="animation-delay:0.2s;" id="post-devupdates">
+          <div class="blog-meta">
+            <span class="blog-tag">Development</span>
+            <span class="dot"></span>
+            <span>May 2026</span>
+          </div>
+          <h3 class="blog-title">Product Development Updates</h3>
+          <p class="blog-excerpt">A transparent look at where we are in building Nexra — what's working, what's not, and what's next. We believe in building in public.</p>
+          <div class="blog-read-more">Read More <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        </div>
+
+        <div class="glass-panel blog-card fade-up" style="animation-delay:0.3s;" id="post-behind-scenes">
+          <div class="blog-meta">
+            <span class="blog-tag">Behind the Scenes</span>
+            <span class="dot"></span>
+            <span>May 2026</span>
+          </div>
+          <h3 class="blog-title">Behind the Scenes at VEROSEVEN</h3>
+          <p class="blog-excerpt">Building a technology ecosystem is not a linear journey. Get a candid glimpse into the early days — the wins, the pivots, and the lessons learned.</p>
+          <div class="blog-read-more">Read More <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        </div>
+
+        <div class="glass-panel blog-card fade-up" style="animation-delay:0.4s;" id="post-ecosystem">
+          <div class="blog-meta">
+            <span class="blog-tag">Ecosystem</span>
+            <span class="dot"></span>
+            <span>May 2026</span>
+          </div>
+          <h3 class="blog-title">Structuring the VEROSEVEN Ecosystem</h3>
+          <p class="blog-excerpt">Why build an ecosystem instead of a single product? How our five divisions connect and support each other. The strategic thinking behind VEROSEVEN's architecture.</p>
+          <div class="blog-read-more">Read More <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WhatsApp CTA -->
+  <section class="section bg-gradient">
+    <div class="container text-center">
+      <div class="glass-panel fade-up" style="max-width:600px; margin:0 auto; padding:4rem;">
+        <div style="font-size:2.5rem; margin-bottom:1rem;">📲</div>
+        <h2>Follow the Journey</h2>
+        <p style="max-width:100%;">Join the official VEROSEVEN WhatsApp Channel for updates, product launches, behind-the-scenes development, and opportunities to collaborate.</p>
+        <a href="https://whatsapp.com/channel/0029VbCP2pc2ER6ZSRBTLx2l" target="_blank" class="btn btn-primary" id="updates-whatsapp-btn">
+          <svg style="margin-right:8px" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          Join WhatsApp Channel
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo" style="font-size:1.25rem; margin-bottom:0.75rem;">
+            <img src="assets/vero_logo1.png" alt="VEROSEVEN Logo" />
+            VEROSEVEN
+          </div>
+          <p class="footer-tagline">Authentic Innovation. Limitless Possibilities.</p>
+          <p style="margin-top:1rem; color:rgba(255,255,255,0.5); font-size:0.875rem;">Building technology that matters.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="ecosystem.html">Ecosystem</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="updates.html">Updates</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Get In Touch</h4>
+          <ul>
+            <li><a href="mailto:hello@veroseven.com">hello@veroseven.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 VEROSEVEN. All Rights Reserved.</span>
+        <span>Building technology that matters.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
