@@ -277,7 +277,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         const apiHost = window.location.hostname || 'localhost';
-        const res = await fetch(`http://${apiHost}:3001/api/cms`);
+        const res = await fetch(`https://veroseven-api.onrender.com/api/cms`);
         if (res.ok) {
           const cmsData = await res.json();
           cmsData.forEach(section => {

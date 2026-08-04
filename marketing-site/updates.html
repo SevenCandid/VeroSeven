@@ -193,7 +193,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         const apiHost = window.location.hostname || 'localhost';
-        const res = await fetch(`http://${apiHost}:3001/api/updates`);
+        const res = await fetch(`https://veroseven-api.onrender.com/api/updates`);
         if (res.ok) {
           const updates = await res.json();
           const gridContainer = document.getElementById('updates-grid-container');

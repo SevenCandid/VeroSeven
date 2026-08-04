@@ -13,7 +13,7 @@ const Login = ({ onLoginSuccess, apiHost }) => {
     setLoading(true);
 
     try {
-      const res = await fetch(`http://${apiHost}:3001/api/admin/login`, {
+      const res = await fetch(`https://veroseven-api.onrender.com/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

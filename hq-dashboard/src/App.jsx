@@ -84,7 +84,7 @@ function App() {
     setLoading(true);
     try {
       // In a real app, you would pass the JWT token in headers
-      const res = await apiFetch(`http://${apiHost}:3001/api/admin/applications`);
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/applications`);
       if (res.ok) {
         const data = await res.json();
         setApplications(data);
@@ -98,7 +98,7 @@ function App() {
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(`http://${apiHost}:3001/api/projects`);
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/projects`);
       if (res.ok) {
         const data = await res.json();
         setProjects(data);
@@ -112,7 +112,7 @@ function App() {
   const fetchCms = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(`http://${apiHost}:3001/api/cms`);
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/cms`);
       if (res.ok) {
         const data = await res.json();
         setCmsContent(data);
@@ -126,7 +126,7 @@ function App() {
   const fetchUpdates = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(`http://${apiHost}:3001/api/updates`);
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/updates`);
       if (res.ok) {
         const data = await res.json();
         setUpdates(data);
@@ -140,7 +140,7 @@ function App() {
   const fetchOpportunities = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(`http://${apiHost}:3001/api/admin/opportunities`);
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/opportunities`);
       if (res.ok) {
         const data = await res.json();
         setOpportunities(data);
@@ -154,7 +154,7 @@ function App() {
   const fetchTeamMembers = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(`http://${apiHost}:3001/api/admin/team-members`);
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/team-members`);
       if (res.ok) {
         const data = await res.json();
         setTeamMembers(data);
@@ -168,7 +168,7 @@ function App() {
   const fetchActivityLogs = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(`http://${apiHost}:3001/api/admin/activity-logs`);
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/activity-logs`);
       if (res.ok) {
         const data = await res.json();
         setActivityLogs(data);
@@ -185,7 +185,7 @@ function App() {
   const handleDeleteApplication = async () => {
     if (!appToDelete) return;
     try {
-      const res = await apiFetch(`http://${apiHost}:3001/api/admin/applications/${appToDelete}`, {
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/applications/${appToDelete}`, {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -203,7 +203,7 @@ function App() {
     const payload = Object.fromEntries(formData.entries());
     
     try {
-      const res = await apiFetch(`http://${apiHost}:3001/api/admin/applications/${detailsModalApp.id}`, {
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/applications/${detailsModalApp.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -224,8 +224,8 @@ function App() {
     
     try {
       const url = projectModal.mode === 'create' 
-        ? `http://${apiHost}:3001/api/admin/projects`
-        : `http://${apiHost}:3001/api/admin/projects/${projectModal.data.id}`;
+        ? `https://veroseven-api.onrender.com/api/admin/projects`
+        : `https://veroseven-api.onrender.com/api/admin/projects/${projectModal.data.id}`;
       
       const res = await apiFetch(url, {
         method: projectModal.mode === 'create' ? 'POST' : 'PUT',
@@ -254,8 +254,8 @@ function App() {
     
     try {
       const url = adminProjectModal.mode === 'create'
-        ? `http://${apiHost}:3001/api/admin/projects`
-        : `http://${apiHost}:3001/api/admin/projects/${adminProjectModal.data.id}`;
+        ? `https://veroseven-api.onrender.com/api/admin/projects`
+        : `https://veroseven-api.onrender.com/api/admin/projects/${adminProjectModal.data.id}`;
 
       const res = await apiFetch(url, {
         method: adminProjectModal.mode === 'create' ? 'POST' : 'PUT',
@@ -274,7 +274,7 @@ function App() {
   const handleDeleteProject = async () => {
     if (!projectToDelete) return;
     try {
-      const res = await apiFetch(`http://${apiHost}:3001/api/admin/projects/${projectToDelete}`, {
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/projects/${projectToDelete}`, {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -293,8 +293,8 @@ function App() {
     
     try {
       const url = teamModal.mode === 'create' 
-        ? `http://${apiHost}:3001/api/admin/team-members`
-        : `http://${apiHost}:3001/api/admin/team-members/${teamModal.data.id}`;
+        ? `https://veroseven-api.onrender.com/api/admin/team-members`
+        : `https://veroseven-api.onrender.com/api/admin/team-members/${teamModal.data.id}`;
       
       const res = await apiFetch(url, {
         method: teamModal.mode === 'create' ? 'POST' : 'PUT',
@@ -313,7 +313,7 @@ function App() {
   const handleDeleteTeamMember = async () => {
     if (!teamToDelete) return;
     try {
-      const res = await apiFetch(`http://${apiHost}:3001/api/admin/team-members/${teamToDelete}`, { method: 'DELETE' });
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/team-members/${teamToDelete}`, { method: 'DELETE' });
       if (res.ok) {
         setTeamMembers(teamMembers.filter(m => m.id !== teamToDelete));
         setTeamToDelete(null);
@@ -330,8 +330,8 @@ function App() {
     
     try {
       const url = updateModal.mode === 'create' 
-        ? `http://${apiHost}:3001/api/admin/updates`
-        : `http://${apiHost}:3001/api/admin/updates/${updateModal.data.id}`;
+        ? `https://veroseven-api.onrender.com/api/admin/updates`
+        : `https://veroseven-api.onrender.com/api/admin/updates/${updateModal.data.id}`;
       
       const res = await apiFetch(url, {
         method: updateModal.mode === 'create' ? 'POST' : 'PUT',
@@ -350,7 +350,7 @@ function App() {
   const handleDeleteUpdateConfirm = async () => {
     if (!updateToDelete) return;
     try {
-      const res = await apiFetch(`http://${apiHost}:3001/api/admin/updates/${updateToDelete}`, { method: 'DELETE' });
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/updates/${updateToDelete}`, { method: 'DELETE' });
       if (res.ok) {
         setUpdateToDelete(null);
         fetchUpdates();
@@ -383,8 +383,8 @@ function App() {
     
     try {
       const url = oppModal.mode === 'create' 
-        ? `http://${apiHost}:3001/api/admin/opportunities`
-        : `http://${apiHost}:3001/api/admin/opportunities/${oppModal.data.id}`;
+        ? `https://veroseven-api.onrender.com/api/admin/opportunities`
+        : `https://veroseven-api.onrender.com/api/admin/opportunities/${oppModal.data.id}`;
       
       const method = oppModal.mode === 'create' ? 'POST' : 'PUT';
       
@@ -406,7 +406,7 @@ function App() {
   const handleDeleteOpportunityConfirm = async () => {
     if (!oppToDelete) return;
     try {
-      const res = await apiFetch(`http://${apiHost}:3001/api/admin/opportunities/${oppToDelete}`, { method: 'DELETE' });
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/opportunities/${oppToDelete}`, { method: 'DELETE' });
       if (res.ok) {
         setOppToDelete(null);
         fetchOpportunities();
@@ -418,7 +418,7 @@ function App() {
 
   const handleUpdateCms = async (key, content) => {
     try {
-      const res = await apiFetch(`http://${apiHost}:3001/api/admin/cms/${key}`, {
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/cms/${key}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content })

@@ -134,7 +134,7 @@
 
             try {
                 // Fetch opportunity details
-                const res = await fetch(`http://${apiHost}:3001/api/opportunities/${oppId}`);
+                const res = await fetch(`https://veroseven-api.onrender.com/api/opportunities/${oppId}`);
                 if (!res.ok) throw new Error('Failed to fetch opportunity');
                 
                 const opp = await res.json();
@@ -215,7 +215,7 @@
                 if (data.occupation) payload.occupation = data.occupation;
 
                 try {
-                    const response = await fetch(`http://${apiHost}:3001/api/applications`, {
+                    const response = await fetch(`https://veroseven-api.onrender.com/api/applications`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)

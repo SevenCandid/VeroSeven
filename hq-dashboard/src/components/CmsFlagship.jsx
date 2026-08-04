@@ -6,7 +6,7 @@ const apiHost = window.location.hostname || 'localhost';
 
 const apiFetch = async (url, options = {}) => {
   const headers = { ...options.headers, ...getAuthHeaders() };
-  const response = await fetch(`http://${apiHost}:3001${url}`, { ...options, headers });
+  const response = await fetch(`https://veroseven-api.onrender.com${url}`, { ...options, headers });
   
   if ((response.status === 401 || response.status === 403) && url.includes('/api/admin')) {
     removeToken();
