@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application - VEROSEVEN</title>
+    <link rel="icon" type="image/png" href="assets/vero_logo_favicon.png" />
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem;
+            background: rgba(8, 18, 35, 0.7);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+        .form-group input, 
+        .form-group textarea, 
+        .form-group select {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            color: var(--color-text-primary);
+            font-family: inherit;
+            transition: border-color var(--transition-fast);
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--color-accent);
+        }
+        .submit-btn {
+            background-color: var(--color-accent);
+            color: var(--color-primary);
+            border: none;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            transition: opacity var(--transition-fast);
+            margin-top: 1rem;
+        }
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 8px;
+            border: 1px solid var(--color-accent);
+            color: var(--color-accent);
+        }
+        #opp-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient min-h-screen">
+        <section class="section" style="padding-top: 4rem;">
+            <div class="container">
+                <a href="opportunities.html" style="color: var(--color-accent); text-decoration: none; margin-bottom: 2rem; display: inline-block;">
+                    &larr; Back to Opportunities
+                </a>
+
+                <div id="opp-header">
+                    <img src="assets/vero_logo1.png" alt="VeroSeven Logo" style="height: 60px; margin-bottom: 1rem;">
+                    <br>
+                    <div class="badge" style="margin-bottom: 1rem;" id="opp-type">Application</div>
+                    <h2 id="opp-title">Loading Opportunity...</h2>
+                    <p style="margin: 0 auto; color: var(--text-secondary);" id="opp-desc"></p>
+                </div>
+                
+                <div class="glass-panel form-container" id="application-form-container" style="display: none;">
+                    <form id="dynamic-form">
+                        <div id="dynamic-fields-container">
+                            <!-- JS injects form fields here based on DB schema -->
+                        </div>
+                        <button type="submit" class="submit-btn" id="submit-btn">Submit Application</button>
+                    </form>
+                </div>
+
+                <div class="glass-panel form-container text-center" id="loading-container">
+                    <p style="color: var(--text-secondary);">Loading application form...</p>
+                </div>
+                
+                <div class="success-message" id="success-message">
+                    <h3>Application Submitted Successfully</h3>
+                    <p style="margin: 0 auto;">Thank you for your application. Our team will review your submission and get back to you shortly.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const oppId = urlParams.get('id');
+            const apiHost = window.location.hostname || 'localhost';
+
+            if (!oppId) {
+                document.getElementById('opp-title').textContent = 'Opportunity Not Found';
+                document.getElementById('loading-container').innerHTML = '<p style="color: red;">No opportunity ID provided.</p>';
+                return;
+            }
+
+            try {
+                // Fetch opportunity details
+                const res = await fetch(`http://${apiHost}:3001/api/opportunities/${oppId}`);
+                if (!res.ok) throw new Error('Failed to fetch opportunity');
+                
+                const opp = await res.json();
+
+                // Update UI headers
+                document.getElementById('opp-title').textContent = 'Apply for ' + opp.title;
+                document.getElementById('opp-desc').textContent = opp.description || 'Please complete this form to apply.';
+                document.getElementById('opp-type').textContent = opp.type || 'Application';
+
+                // Check status
+                if (opp.status !== 'active') {
+                    document.getElementById('loading-container').innerHTML = '<p style="color: red;">This opportunity is currently closed and no longer accepting applications.</p>';
+                    return;
+                }
+
+                // Render form fields
+                const fieldsContainer = document.getElementById('dynamic-fields-container');
+                let formHtml = '';
+
+                // Fallback to basic fields if form_fields is empty
+                let fields = opp.form_fields && opp.form_fields.length > 0 
+                    ? opp.form_fields 
+                    : [
+                        { name: 'full_name', label: 'Full Name', type: 'text', required: true },
+                        { name: 'email', label: 'Email Address', type: 'email', required: true },
+                        { name: 'phone_number', label: 'Phone Number', type: 'tel', required: true },
+                        { name: 'resume_link', label: 'Link to Resume/CV (URL)', type: 'url', required: true }
+                    ];
+
+                fields.forEach(field => {
+                    formHtml += `
+                        <div class="form-group">
+                            <label>${field.label} ${field.required ? '*' : ''}</label>
+                            ${field.type === 'textarea' 
+                                ? `<textarea name="${field.name}" rows="${field.rows || 3}" ${field.required ? 'required' : ''}></textarea>`
+                                : field.type === 'select' && field.options
+                                    ? `<select name="${field.name}" ${field.required ? 'required' : ''}>
+                                         <option value="" disabled selected>Select an option</option>
+                                         ${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                                       </select>`
+                                    : `<input type="${field.type || 'text'}" name="${field.name}" ${field.required ? 'required' : ''}>`
+                            }
+                        </div>
+                    `;
+                });
+
+                fieldsContainer.innerHTML = formHtml;
+                
+                document.getElementById('loading-container').style.display = 'none';
+                document.getElementById('application-form-container').style.display = 'block';
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('opp-title').textContent = 'Error Loading Form';
+                document.getElementById('loading-container').innerHTML = '<p style="color: red;">Could not load opportunity details. Please try again later.</p>';
+            }
+
+            // Handle submission
+            document.getElementById('dynamic-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('submit-btn');
+                btn.textContent = 'Submitting...';
+                btn.disabled = true;
+
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                
+                const payload = {
+                    opportunity_id: parseInt(oppId),
+                    form_data: data
+                };
+
+                // Standard field extraction for backward compatibility if present in the dynamic form
+                if (data.full_name) payload.full_name = data.full_name;
+                if (data.email) payload.email = data.email;
+                if (data.phone_number) payload.phone_number = data.phone_number;
+                if (data.location) payload.location = data.location;
+                if (data.occupation) payload.occupation = data.occupation;
+
+                try {
+                    const response = await fetch(`http://${apiHost}:3001/api/applications`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        document.getElementById('application-form-container').style.display = 'none';
+                        document.getElementById('success-message').style.display = 'block';
+                        document.getElementById('opp-header').style.display = 'none';
+                    } else {
+                        const errText = await response.text();
+                        alert('Error submitting application: ' + errText);
+                        btn.textContent = 'Submit Application';
+                        btn.disabled = false;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Could not connect to the server. Please check your connection.');
+                    btn.textContent = 'Submit Application';
+                    btn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
