@@ -375,24 +375,12 @@
   .dashboard-container {
     flex-direction: column;
   }
-  .sidebar {
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-    padding: 1rem;
-  }
+  
   .brand {
     margin-bottom: 1rem;
   }
-  .nav-menu {
-    flex-direction: row;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-  }
-  .nav-item {
-    white-space: nowrap;
-  }
+  
+  
   .topbar {
     padding: 0 1rem;
   }
