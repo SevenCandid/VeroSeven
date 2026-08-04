@@ -8,7 +8,7 @@ const Topbar = ({ setIsMobileSidebarOpen }) => {
         <button className="mobile-menu-btn" onClick={() => setIsMobileSidebarOpen(true)}>
           <Menu size={24} />
         </button>
-        VeroSeven Platform Admin
+        VeroSeven HQ
       </div>
       <div className="user-profile">
         <div className="avatar">A</div>
