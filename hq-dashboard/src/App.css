@@ -466,3 +466,12 @@
     display: block;
   }
 }
+
+.topbar-logo {
+  display: none;
+}
+@media (max-width: 768px) {
+  .topbar-logo {
+    display: block;
+  }
+}

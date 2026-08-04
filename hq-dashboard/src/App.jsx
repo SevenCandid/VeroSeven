@@ -783,7 +783,7 @@ function App() {
 
       {/* Main Content Area */}
       <main className="main-content">
-        <Topbar setIsMobileSidebarOpen={setIsMobileSidebarOpen} />
+        <Topbar setIsMobileSidebarOpen={setIsMobileSidebarOpen} logoUrl={logoUrl} />
 
         <div className="dashboard-content">
           <h1 className="page-title">
