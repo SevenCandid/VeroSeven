@@ -1,26 +1,34 @@
 import React from 'react';
-import { LogOut } from 'lucide-react';
+import { LogOut, X } from 'lucide-react';
 import { removeToken } from '../auth';
 
-const Sidebar = ({ logoUrl, activeTab, setActiveTab, setIsAuth }) => {
+const Sidebar = ({ logoUrl, activeTab, setActiveTab, setIsAuth, isMobileOpen, setIsMobileOpen }) => {
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    setIsMobileOpen(false);
+  };
+
   return (
-    <aside className="sidebar">
-      <div className="brand">
+    <aside className={`sidebar ${isMobileOpen ? 'open' : ''}`}>
+      <div className="brand" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         <img src={logoUrl} alt="VeroSeven Logo" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
         <span>VeroSeven HQ</span>
+        </div>
+        <button className="mobile-menu-btn" onClick={() => setIsMobileOpen(false)}><X size={24} /></button>
       </div>
       
       <ul className="nav-menu">
-        <li className={`nav-item ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>Overview</li>
-        <li className={`nav-item ${activeTab === 'projects' ? 'active' : ''}`} onClick={() => setActiveTab('projects')}>Projects</li>
-        <li className={`nav-item ${activeTab === 'applications' ? 'active' : ''}`} onClick={() => setActiveTab('applications')}>Applications</li>
-        <li className={`nav-item ${activeTab === 'team' ? 'active' : ''}`} onClick={() => setActiveTab('team')}>Team</li>
-        <li className={`nav-item ${activeTab === 'admin-hub' ? 'active' : ''}`} onClick={() => setActiveTab('admin-hub')}>Admin Hub</li>
-        <li className={`nav-item ${activeTab === 'updates' ? 'active' : ''}`} onClick={() => setActiveTab('updates')}>Updates</li>
-        <li className={`nav-item ${activeTab === 'opportunities' ? 'active' : ''}`} onClick={() => setActiveTab('opportunities')}>Opportunities</li>
-        <li className={`nav-item ${activeTab === 'cms' ? 'active' : ''}`} onClick={() => setActiveTab('cms')}>CMS Content</li>
-        <li className={`nav-item ${activeTab === 'cms-flagship' ? 'active' : ''}`} onClick={() => setActiveTab('cms-flagship')}>Flagship Product</li>
-        <li className={`nav-item ${activeTab === 'activity' ? 'active' : ''}`} onClick={() => setActiveTab('activity')}>Activity Logs</li>
+        <li className={`nav-item ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => handleTabClick('overview')}>Overview</li>
+        <li className={`nav-item ${activeTab === 'projects' ? 'active' : ''}`} onClick={() => handleTabClick('projects')}>Projects</li>
+        <li className={`nav-item ${activeTab === 'applications' ? 'active' : ''}`} onClick={() => handleTabClick('applications')}>Applications</li>
+        <li className={`nav-item ${activeTab === 'team' ? 'active' : ''}`} onClick={() => handleTabClick('team')}>Team</li>
+        <li className={`nav-item ${activeTab === 'admin-hub' ? 'active' : ''}`} onClick={() => handleTabClick('admin-hub')}>Admin Hub</li>
+        <li className={`nav-item ${activeTab === 'updates' ? 'active' : ''}`} onClick={() => handleTabClick('updates')}>Updates</li>
+        <li className={`nav-item ${activeTab === 'opportunities' ? 'active' : ''}`} onClick={() => handleTabClick('opportunities')}>Opportunities</li>
+        <li className={`nav-item ${activeTab === 'cms' ? 'active' : ''}`} onClick={() => handleTabClick('cms')}>CMS Content</li>
+        <li className={`nav-item ${activeTab === 'cms-flagship' ? 'active' : ''}`} onClick={() => handleTabClick('cms-flagship')}>Flagship Product</li>
+        <li className={`nav-item ${activeTab === 'activity' ? 'active' : ''}`} onClick={() => handleTabClick('activity')}>Activity Logs</li>
       </ul>
       <div style={{ marginTop: 'auto', padding: '1rem', borderTop: '1px solid var(--border-color)' }}>
         <button 

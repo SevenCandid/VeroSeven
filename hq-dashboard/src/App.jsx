@@ -12,6 +12,7 @@ import { Globe, Settings, BookOpen, Pencil, Trash2, LogOut, Plus, Search, Extern
 function App() {
   const [isAuth, setIsAuth] = useState(isAuthenticated());
   const [activeTab, setActiveTab] = useState('overview');
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [applications, setApplications] = useState([]);
   const [projects, setProjects] = useState([]);
   const [updates, setUpdates] = useState([]);
@@ -777,11 +778,12 @@ function App() {
       )}
 
       {/* Sidebar */}
-      <Sidebar logoUrl={logoUrl} activeTab={activeTab} setActiveTab={setActiveTab} setIsAuth={setIsAuth} />
+      <Sidebar logoUrl={logoUrl} activeTab={activeTab} setActiveTab={setActiveTab} setIsAuth={setIsAuth} isMobileOpen={isMobileSidebarOpen} setIsMobileOpen={setIsMobileSidebarOpen} />
+      <div className={`sidebar-overlay ${isMobileSidebarOpen ? 'open' : ''}`} onClick={() => setIsMobileSidebarOpen(false)}></div>
 
       {/* Main Content Area */}
       <main className="main-content">
-        <Topbar />
+        <Topbar setIsMobileSidebarOpen={setIsMobileSidebarOpen} />
 
         <div className="dashboard-content">
           <h1 className="page-title">
