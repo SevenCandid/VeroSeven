@@ -88,49 +88,49 @@
                     <form id="interest-form">
                         <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                             <div class="form-group">
-                                <label>Full Name *</label>
-                                <input type="text" name="full_name" required>
+                                <label for="full_name">Full Name *</label>
+                                <input type="text" id="full_name" name="full_name" placeholder="Your full name" required>
                             </div>
                             <div class="form-group">
-                                <label>Phone Number *</label>
-                                <input type="tel" name="phone_number" required>
+                                <label for="phone_number">Phone Number *</label>
+                                <input type="tel" id="phone_number" name="phone_number" placeholder="+1 234 567 8900" required>
                             </div>
                         </div>
 
                         <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                             <div class="form-group">
-                                <label>Email Address *</label>
-                                <input type="email" name="email" required>
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" name="email" placeholder="you@example.com" required>
                             </div>
                             <div class="form-group">
-                                <label>Current Location *</label>
-                                <input type="text" name="location" required>
+                                <label for="location">Current Location *</label>
+                                <input type="text" id="location" name="location" placeholder="City, Country" required>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Current Occupation / Education Status *</label>
-                            <input type="text" name="occupation" required>
+                            <label for="occupation">Current Occupation / Education Status *</label>
+                            <input type="text" id="occupation" name="occupation" placeholder="e.g. Student, Developer, Designer" required>
                         </div>
 
                         <div class="form-group">
-                            <label>Brief Background *</label>
-                            <textarea name="background" rows="3" required></textarea>
+                            <label for="background">Brief Background *</label>
+                            <textarea id="background" name="background" rows="3" placeholder="Tell us a little about yourself" required></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label>Skills and Experience *</label>
-                            <textarea name="skills" rows="3" placeholder="What technical or non-technical skills do you bring?" required></textarea>
+                            <label for="skills">Skills and Experience *</label>
+                            <textarea id="skills" name="skills" rows="3" placeholder="What technical or non-technical skills do you bring?" required></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label>Areas of Contribution *</label>
-                            <textarea name="areas_of_contribution" rows="2" placeholder="How do you envision contributing to the project?" required></textarea>
+                            <label for="areas_of_contribution">Areas of Contribution *</label>
+                            <textarea id="areas_of_contribution" name="areas_of_contribution" rows="2" placeholder="How do you envision contributing to the project?" required></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label>Availability (Hours per week) *</label>
-                            <select name="availability" required>
+                            <label for="availability">Availability (Hours per week) *</label>
+                            <select id="availability" name="availability" required>
                                 <option value="" disabled selected>Select an option</option>
                                 <option value="Less than 10 hours">Less than 10 hours</option>
                                 <option value="10-20 hours">10-20 hours</option>
@@ -140,8 +140,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Why do you want to join? (Motivation) *</label>
-                            <textarea name="motivation" rows="4" required></textarea>
+                            <label for="motivation">Why do you want to join? (Motivation) *</label>
+                            <textarea id="motivation" name="motivation" rows="4" placeholder="Share your motivation for joining VeroSeven" required></textarea>
                         </div>
 
                         <button type="submit" class="submit-btn" id="submit-btn">Submit Application</button>
