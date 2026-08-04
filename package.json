@@ -1,0 +1,7 @@
+{
+  "name": "veroseven-root",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "npm install --prefix hq-dashboard && npm run build --prefix hq-dashboard && rm -rf dist && cp -r marketing-site dist && mkdir -p dist/admin && cp -r hq-dashboard/dist/* dist/admin/"
+  }
+}
