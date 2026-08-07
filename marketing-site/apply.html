@@ -1138,7 +1138,8 @@
                 }
             }
 
-            const parsedId = parseInt(oppId);
+            // Fix UUID truncation: do not parse as integer
+            const opportunity_id_val = oppId;
 
             // Handle areas of contribution logic
             let areasVal = '';
@@ -1160,7 +1161,7 @@
             }
 
             const payload = {
-                opportunity_id: isNaN(parsedId) ? oppId : parsedId,
+                opportunity_id: opportunity_id_val,
                 full_name: fullName,
                 email: email,
                 phone_number: phone,
