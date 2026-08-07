@@ -863,14 +863,20 @@
                 document.getElementById('areas-of-contribution-container').style.display = 'none';
             }
 
+            // Parse applicant config safely
+            let appConfig = opp.applicant_config || {};
+            if (typeof appConfig === 'string') {
+                try { appConfig = JSON.parse(appConfig); } catch(e) { appConfig = {}; }
+            }
+
             // Handle Experience Level
-            const expHidden = opp.applicant_config?.experience_level_hidden === true;
+            const expHidden = appConfig.experience_level_hidden === true;
             if (expHidden) {
                 const expGroup = document.getElementById('experience-level-group');
                 if (expGroup) expGroup.style.display = 'none';
                 document.getElementById('experience_level').removeAttribute('required');
             } else {
-                const expRequired = opp.applicant_config?.experience_level_required !== false;
+                const expRequired = appConfig.experience_level_required !== false;
                 if (!expRequired) {
                     document.getElementById('experience_level').removeAttribute('required');
                     const reqStar = document.querySelector('#experience-level-label .req-star');
@@ -887,7 +893,7 @@
                 document.getElementById('skills-container').style.display = 'none';
                 document.getElementById('skills').removeAttribute('required');
             } else {
-                const isRequired = opp.applicant_config?.skills_required !== false;
+                const isRequired = appConfig.skills_required !== false;
                 if (!isRequired) {
                     document.getElementById('skills').removeAttribute('required');
                     const reqStar = document.querySelector('#skills-label .req-star');
@@ -1053,8 +1059,13 @@
             }
 
             // 2. Professional & Skills Validation
-            const expHidden = currentOpportunity?.applicant_config?.experience_level_hidden === true;
-            const expRequired = currentOpportunity?.applicant_config?.experience_level_required !== false;
+            let submitAppConfig = currentOpportunity?.applicant_config || {};
+            if (typeof submitAppConfig === 'string') {
+                try { submitAppConfig = JSON.parse(submitAppConfig); } catch(e) { submitAppConfig = {}; }
+            }
+
+            const expHidden = submitAppConfig.experience_level_hidden === true;
+            const expRequired = submitAppConfig.experience_level_required !== false;
             
             const experienceLevel = form.experience_level ? form.experience_level.value : '';
             if (!expHidden && expRequired && !experienceLevel) {
@@ -1062,11 +1073,16 @@
                 if (form.experience_level) form.experience_level.classList.add('is-invalid');
             }
 
-            const skills = form.skills ? form.skills.value.trim() : '';
-            const isSkillsRequired = currentOpportunity?.applicant_config?.skills_required !== false && (!Array.isArray(currentOpportunity?.skills) || currentOpportunity?.skills.length > 0);
-            if (isSkillsRequired && !skills) {
-                errors.push('Please specify at least one skill or technology.');
-                if (form.skills) form.skills.classList.add('is-invalid');
+            let skillsList = currentOpportunity?.skills || [];
+            if (!Array.isArray(skillsList) || skillsList.length === 0) {
+                // Not configured, so don't validate
+            } else {
+                const skills = form.skills ? form.skills.value.trim() : '';
+                const isSkillsRequired = submitAppConfig.skills_required !== false;
+                if (isSkillsRequired && !skills) {
+                    errors.push('Please specify at least one skill or technology.');
+                    if (form.skills) form.skills.classList.add('is-invalid');
+                }
             }
 
             const availability = form.availability.value;
@@ -1133,9 +1149,14 @@
                 areasVal = form.areas_of_contribution.value.trim();
             }
 
-            const isAreasRequired = currentOpportunity?.applicant_config?.areas_of_contribution_required === true && (!Array.isArray(currentOpportunity?.areas_of_contribution) || currentOpportunity?.areas_of_contribution.length > 0);
-            if (isAreasRequired && !areasVal) {
-                errors.push('Please select at least one area of contribution.');
+            let areasList = currentOpportunity?.areas_of_contribution || [];
+            if (!Array.isArray(areasList) || areasList.length === 0) {
+                // Not configured, ignore
+            } else {
+                const isAreasRequired = submitAppConfig.areas_of_contribution_required === true;
+                if (isAreasRequired && !areasVal) {
+                    errors.push('Please select at least one area of contribution.');
+                }
             }
 
             const payload = {
