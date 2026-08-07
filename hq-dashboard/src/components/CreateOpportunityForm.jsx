@@ -116,15 +116,15 @@ function CheckGroup({ label, options, selected, setSelected, single }) {
 
 function Toggle({ label, desc, checked, onChange }) {
   return (
-    <label className="toggle-row">
+    <div className="toggle-row" onClick={() => onChange(!checked)} role="button" tabIndex={0} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onChange(!checked); } }}>
       <div>
         <div className="toggle-label">{label}</div>
         {desc && <div className="toggle-desc">{desc}</div>}
       </div>
-      <div className={`toggle-switch ${checked ? 'on' : ''}`} onClick={() => onChange(!checked)}>
+      <div className={`toggle-switch ${checked ? 'on' : ''}`}>
         <div className="toggle-thumb" />
       </div>
-    </label>
+    </div>
   );
 }
 
