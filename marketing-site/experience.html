@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VeroSeven Experience — Empowering the Future</title>
+  <link rel="icon" type="image/png" href="assets/vero_logo_favicon.png" />
+  <meta name="description" content="The VeroSeven Experience is our education and community impact ecosystem. Discover our programs, events, and initiatives." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    .hero-exp {
+      padding: 8rem 0 4rem;
+      background: radial-gradient(circle at center, rgba(212,175,55,0.05) 0%, transparent 60%);
+      text-align: center;
+      position: relative;
+    }
+    .hero-exp h1 {
+      font-size: 3.5rem;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+    .mission-text {
+      font-size: 1.25rem;
+      color: rgba(255,255,255,0.8);
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    
+    .section-title {
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .programs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .program-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all var(--transition-normal);
+      position: relative;
+      overflow: hidden;
+    }
+    .program-card.featured {
+      background: linear-gradient(145deg, var(--color-surface), rgba(212,175,55,0.05));
+      border-color: rgba(212,175,55,0.3);
+    }
+    .program-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--color-accent);
+    }
+    .program-icon {
+      color: var(--color-accent);
+      margin-bottom: 1.5rem;
+    }
+    .program-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .program-status {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .status-active { background: rgba(80, 227, 194, 0.15); color: #50e3c2; }
+    .status-future { background: rgba(255, 255, 255, 0.1); color: rgba(255,255,255,0.7); }
+    
+    /* Roadmap */
+    .roadmap {
+      position: relative;
+      margin-top: 4rem;
+      padding-left: 2rem;
+      border-left: 2px solid rgba(212,175,55,0.2);
+    }
+    .roadmap-item {
+      position: relative;
+      margin-bottom: 3rem;
+    }
+    .roadmap-item::before {
+      content: '';
+      position: absolute;
+      left: -2.45rem;
+      top: 0;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--color-background);
+      border: 3px solid var(--color-accent);
+    }
+    .roadmap-item.completed::before {
+      background: var(--color-accent);
+    }
+    
+    /* Dynamic Sections */
+    .dynamic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .gallery-item {
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 1 / 1;
+      position: relative;
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .gallery-item:hover img {
+      transform: scale(1.05);
+    }
+    .gallery-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 1rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+      color: white;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .gallery-item:hover .gallery-caption {
+      opacity: 1;
+    }
+
+    .testimonial-card {
+      background: rgba(255,255,255,0.03);
+      padding: 2rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="logo">
+        <img src="assets/vero_logo1.png" alt="VEROSEVEN Logo" />
+        VEROSEVEN
+      </a>
+      <div class="nav-links" id="navLinks">
+        <button class="nav-close" id="navClose" aria-label="Close Menu">✕</button>
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="products.html" class="nav-link">Products</a>
+        <a href="ecosystem.html" class="nav-link">Ecosystem</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="updates.html" class="nav-link">Updates</a>
+        <a href="opportunities.html" class="nav-link">Opportunities</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="https://whatsapp.com/channel/0029VbCP2pc2ER6ZSRBTLx2l" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding:0.6rem 1.2rem; font-size:0.9rem;">
+          <svg style="margin-right:6px" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        </a>
+      </div>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-exp">
+    <div class="container">
+      <span class="badge fade-up">Education & Impact Ecosystem</span>
+      <h1 class="fade-up" style="margin-top:1.5rem;">The VeroSeven <span class="text-gold">Experience</span></h1>
+      <p class="mission-text fade-up" style="animation-delay:0.1s;">Empowering the next generation of innovators, developers, and leaders through practical learning, technology competitions, and community mentorship.</p>
+    </div>
+  </section>
+
+  <!-- Programs Overview -->
+  <section class="section" id="programs">
+    <div class="container">
+      <div class="text-center fade-up">
+        <h2 class="section-title">Our Programs</h2>
+        <p style="color:var(--color-accent); font-weight:600; letter-spacing:2px; text-transform:uppercase;">The pillars of our impact</p>
+      </div>
+      
+      <div class="programs-grid">
+        <!-- Digital Challenge (Featured) -->
+        <div class="program-card featured fade-up">
+          <div class="program-icon"><i data-lucide="trophy" style="width:40px; height:40px;"></i></div>
+          <div class="program-status status-active">Active Now</div>
+          <h3 class="program-title">VeroSeven Digital Challenge</h3>
+          <p style="color:rgba(255,255,255,0.7); line-height:1.6;">Our flagship competitive technology event pushing young minds to build innovative digital solutions under pressure.</p>
+        </div>
+
+        <!-- Tech Camp -->
+        <div class="program-card fade-up" style="animation-delay:0.1s;">
+          <div class="program-icon"><i data-lucide="tent" style="width:40px; height:40px;"></i></div>
+          <div class="program-status status-future">Upcoming</div>
+          <h3 class="program-title">Holiday Tech Camp</h3>
+          <p style="color:rgba(255,255,255,0.7); line-height:1.6;">Intensive, immersive holiday sessions designed to transform raw curiosity into practical coding and design skills.</p>
+        </div>
+
+        <!-- VeroSeven Academy -->
+        <div class="program-card fade-up" style="animation-delay:0.2s;">
+          <div class="program-icon"><i data-lucide="graduation-cap" style="width:40px; height:40px;"></i></div>
+          <div class="program-status status-future">In Development</div>
+          <h3 class="program-title">VeroSeven Academy</h3>
+          <p style="color:rgba(255,255,255,0.7); line-height:1.6;">A structured, continuous learning platform providing curriculum-based education for aspiring software engineers.</p>
+        </div>
+
+        <!-- School Tech Clubs -->
+        <div class="program-card fade-up" style="animation-delay:0.3s;">
+          <div class="program-icon"><i data-lucide="school" style="width:40px; height:40px;"></i></div>
+          <div class="program-status status-future">Future Initiative</div>
+          <h3 class="program-title">School Tech Clubs</h3>
+          <p style="color:rgba(255,255,255,0.7); line-height:1.6;">Establishing grassroots technology clubs in high schools to foster early interest in STEM and programming.</p>
+        </div>
+
+        <!-- Mentorship Network -->
+        <div class="program-card fade-up" style="animation-delay:0.4s;">
+          <div class="program-icon"><i data-lucide="users" style="width:40px; height:40px;"></i></div>
+          <div class="program-status status-future">Future Initiative</div>
+          <h3 class="program-title">Mentorship Network</h3>
+          <p style="color:rgba(255,255,255,0.7); line-height:1.6;">Connecting emerging talent with industry veterans for guidance, career planning, and personal development.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Evolution Roadmap -->
+  <section class="section bg-gradient" id="roadmap">
+    <div class="container">
+      <div class="grid grid-2" style="gap:4rem; align-items:center;">
+        <div class="fade-up">
+          <h2 class="section-title">The Evolution</h2>
+          <p style="font-size:1.1rem; line-height:1.6; color:rgba(255,255,255,0.8); margin-bottom:2rem;">We are not just hosting events. We are building a continuous pipeline of talent—from sparking interest in competitions, to deep training in our academy, and finally integrating top minds into the tech industry.</p>
+        </div>
+        <div class="fade-up">
+          <div class="roadmap">
+            <div class="roadmap-item completed">
+              <h4 style="font-size:1.25rem; margin-bottom:0.5rem; color:var(--color-white);">Phase 1: Spark Curiosity</h4>
+              <p style="color:rgba(255,255,255,0.7); font-size:0.9rem;">Launch of the VeroSeven Digital Challenge to identify talent and inspire innovation.</p>
+            </div>
+            <div class="roadmap-item">
+              <h4 style="font-size:1.25rem; margin-bottom:0.5rem; color:var(--color-white);">Phase 2: Foster Skills</h4>
+              <p style="color:rgba(255,255,255,0.7); font-size:0.9rem;">Introduction of Holiday Tech Camps and School Tech Clubs for foundational training.</p>
+            </div>
+            <div class="roadmap-item">
+              <h4 style="font-size:1.25rem; margin-bottom:0.5rem; color:var(--color-white);">Phase 3: Formal Education</h4>
+              <p style="color:rgba(255,255,255,0.7); font-size:0.9rem;">Establishment of the VeroSeven Academy for rigorous, industry-standard software engineering curriculum.</p>
+            </div>
+            <div class="roadmap-item">
+              <h4 style="font-size:1.25rem; margin-bottom:0.5rem; color:var(--color-white);">Phase 4: Industry Integration</h4>
+              <p style="color:rgba(255,255,255,0.7); font-size:0.9rem;">The Mentorship Network and direct integration into VeroSeven Labs or partner tech firms.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dynamic Content: Events & Updates -->
+  <section class="section" id="happenings">
+    <div class="container">
+      <div class="grid grid-2" style="gap:4rem;">
+        
+        <!-- Upcoming Events -->
+        <div class="fade-up">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+            <h3 class="section-title" style="font-size:1.75rem;">Upcoming Events</h3>
+            <i data-lucide="calendar" style="color:var(--color-accent);"></i>
+          </div>
+          <div id="events-container" class="dynamic-container" style="display:flex; flex-direction:column; gap:1rem;">
+            <div class="loading-pulse" style="height:100px; border-radius:12px;"></div>
+            <div class="loading-pulse" style="height:100px; border-radius:12px;"></div>
+          </div>
+        </div>
+
+        <!-- Latest Impact Updates -->
+        <div class="fade-up" style="animation-delay:0.1s;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+            <h3 class="section-title" style="font-size:1.75rem;">Impact Updates</h3>
+            <i data-lucide="bell" style="color:var(--color-accent);"></i>
+          </div>
+          <div id="updates-container" class="dynamic-container" style="display:flex; flex-direction:column; gap:1rem;">
+            <div class="loading-pulse" style="height:100px; border-radius:12px;"></div>
+            <div class="loading-pulse" style="height:100px; border-radius:12px;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Dynamic Content: Tech Moments Gallery -->
+  <section class="section bg-gradient" id="gallery">
+    <div class="container">
+      <div class="text-center fade-up">
+        <h2 class="section-title">Tech Moments</h2>
+        <p style="color:var(--color-accent); font-weight:600; letter-spacing:2px; text-transform:uppercase;">Visuals from our programs</p>
+      </div>
+      <div id="gallery-container" class="gallery-grid fade-up" style="animation-delay:0.2s;">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Dynamic Content: Testimonials -->
+  <section class="section" id="testimonials">
+    <div class="container">
+      <div class="text-center fade-up">
+        <h2 class="section-title">Voices of Impact</h2>
+        <p style="color:rgba(255,255,255,0.7); margin-top:0.5rem;">What participants and partners say about the Experience</p>
+      </div>
+      <div id="testimonials-container" class="dynamic-grid fade-up" style="animation-delay:0.2s;">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="section text-center" style="padding: 6rem 0; border-top: 1px solid rgba(255,255,255,0.05);">
+    <div class="container fade-up">
+      <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Join the Movement</h2>
+      <p style="font-size: 1.1rem; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto 2rem;">Whether you want to participate, volunteer, or partner with us—there's a place for you in the VeroSeven Experience.</p>
+      <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
+        <a href="opportunities.html" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1rem;">Become a Volunteer</a>
+        <a href="contact.html" class="btn btn-outline" style="padding: 1rem 2rem; font-size: 1rem;">Partner With Us</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo" style="font-size:1.25rem; margin-bottom:0.75rem;">
+            <img src="assets/vero_logo1.png" alt="VEROSEVEN Logo" />
+            VEROSEVEN
+          </div>
+          <p class="footer-tagline">Authentic Innovation. Limitless Possibilities.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="ecosystem.html">Ecosystem</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="updates.html">Updates</a></li>
+            <li><a href="opportunities.html">Opportunities</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 VEROSEVEN. All Rights Reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/experience.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

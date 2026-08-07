@@ -1107,6 +1107,156 @@ app.delete('/api/admin/opportunities/:id', async (req, res) => {
 });
 
 // ==========================================
+// VeroSeven Experience Ecosystem Routes
+// ==========================================
+
+// --- Events ---
+app.get('/api/events', async (req, res) => {
+  try {
+    const result = await db.query("SELECT * FROM events ORDER BY event_date ASC");
+    res.json(result.rows);
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+app.post('/api/admin/events', async (req, res) => {
+  try {
+    const { title, event_date, location, type, description, image_url, status } = req.body;
+    const result = await db.query(
+      `INSERT INTO events (title, event_date, location, type, description, image_url, status) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [title, event_date || null, location || '', type || '', description || '', image_url || '', status || 'upcoming']
+    );
+    await logActivity('Created Event', 'Event', result.rows[0].id, { title });
+    res.status(201).json(result.rows[0]);
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+app.put('/api/admin/events/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, event_date, location, type, description, image_url, status } = req.body;
+    const result = await db.query(
+      `UPDATE events SET title=$1, event_date=$2, location=$3, type=$4, description=$5, image_url=$6, status=$7, updated_at=CURRENT_TIMESTAMP WHERE id=$8 RETURNING *`,
+      [title, event_date || null, location || '', type || '', description || '', image_url || '', status || 'upcoming', id]
+    );
+    await logActivity('Updated Event', 'Event', id, { title });
+    res.json(result.rows[0]);
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+app.delete('/api/admin/events/:id', async (req, res) => {
+  try {
+    await db.query('DELETE FROM events WHERE id=$1', [req.params.id]);
+    await logActivity('Deleted Event', 'Event', req.params.id);
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+// --- Testimonials ---
+app.get('/api/testimonials', async (req, res) => {
+  try {
+    const result = await db.query("SELECT * FROM testimonials ORDER BY created_at DESC");
+    res.json(result.rows);
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+app.post('/api/admin/testimonials', async (req, res) => {
+  try {
+    const { author_name, role, content, avatar_url, program } = req.body;
+    const result = await db.query(
+      `INSERT INTO testimonials (author_name, role, content, avatar_url, program) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [author_name, role || '', content, avatar_url || '', program || '']
+    );
+    await logActivity('Created Testimonial', 'Testimonial', result.rows[0].id, { author_name });
+    res.status(201).json(result.rows[0]);
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+app.put('/api/admin/testimonials/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { author_name, role, content, avatar_url, program } = req.body;
+    const result = await db.query(
+      `UPDATE testimonials SET author_name=$1, role=$2, content=$3, avatar_url=$4, program=$5, updated_at=CURRENT_TIMESTAMP WHERE id=$6 RETURNING *`,
+      [author_name, role || '', content, avatar_url || '', program || '', id]
+    );
+    res.json(result.rows[0]);
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+app.delete('/api/admin/testimonials/:id', async (req, res) => {
+  try {
+    await db.query('DELETE FROM testimonials WHERE id=$1', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+// --- Gallery Moments ---
+app.get('/api/gallery', async (req, res) => {
+  try {
+    const result = await db.query("SELECT * FROM gallery ORDER BY created_at DESC");
+    res.json(result.rows);
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+app.post('/api/admin/gallery', async (req, res) => {
+  try {
+    const { image_url, caption, related_program } = req.body;
+    const result = await db.query(
+      `INSERT INTO gallery (image_url, caption, related_program) VALUES ($1, $2, $3) RETURNING *`,
+      [image_url, caption || '', related_program || '']
+    );
+    await logActivity('Added Gallery Image', 'Gallery', result.rows[0].id);
+    res.status(201).json(result.rows[0]);
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+app.delete('/api/admin/gallery/:id', async (req, res) => {
+  try {
+    await db.query('DELETE FROM gallery WHERE id=$1', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+// --- Team Members ---
+app.get('/api/team', async (req, res) => {
+  try {
+    const result = await db.query("SELECT * FROM team_members ORDER BY created_at ASC");
+    res.json(result.rows);
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+app.post('/api/admin/team', async (req, res) => {
+  try {
+    const { name, role, bio, image_url } = req.body;
+    const result = await db.query(
+      `INSERT INTO team_members (name, role, bio, image_url) VALUES ($1, $2, $3, $4) RETURNING *`,
+      [name, role, bio || '', image_url || '']
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+app.put('/api/admin/team/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, role, bio, image_url } = req.body;
+    const result = await db.query(
+      `UPDATE team_members SET name=$1, role=$2, bio=$3, image_url=$4, updated_at=CURRENT_TIMESTAMP WHERE id=$5 RETURNING *`,
+      [name, role, bio || '', image_url || '', id]
+    );
+    res.json(result.rows[0]);
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+app.delete('/api/admin/team/:id', async (req, res) => {
+  try {
+    await db.query('DELETE FROM team_members WHERE id=$1', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+});
+
+// ==========================================
 // Activity Logs Routes
 // ==========================================
 app.get('/api/admin/activity-logs', async (req, res) => {

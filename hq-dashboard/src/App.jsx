@@ -10,6 +10,7 @@ import CreateOpportunityForm from './components/CreateOpportunityForm';
 import OpportunityManagement from './components/OpportunityManager/OpportunityManagement';
 import ApplicationManagement from './components/ApplicationManager/ApplicationManagement';
 import OverviewDashboard from './components/Overview/OverviewDashboard';
+import ExperienceManager from './components/ExperienceManager/ExperienceManager';
 import Toast from './components/Toast';
 import {
   Globe, Settings, BookOpen, Pencil, Trash2, LogOut, Plus, Search, ExternalLink
@@ -1171,6 +1172,13 @@ function App() {
                   {activeTab === 'cms-flagship' && (
                     <div className="cms-container" style={{ padding: '1rem' }}>
                       <CmsFlagship />
+                    </div>
+                  )}
+
+                  {/* EXPERIENCE ECOSYSTEM TAB */}
+                  {activeTab === 'experience' && (
+                    <div style={{ padding: '1rem' }}>
+                      <ExperienceManager apiFetch={apiFetch} showToast={showToast} />
                     </div>
                   )}
                 </div>
