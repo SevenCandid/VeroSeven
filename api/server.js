@@ -789,6 +789,7 @@ const normalizeOpp = (opp) => {
     responsibilities: parseJsonField(opp.responsibilities, []),
     benefits: parseJsonField(opp.benefits, []),
     skills: parseJsonField(opp.skills, []),
+    areas_of_contribution: parseJsonField(opp.areas_of_contribution, []),
     form_fields: parseJsonField(opp.form_fields, []),
     application_count: parseInt(opp.application_count || 0, 10),
     show_on_website: opp.show_on_website !== false,
@@ -859,7 +860,7 @@ app.post('/api/admin/opportunities', async (req, res) => {
     const {
       title, summary, description, requirements, type, category, categories, status, featured,
       location_type, location, duration, weekly_commitment, positions, deadline, start_date,
-      responsibilities, benefits, skills, form_fields,
+      responsibilities, benefits, skills, areas_of_contribution, form_fields,
       publish_immediately, accept_applications, show_on_website, featured_on_homepage
     } = req.body;
 
@@ -876,10 +877,10 @@ app.post('/api/admin/opportunities', async (req, res) => {
       `INSERT INTO opportunities (
         title, summary, description, requirements, type, category, categories, status, featured,
         location_type, location, duration, weekly_commitment, positions, deadline, start_date,
-        responsibilities, benefits, skills, form_fields,
+        responsibilities, benefits, skills, areas_of_contribution, form_fields,
         publish_immediately, accept_applications, show_on_website, featured_on_homepage
       ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25
       ) RETURNING *`,
       [
         title || 'Untitled Opportunity', 
@@ -901,6 +902,7 @@ app.post('/api/admin/opportunities', async (req, res) => {
         JSON.stringify(responsibilities || []),
         JSON.stringify(benefits || []),
         JSON.stringify(skills || []),
+        JSON.stringify(areas_of_contribution || []),
         JSON.stringify(form_fields || []),
         publish_immediately || false,
         accept_applications !== false,
@@ -923,7 +925,7 @@ app.put('/api/admin/opportunities/:id', async (req, res) => {
     const {
       title, summary, description, requirements, type, category, categories, status, featured,
       location_type, location, duration, weekly_commitment, positions, deadline, start_date,
-      responsibilities, benefits, skills, form_fields,
+      responsibilities, benefits, skills, areas_of_contribution, form_fields,
       publish_immediately, accept_applications, show_on_website, featured_on_homepage
     } = req.body;
 
@@ -941,10 +943,10 @@ app.put('/api/admin/opportunities/:id', async (req, res) => {
         title=$1, summary=$2, description=$3, requirements=$4, type=$5, category=$6, categories=$7,
         status=$8, featured=$9, location_type=$10, location=$11, duration=$12,
         weekly_commitment=$13, positions=$14, deadline=$15, start_date=$16,
-        responsibilities=$17, benefits=$18, skills=$19, form_fields=$20,
-        publish_immediately=$21, accept_applications=$22, show_on_website=$23,
-        featured_on_homepage=$24, updated_at=CURRENT_TIMESTAMP
-      WHERE id=$25 RETURNING *`,
+        responsibilities=$17, benefits=$18, skills=$19, areas_of_contribution=$20, form_fields=$21,
+        publish_immediately=$22, accept_applications=$23, show_on_website=$24,
+        featured_on_homepage=$25, updated_at=CURRENT_TIMESTAMP
+      WHERE id=$26 RETURNING *`,
       [
         title || 'Untitled Opportunity', 
         summary || '', 
@@ -965,6 +967,7 @@ app.put('/api/admin/opportunities/:id', async (req, res) => {
         JSON.stringify(responsibilities || []), 
         JSON.stringify(benefits || []), 
         JSON.stringify(skills || []), 
+        JSON.stringify(areas_of_contribution || []),
         JSON.stringify(form_fields || []),
         publish_immediately || false, 
         accept_applications !== false, 
@@ -1002,10 +1005,10 @@ app.post('/api/admin/opportunities/:id/duplicate', async (req, res) => {
       `INSERT INTO opportunities (
         title, summary, description, requirements, type, category, categories, status, featured,
         location_type, location, duration, weekly_commitment, positions, deadline, start_date,
-        responsibilities, benefits, skills, form_fields,
+        responsibilities, benefits, skills, areas_of_contribution, form_fields,
         publish_immediately, accept_applications, show_on_website, featured_on_homepage
       ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25
       ) RETURNING *`,
       [
         newTitle,
@@ -1027,6 +1030,7 @@ app.post('/api/admin/opportunities/:id/duplicate', async (req, res) => {
         typeof src.responsibilities === 'object' ? JSON.stringify(src.responsibilities) : (src.responsibilities || '[]'),
         typeof src.benefits === 'object' ? JSON.stringify(src.benefits) : (src.benefits || '[]'),
         typeof src.skills === 'object' ? JSON.stringify(src.skills) : (src.skills || '[]'),
+        typeof src.areas_of_contribution === 'object' ? JSON.stringify(src.areas_of_contribution) : (src.areas_of_contribution || '[]'),
         typeof src.form_fields === 'object' ? JSON.stringify(src.form_fields) : (src.form_fields || '[]'),
         false,
         true,

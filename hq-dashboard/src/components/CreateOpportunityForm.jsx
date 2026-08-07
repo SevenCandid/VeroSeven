@@ -437,7 +437,7 @@ function FormBuilder({ fields, setFields }) {
 // ─── Live Preview ─────────────────────────────────────────────────────────────
 function LivePreview({ data }) {
   const { title, summary, description, type, category, categories, location_type, location, duration, weekly_commitment,
-    requirements, responsibilities, benefits, skills, status, positions, deadline, start_date, featured } = data;
+    requirements, responsibilities, benefits, skills, areas_of_contribution, status, positions, deadline, start_date, featured } = data;
 
   const displayCategories = Array.isArray(categories) && categories.length > 0
     ? categories
@@ -505,6 +505,14 @@ function LivePreview({ data }) {
             <h3>Skills</h3>
             <div className="preview-skills">
               {(Array.isArray(skills) ? skills : []).map(s => <span key={s} className="preview-skill">{s}</span>)}
+            </div>
+          </div>
+        )}
+        {areas_of_contribution && areas_of_contribution.length > 0 && (
+          <div className="preview-section">
+            <h3>Areas of Contribution</h3>
+            <div className="preview-skills">
+              {(Array.isArray(areas_of_contribution) ? areas_of_contribution : []).map(s => <span key={s} className="preview-skill">{s}</span>)}
             </div>
           </div>
         )}
@@ -585,6 +593,13 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
     try { return JSON.parse(raw); } catch { return []; }
   });
 
+  const [areasOfContribution, setAreasOfContribution] = useState(() => {
+    const raw = initial?.areas_of_contribution;
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    try { return JSON.parse(raw); } catch { return []; }
+  });
+
   // ── Section 7: Visibility
   const [publishNow, setPublishNow]       = useState(initial?.publish_immediately || false);
   const [acceptApps, setAcceptApps]       = useState(initial?.accept_applications !== false);
@@ -623,6 +638,7 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
     responsibilities: JSON.stringify(responsibilities.map(r => r.value)),
     benefits: JSON.stringify(benefits.map(b => b.value)),
     skills,
+    areas_of_contribution: areasOfContribution,
     form_fields: formFields.map(({ id, ...rest }) => rest),
     publish_immediately: publishNow,
     accept_applications: acceptApps,
@@ -647,7 +663,7 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
     title, summary, description,
     type, category: categories[0] || '', categories, location_type: locationType[0], location,
     duration: duration[0], weekly_commitment: weeklyCommit[0],
-    requirements, responsibilities, benefits, skills,
+    requirements, responsibilities, benefits, skills, areas_of_contribution: areasOfContribution,
     status: status[0], positions, deadline, start_date: startDate, featured
   };
 
@@ -720,7 +736,24 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
               </div>
             )}
             <CheckGroup label="Duration" options={DURATIONS} selected={duration} setSelected={setDuration} single />
-            <CheckGroup label="Weekly Commitment" options={WEEKLY_COMMITS} selected={weeklyCommit} setSelected={setWeekly} single />
+            <div className="opp-field">
+              <label className="opp-label">Weekly Commitment</label>
+              <div className="check-group">
+                {WEEKLY_COMMITS.map(opt => (
+                  <button
+                    key={opt} type="button"
+                    className={`check-chip ${(weeklyCommit[0] || '') === opt ? 'active' : ''}`}
+                    onClick={() => setWeekly([opt])}
+                  >
+                    {(weeklyCommit[0] || '') === opt && <Check size={11} />} {opt}
+                  </button>
+                ))}
+              </div>
+              <input className="opp-input" style={{ marginTop: '0.5rem' }} type="text" 
+                value={WEEKLY_COMMITS.includes(weeklyCommit[0] || '') ? '' : (weeklyCommit[0] || '')}
+                onChange={e => setWeekly([e.target.value])}
+                placeholder="Or type a custom commitment (e.g. Flexible)" />
+            </div>
             <div className="opp-grid-2">
               <div className="opp-field">
                 <label className="opp-label">Number of Positions (optional)</label>
@@ -796,6 +829,18 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
               setSelected={setSkills}
               suggestions={SKILL_SUGGESTIONS}
             />
+          </Section>
+
+          <Section title="Areas of Contribution" icon="🎯">
+            <TagsInput
+              label="Available Areas of Contribution"
+              selected={areasOfContribution}
+              setSelected={setAreasOfContribution}
+              suggestions={['Marketing', 'Design', 'Community Management', 'Content Writing', 'Business Development', 'Strategy', 'Quality Assurance']}
+            />
+            <div className="field-help" style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>
+              Add areas of contribution for opportunities that don't require specific technical skills.
+            </div>
           </Section>
 
           {/* S7: Visibility */}

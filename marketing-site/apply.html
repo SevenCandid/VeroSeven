@@ -633,8 +633,8 @@
                                 <option value="Full-time">Full-time</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="areas_of_contribution">Primary Area of Contribution</label>
+                        <div class="form-group" id="areas-of-contribution-container">
+                            <label for="areas_of_contribution">Areas of Contribution</label>
                             <input type="text" id="areas_of_contribution" name="areas_of_contribution" class="form-input" placeholder="e.g. Frontend, API Architecture, UI Design">
                         </div>
                     </div>
@@ -822,6 +822,27 @@
 
             if (Array.isArray(customFields) && customFields.length > 0) {
                 renderCustomFields(customFields);
+            }
+
+            // Render Areas of Contribution
+            let areas = opp.areas_of_contribution;
+            if (typeof areas === 'string') {
+                try { areas = JSON.parse(areas); } catch(e) { areas = []; }
+            }
+            if (Array.isArray(areas) && areas.length > 0) {
+                const areasContainer = document.getElementById('areas-of-contribution-container');
+                let html = `<label>Areas of Contribution <span class="req-star">*</span></label>`;
+                html += `<div class="checkbox-group" style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">`;
+                areas.forEach(area => {
+                    html += `
+                        <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" name="areas_of_contribution_cb" value="${area}" style="width: 16px; height: 16px;">
+                            ${area}
+                        </label>
+                    `;
+                });
+                html += `</div>`;
+                areasContainer.innerHTML = html;
             }
 
             if (window.lucide) window.lucide.createIcons();
@@ -1045,6 +1066,15 @@
 
             const parsedId = parseInt(oppId);
 
+            // Handle areas of contribution logic
+            let areasVal = '';
+            const cbNodes = document.querySelectorAll('input[name="areas_of_contribution_cb"]:checked');
+            if (cbNodes.length > 0) {
+                areasVal = Array.from(cbNodes).map(cb => cb.value).join(', ');
+            } else if (form.areas_of_contribution) {
+                areasVal = form.areas_of_contribution.value.trim();
+            }
+
             const payload = {
                 opportunity_id: isNaN(parsedId) ? oppId : parsedId,
                 full_name: fullName,
@@ -1057,7 +1087,7 @@
                 institution: form.institution.value.trim(),
                 skills: skills,
                 availability: availability,
-                areas_of_contribution: form.areas_of_contribution.value.trim(),
+                areas_of_contribution: areasVal,
                 portfolio_url: form.portfolio_url.value.trim(),
                 resume_url: form.resume_url.value.trim(),
                 motivation: motivation,
