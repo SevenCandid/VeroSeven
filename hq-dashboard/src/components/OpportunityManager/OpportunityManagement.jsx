@@ -612,13 +612,16 @@ export default function OpportunityManagement({
                 const daysLeft = getDaysRemaining(opp.deadline);
 
                 return (
-                  <tr key={opp.id}>
+                  <tr key={opp.id} className="opp-table-row">
                     {/* Title & Summary */}
-                    <td className="col-title">
+                    <td className="col-title" data-label="Opportunity">
                       <div className="opp-table-title-group">
                         <div className="opp-title-row">
                           <strong className="opp-title-text" onClick={() => onEdit(opp)}>{opp.title}</strong>
                           {opp.featured && <span className="star-icon" title="Featured">⭐</span>}
+                          {opp.status?.toLowerCase() === 'active' && opp.show_on_website !== false && (
+                            <span className="opp-live-pill-sm">Live</span>
+                          )}
                         </div>
                         {opp.summary && (
                           <div className="opp-table-summary">{opp.summary}</div>
@@ -627,15 +630,15 @@ export default function OpportunityManagement({
                     </td>
 
                     {/* Type & Logistics */}
-                    <td>
+                    <td data-label="Type & Mode">
                       <div className="opp-table-type">
-                        <span>{Array.isArray(opp.type) ? opp.type.join(', ') : (opp.type || 'Volunteer')}</span>
-                        <span className="opp-table-loc">{opp.location_type || 'Remote'}</span>
+                        <span className="opp-type-badge-sm">{Array.isArray(opp.type) ? opp.type.join(', ') : (opp.type || 'Volunteer')}</span>
+                        <span className="opp-table-loc">📍 {opp.location_type || 'Remote'}</span>
                       </div>
                     </td>
 
                     {/* Categories */}
-                    <td>
+                    <td data-label="Categories">
                       <div className="opp-table-cats">
                         {cats.length === 0 ? (
                           <span style={{ color: 'var(--text-secondary)' }}>—</span>
@@ -650,12 +653,13 @@ export default function OpportunityManagement({
                     </td>
 
                     {/* Status with quick selector */}
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <td data-label="Status">
+                      <div className="opp-table-status-container">
+                        <span className={`status-dot-indicator status-${(opp.status || 'draft').toLowerCase()}`} />
                         <select
                           value={(opp.status || 'draft').toLowerCase()}
                           onChange={(e) => onStatusChange(opp.id, e.target.value)}
-                          className="opp-status-dropdown-sm"
+                          className={`opp-status-dropdown-sm status-select-${(opp.status || 'draft').toLowerCase()}`}
                         >
                           <option value="draft">Draft</option>
                           <option value="active">Active</option>
@@ -666,7 +670,7 @@ export default function OpportunityManagement({
                     </td>
 
                     {/* Applications */}
-                    <td>
+                    <td data-label="Applicants">
                       <button
                         className="table-apps-pill"
                         onClick={() => onViewApplications && onViewApplications(opp.id)}
@@ -678,26 +682,26 @@ export default function OpportunityManagement({
                     </td>
 
                     {/* Deadline */}
-                    <td>
+                    <td data-label="Deadline">
                       {opp.deadline ? (
                         <div className={`table-deadline ${daysLeft !== null && daysLeft < 0 ? 'expired' : ''}`}>
-                          {new Date(opp.deadline).toLocaleDateString()}
+                          <span>{new Date(opp.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                           {daysLeft !== null && daysLeft >= 0 && daysLeft <= 5 && (
                             <span className="urgent-tag">({daysLeft}d left)</span>
                           )}
                         </div>
                       ) : (
-                        <span style={{ color: 'var(--text-secondary)' }}>Flexible</span>
+                        <span style={{ color: 'var(--text-secondary, #94a3b8)' }}>Flexible</span>
                       )}
                     </td>
 
                     {/* Actions */}
-                    <td style={{ textAlign: 'right' }}>
+                    <td data-label="Actions" className="col-actions">
                       <div className="opp-table-actions">
                         <button
                           className="btn-action-icon"
                           onClick={() => onEdit(opp)}
-                          title="Edit"
+                          title="Edit Opportunity"
                         >
                           <Pencil size={14} />
                         </button>
@@ -720,7 +724,7 @@ export default function OpportunityManagement({
                         <button
                           className="btn-action-icon btn-delete"
                           onClick={() => setOppToDelete(opp)}
-                          title="Delete"
+                          title="Delete Opportunity"
                         >
                           <Trash2 size={14} />
                         </button>
