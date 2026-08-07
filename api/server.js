@@ -13,104 +13,93 @@ app.use(express.json());
 
 // Auto-migration on startup: ensure categories, status, status_history, etc. exist
 (async () => {
-  try {
-    // Opportunities table migrations
-    await db.query(`ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS categories JSONB DEFAULT '[]'::jsonb`);
-    await db.query(`ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS show_on_website BOOLEAN DEFAULT true`);
-    await db.query(`ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'draft'`);
-    await db.query(`ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT false`);
-    await db.query(`ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS responsibilities JSONB DEFAULT '[]'::jsonb`);
-    await db.query(`ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS requirements JSONB DEFAULT '[]'::jsonb`);
-    await db.query(`ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS benefits JSONB DEFAULT '[]'::jsonb`);
-    await db.query(`ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS skills JSONB DEFAULT '[]'::jsonb`);
-    await db.query(`ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS form_fields JSONB DEFAULT '[]'::jsonb`);
-    await db.query(`
-      UPDATE opportunities
-      SET categories = jsonb_build_array(category)
-      WHERE (categories IS NULL OR categories = '[]'::jsonb)
-        AND category IS NOT NULL
-        AND category != ''
-    `);
+  const migrations = [
+    `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS categories JSONB DEFAULT '[]'::jsonb`,
+    `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS show_on_website BOOLEAN DEFAULT true`,
+    `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'draft'`,
+    `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT false`,
+    `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS responsibilities JSONB DEFAULT '[]'::jsonb`,
+    `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS requirements JSONB DEFAULT '[]'::jsonb`,
+    `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS benefits JSONB DEFAULT '[]'::jsonb`,
+    `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS skills JSONB DEFAULT '[]'::jsonb`,
+    `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS form_fields JSONB DEFAULT '[]'::jsonb`,
+    `UPDATE opportunities
+     SET categories = jsonb_build_array(category)
+     WHERE (categories IS NULL OR categories = '[]'::jsonb)
+       AND category IS NOT NULL
+       AND category != ''`,
+    `CREATE TABLE IF NOT EXISTS applicants (
+      id SERIAL PRIMARY KEY,
+      full_name VARCHAR(255) NOT NULL,
+      email VARCHAR(255) UNIQUE,
+      phone_number VARCHAR(100),
+      location VARCHAR(255),
+      occupation VARCHAR(255),
+      portfolio_url TEXT,
+      resume_url TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `ALTER TABLE applications ADD COLUMN IF NOT EXISTS applicant_id INT`,
+    `ALTER TABLE applications ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'submitted'`,
+    `ALTER TABLE applications ADD COLUMN IF NOT EXISTS status_history JSONB DEFAULT '[]'::jsonb`,
+    `ALTER TABLE applications ADD COLUMN IF NOT EXISTS internal_notes TEXT DEFAULT ''`,
+    `ALTER TABLE applications ADD COLUMN IF NOT EXISTS portfolio_url TEXT`,
+    `ALTER TABLE applications ADD COLUMN IF NOT EXISTS resume_url TEXT`,
+    `ALTER TABLE applications ADD COLUMN IF NOT EXISTS experience_level VARCHAR(100)`,
+    `ALTER TABLE applications ADD COLUMN IF NOT EXISTS availability VARCHAR(100)`,
+    `ALTER TABLE applications ADD COLUMN IF NOT EXISTS education VARCHAR(255)`,
+    `ALTER TABLE applications ADD COLUMN IF NOT EXISTS "current_role" VARCHAR(255)`,
+    `ALTER TABLE applications ADD COLUMN IF NOT EXISTS institution VARCHAR(255)`,
+    `ALTER TABLE applications ADD COLUMN IF NOT EXISTS form_data JSONB DEFAULT '{}'::jsonb`,
+    `ALTER TABLE applications ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`,
+    `CREATE TABLE IF NOT EXISTS application_responses (
+      id SERIAL PRIMARY KEY,
+      application_id VARCHAR(255),
+      field_name VARCHAR(255),
+      field_label VARCHAR(255),
+      field_type VARCHAR(100),
+      field_value TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS application_files (
+      id SERIAL PRIMARY KEY,
+      application_id VARCHAR(255),
+      file_name VARCHAR(255),
+      file_url TEXT,
+      file_size INT,
+      file_type VARCHAR(100),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS activity_logs (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      action VARCHAR(255) NOT NULL,
+      entity_type VARCHAR(100) NOT NULL,
+      entity_id VARCHAR(255),
+      details JSONB,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `UPDATE applications 
+     SET status = 'submitted' 
+     WHERE status IS NULL OR status = '' OR status = 'pending'`,
+    `UPDATE applications
+     SET status_history = jsonb_build_array(
+       jsonb_build_object(
+         'status', COALESCE(status, 'submitted'),
+         'timestamp', COALESCE(created_at, CURRENT_TIMESTAMP),
+         'note', 'Application received'
+       )
+     )
+     WHERE status_history IS NULL OR status_history = '[]'::jsonb`
+  ];
 
-    // Applicants table
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS applicants (
-        id SERIAL PRIMARY KEY,
-        full_name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) UNIQUE,
-        phone_number VARCHAR(100),
-        location VARCHAR(255),
-        occupation VARCHAR(255),
-        portfolio_url TEXT,
-        resume_url TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    // Applications table migrations
-    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS applicant_id INT`);
-    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'submitted'`);
-    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS status_history JSONB DEFAULT '[]'::jsonb`);
-    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS internal_notes TEXT DEFAULT ''`);
-    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS portfolio_url TEXT`);
-    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS resume_url TEXT`);
-    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS experience_level VARCHAR(100)`);
-    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS availability VARCHAR(100)`);
-    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS education VARCHAR(255)`);
-    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS current_role VARCHAR(255)`);
-    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS institution VARCHAR(255)`);
-    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS form_data JSONB DEFAULT '{}'::jsonb`);
-    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`);
-
-    // Granular Application Responses table (for dynamic custom questions)
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS application_responses (
-        id SERIAL PRIMARY KEY,
-        application_id INT,
-        field_name VARCHAR(255),
-        field_label VARCHAR(255),
-        field_type VARCHAR(100),
-        field_value TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    // Uploaded / Attached files table
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS application_files (
-        id SERIAL PRIMARY KEY,
-        application_id INT,
-        file_name VARCHAR(255),
-        file_url TEXT,
-        file_size INT,
-        file_type VARCHAR(100),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    // Normalize legacy status values in applications
-    await db.query(`
-      UPDATE applications 
-      SET status = 'submitted' 
-      WHERE status IS NULL OR status = '' OR status = 'pending'
-    `);
-
-    // Backfill empty status_history for legacy applications
-    await db.query(`
-      UPDATE applications
-      SET status_history = jsonb_build_array(
-        jsonb_build_object(
-          'status', COALESCE(status, 'submitted'),
-          'timestamp', COALESCE(created_at, CURRENT_TIMESTAMP),
-          'note', 'Application received'
-        )
-      )
-      WHERE status_history IS NULL OR status_history = '[]'::jsonb
-    `);
-    console.log('Database auto-migrations executed successfully.');
-  } catch (err) {
-    console.log('Database auto-migration note:', err.message);
+  for (const sql of migrations) {
+    try {
+      await db.query(sql);
+    } catch (err) {
+      console.log('Database auto-migration step notice:', err.message);
+    }
   }
+  console.log('Database auto-migrations processed.');
 })();
 
 // Activity Logger Helper
