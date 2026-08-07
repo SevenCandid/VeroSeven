@@ -273,14 +273,22 @@ function TagsInput({ label, selected, setSelected, suggestions }) {
             {t} <button type="button" onClick={() => removeTag(t)}><X size={10} /></button>
           </span>
         ))}
-        <input
-          type="text"
-          className="tags-input"
-          placeholder="Type skill & press Enter…"
-          value={draft}
-          onChange={e => setDraft(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(draft); } }}
-        />
+        <div style={{ display: 'flex', gap: '8px', flex: 1, minWidth: '200px' }}>
+          <input
+            type="text"
+            className="tags-input"
+            style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent' }}
+            placeholder="Type value & press Add…"
+            value={draft}
+            onChange={e => setDraft(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(draft); } }}
+          />
+          {draft.trim() && (
+            <button type="button" className="opp-add-btn" onClick={() => addTag(draft)} style={{ padding: '0.25rem 0.75rem', height: 'auto' }}>
+              <Plus size={14} /> Add
+            </button>
+          )}
+        </div>
       </div>
       <div className="tag-suggestions">
         {suggestions.filter(s => !selected.includes(s)).map(s => (
@@ -749,10 +757,19 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
                   </button>
                 ))}
               </div>
-              <input className="opp-input" style={{ marginTop: '0.5rem' }} type="text" 
-                value={WEEKLY_COMMITS.includes(weeklyCommit[0] || '') ? '' : (weeklyCommit[0] || '')}
-                onChange={e => setWeekly([e.target.value])}
-                placeholder="Or type a custom commitment (e.g. Flexible)" />
+              <div className="dynamic-list-input-row" style={{ marginTop: '0.5rem' }}>
+                <input className="opp-input" type="text" 
+                  value={WEEKLY_COMMITS.includes(weeklyCommit[0] || '') ? '' : (weeklyCommit[0] || '')}
+                  onChange={e => setWeekly([e.target.value])}
+                  placeholder="Or type a custom commitment (e.g. Flexible)" />
+                <button type="button" className="opp-add-btn" onClick={(e) => {
+                  const input = e.currentTarget.previousSibling;
+                  if (input) input.blur();
+                  // Visual feedback could be added here if needed, but it's already saved via onChange
+                }}>
+                  <Check size={14} /> Set
+                </button>
+              </div>
             </div>
             <div className="opp-grid-2">
               <div className="opp-field">
