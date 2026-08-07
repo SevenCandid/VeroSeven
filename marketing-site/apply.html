@@ -177,6 +177,8 @@
                 const res = await fetch(`https://veroseven-api.onrender.com/api/opportunities/${oppId}`);
                 if (!res.ok) throw new Error('Failed to fetch opportunity');
                 
+                const opp = await res.json();
+
                 const backLink = document.getElementById('back-link');
                 if (backLink) backLink.href = `opportunity-details.html?id=${oppId}`;
 
@@ -301,9 +303,10 @@
 
                 const formData = new FormData(e.target);
                 const data = Object.fromEntries(formData.entries());
+                const parsedId = parseInt(oppId);
                 
                 const payload = {
-                    opportunity_id: parseInt(oppId),
+                    opportunity_id: isNaN(parsedId) ? oppId : parsedId,
                     full_name: data.full_name || data.name || '',
                     email: data.email || '',
                     phone_number: data.phone_number || data.phone || '',
