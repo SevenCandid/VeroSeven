@@ -124,6 +124,7 @@
   transition: all 0.18s ease;
   cursor: pointer;
   white-space: nowrap;
+  -webkit-user-select: none;
   user-select: none;
 }
 
