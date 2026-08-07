@@ -23,6 +23,8 @@ app.use(express.json());
     `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS benefits JSONB DEFAULT '[]'::jsonb`,
     `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS skills JSONB DEFAULT '[]'::jsonb`,
     `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS form_fields JSONB DEFAULT '[]'::jsonb`,
+    `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS whatsapp_group_link TEXT`,
+    `ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS whatsapp_channel_link TEXT`,
     `UPDATE opportunities
      SET categories = jsonb_build_array(category)
      WHERE (categories IS NULL OR categories = '[]'::jsonb)
@@ -868,7 +870,8 @@ app.post('/api/admin/opportunities', async (req, res) => {
       title, summary, description, requirements, type, category, categories, status, featured,
       location_type, location, duration, weekly_commitment, positions, deadline, start_date,
       responsibilities, benefits, skills, areas_of_contribution, applicant_config, form_fields,
-      publish_immediately, accept_applications, show_on_website, featured_on_homepage
+      publish_immediately, accept_applications, show_on_website, featured_on_homepage,
+      whatsapp_group_link, whatsapp_channel_link
     } = req.body;
 
     let finalCategories = categories;
@@ -885,9 +888,10 @@ app.post('/api/admin/opportunities', async (req, res) => {
         title, summary, description, requirements, type, category, categories, status, featured,
         location_type, location, duration, weekly_commitment, positions, deadline, start_date,
         responsibilities, benefits, skills, areas_of_contribution, applicant_config, form_fields,
-        publish_immediately, accept_applications, show_on_website, featured_on_homepage
+        publish_immediately, accept_applications, show_on_website, featured_on_homepage,
+        whatsapp_group_link, whatsapp_channel_link
       ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28
       ) RETURNING *`,
       [
         title || 'Untitled Opportunity', 
@@ -915,7 +919,9 @@ app.post('/api/admin/opportunities', async (req, res) => {
         publish_immediately || false,
         accept_applications !== false,
         show_on_website !== false,
-        featured_on_homepage || false
+        featured_on_homepage || false,
+        whatsapp_group_link || null,
+        whatsapp_channel_link || null
       ]
     );
     await logActivity('Created Opportunity', 'Opportunity', result.rows[0].id, { title: result.rows[0].title });
@@ -934,7 +940,8 @@ app.put('/api/admin/opportunities/:id', async (req, res) => {
       title, summary, description, requirements, type, category, categories, status, featured,
       location_type, location, duration, weekly_commitment, positions, deadline, start_date,
       responsibilities, benefits, skills, areas_of_contribution, applicant_config, form_fields,
-      publish_immediately, accept_applications, show_on_website, featured_on_homepage
+      publish_immediately, accept_applications, show_on_website, featured_on_homepage,
+      whatsapp_group_link, whatsapp_channel_link
     } = req.body;
 
     let finalCategories = categories;
@@ -953,8 +960,8 @@ app.put('/api/admin/opportunities/:id', async (req, res) => {
         weekly_commitment=$13, positions=$14, deadline=$15, start_date=$16,
         responsibilities=$17, benefits=$18, skills=$19, areas_of_contribution=$20, applicant_config=$21, form_fields=$22,
         publish_immediately=$23, accept_applications=$24, show_on_website=$25,
-        featured_on_homepage=$26, updated_at=CURRENT_TIMESTAMP
-      WHERE id=$27 RETURNING *`,
+        featured_on_homepage=$26, whatsapp_group_link=$27, whatsapp_channel_link=$28, updated_at=CURRENT_TIMESTAMP
+      WHERE id=$29 RETURNING *`,
       [
         title || 'Untitled Opportunity', 
         summary || '', 
@@ -982,6 +989,8 @@ app.put('/api/admin/opportunities/:id', async (req, res) => {
         accept_applications !== false, 
         show_on_website !== false,
         featured_on_homepage || false,
+        whatsapp_group_link || null,
+        whatsapp_channel_link || null,
         id
       ]
     );

@@ -703,7 +703,7 @@
             <p class="success-msg-text">
                 Your application has been submitted successfully. We will review your application and contact you with the next steps.
             </p>
-            <div class="success-actions">
+            <div class="success-actions" id="success-actions">
                 <a href="opportunities.html" class="btn-nav-action btn-nav-primary">
                     <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Browse Other Roles
                 </a>
@@ -1195,6 +1195,26 @@
                     document.getElementById('application-area').style.display = 'none';
                     document.getElementById('success-card').style.display = 'block';
                     document.getElementById('success-ref-id').textContent = `Reference: ${result.reference_id || 'VS-APP-' + (result.application?.id || 'CONFIRMED')}`;
+                    
+                    // Add WhatsApp links if they exist
+                    const successActions = document.getElementById('success-actions');
+                    if (successActions && currentOpportunity) {
+                        if (currentOpportunity.whatsapp_group_link) {
+                            successActions.insertAdjacentHTML('beforeend', `
+                                <a href="${currentOpportunity.whatsapp_group_link}" target="_blank" rel="noopener noreferrer" class="btn-nav-action btn-nav-primary" style="background: #25D366; color: #fff; border-color: #25D366;">
+                                    <i data-lucide="message-circle" style="width:16px;height:16px;"></i> Join WhatsApp Group
+                                </a>
+                            `);
+                        }
+                        if (currentOpportunity.whatsapp_channel_link) {
+                            successActions.insertAdjacentHTML('beforeend', `
+                                <a href="${currentOpportunity.whatsapp_channel_link}" target="_blank" rel="noopener noreferrer" class="btn-nav-action btn-nav-secondary" style="color: #25D366; border-color: #25D366;">
+                                    <i data-lucide="bell" style="width:16px;height:16px;"></i> Follow WhatsApp Channel
+                                </a>
+                            `);
+                        }
+                    }
+
                     if (window.lucide) window.lucide.createIcons();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {

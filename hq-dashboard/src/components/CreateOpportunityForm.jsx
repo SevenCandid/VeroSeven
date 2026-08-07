@@ -627,6 +627,9 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
   const [showOnSite, setShowOnSite]       = useState(initial?.show_on_website !== false);
   const [featuredHome, setFeaturedHome]   = useState(initial?.featured_on_homepage || false);
 
+  const [whatsappGroupLink, setWhatsappGroupLink] = useState(initial?.whatsapp_group_link || '');
+  const [whatsappChannelLink, setWhatsappChannelLink] = useState(initial?.whatsapp_channel_link || '');
+
   // ── Section 8: Form Builder
   const parseFormFields = (raw) => {
     if (!raw) return [];
@@ -666,6 +669,8 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
     accept_applications: acceptApps,
     show_on_website: showOnSite,
     featured_on_homepage: featuredHome,
+    whatsapp_group_link: whatsappGroupLink,
+    whatsapp_channel_link: whatsappChannelLink
   });
 
   const handleSubmit = async (e, overrideStatus) => {
@@ -686,7 +691,8 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
     type, category: categories[0] || '', categories, location_type: locationType[0], location,
     duration: duration[0], weekly_commitment: weeklyCommit[0],
     requirements, responsibilities, benefits, skills, areas_of_contribution: areasOfContribution,
-    status: status[0], positions, deadline, start_date: startDate, featured
+    status: status[0], positions, deadline, start_date: startDate, featured,
+    whatsapp_group_link: whatsappGroupLink, whatsapp_channel_link: whatsappChannelLink
   };
 
   return (
@@ -908,6 +914,19 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
               <Toggle label="Hide Experience Level" desc="Remove the Experience Level field completely from the form."
                 checked={applicantConfig.experience_level_hidden === true} 
                 onChange={v => setApplicantConfig(prev => ({ ...prev, experience_level_hidden: v }))} />
+            </div>
+          </Section>
+
+          {/* S7.6: Post-Application Links */}
+          <Section title="Post-Application Links" icon="🔗" defaultOpen={false}>
+            <p className="opp-hint">Provide links that applicants can join after applying (shown on the success page).</p>
+            <div className="opp-field" style={{ marginTop: '16px' }}>
+              <label className="opp-label">WhatsApp Group Link</label>
+              <input type="url" className="opp-input" placeholder="https://chat.whatsapp.com/..." value={whatsappGroupLink} onChange={e => setWhatsappGroupLink(e.target.value)} />
+            </div>
+            <div className="opp-field">
+              <label className="opp-label">WhatsApp Channel Link</label>
+              <input type="url" className="opp-input" placeholder="https://whatsapp.com/channel/..." value={whatsappChannelLink} onChange={e => setWhatsappChannelLink(e.target.value)} />
             </div>
           </Section>
 
