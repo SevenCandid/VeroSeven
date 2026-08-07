@@ -5,8 +5,8 @@ import Login from './Login'
 import { isAuthenticated, removeToken, getAuthHeaders } from './auth'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
-
 import CmsFlagship from './components/CmsFlagship';
+import CreateOpportunityForm from './components/CreateOpportunityForm';
 import { Globe, Settings, BookOpen, Pencil, Trash2, LogOut, Plus, Search, ExternalLink } from 'lucide-react';
 
 function App() {
@@ -45,6 +45,8 @@ function App() {
   const [opportunities, setOpportunities] = useState([]);
   const [oppModal, setOppModal] = useState({ show: false, mode: 'create', data: null });
   const [oppToDelete, setOppToDelete] = useState(null);
+  const [showOppForm, setShowOppForm] = useState(false);
+  const [editOppData, setEditOppData] = useState(null);
 
   // New states for Search, Filters, Activity
   const [activityLogs, setActivityLogs] = useState([]);
@@ -361,46 +363,29 @@ function App() {
     }
   };
 
-  const handleSaveOpportunity = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const formFieldsStr = formData.get('form_fields');
-    let parsedFields = [];
+  const handleSaveOpportunity = async (payload) => {
+    const isEdit = !!editOppData?.id;
     try {
-      parsedFields = JSON.parse(formFieldsStr || '[]');
-    } catch (err) {
-      alert("Invalid JSON in Form Fields. Please check format.");
-      return;
-    }
-    const payload = {
-      title: formData.get('title'),
-      description: formData.get('description'),
-      requirements: formData.get('requirements'),
-      type: formData.get('type'),
-      location: formData.get('location'),
-      status: formData.get('status'),
-      form_fields: parsedFields,
-    };
-    
-    try {
-      const url = oppModal.mode === 'create' 
-        ? `https://veroseven-api.onrender.com/api/admin/opportunities`
-        : `https://veroseven-api.onrender.com/api/admin/opportunities/${oppModal.data.id}`;
-      
-      const method = oppModal.mode === 'create' ? 'POST' : 'PUT';
-      
+      const url = isEdit
+        ? `https://veroseven-api.onrender.com/api/admin/opportunities/${editOppData.id}`
+        : `https://veroseven-api.onrender.com/api/admin/opportunities`;
+      const method = isEdit ? 'PUT' : 'POST';
       const res = await apiFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      
       if (res.ok) {
-        setOppModal({ show: false, mode: 'create', data: null });
+        setShowOppForm(false);
+        setEditOppData(null);
         fetchOpportunities();
+      } else {
+        const err = await res.json();
+        alert('Error saving opportunity: ' + (err.message || res.status));
       }
     } catch (err) {
       console.error(err);
+      alert('Network error saving opportunity.');
     }
   };
 
@@ -613,53 +598,16 @@ function App() {
         </div>
       )}
 
-      {/* Opportunity Form Modal */}
-      {oppModal.show && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>{oppModal.mode === 'create' ? 'Create Opportunity' : 'Edit Opportunity'}</h3>
-            <form onSubmit={handleSaveOpportunity}>
-              <div className="detail-group">
-                <label className="detail-label">Title</label>
-                <input type="text" name="title" defaultValue={oppModal.data?.title || ''} required style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'transparent', color: 'white'}} />
-              </div>
-              <div className="detail-group">
-                <label className="detail-label">Description</label>
-                <textarea name="description" defaultValue={oppModal.data?.description || ''} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'transparent', color: 'white'}} rows="2" />
-              </div>
-              <div className="detail-group">
-                <label className="detail-label">Requirements</label>
-                <textarea name="requirements" defaultValue={oppModal.data?.requirements || ''} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'transparent', color: 'white'}} rows="2" />
-              </div>
-              <div className="modal-details-grid">
-                <div className="detail-group">
-                  <label className="detail-label">Type</label>
-                  <input type="text" name="type" defaultValue={oppModal.data?.type || 'Internship'} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'transparent', color: 'white'}} />
-                </div>
-                <div className="detail-group">
-                  <label className="detail-label">Location</label>
-                  <input type="text" name="location" defaultValue={oppModal.data?.location || 'Remote'} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'transparent', color: 'white'}} />
-                </div>
-                <div className="detail-group">
-                  <label className="detail-label">Status</label>
-                  <select name="status" defaultValue={oppModal.data?.status || 'active'} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'transparent', color: 'white'}}>
-                    <option value="active" style={{color: 'black'}}>Active</option>
-                    <option value="closed" style={{color: 'black'}}>Closed</option>
-                  </select>
-                </div>
-              </div>
-              <div className="detail-group" style={{marginTop: '1rem'}}>
-                <label className="detail-label">Dynamic Form Fields (JSON Array)</label>
-                <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem'}}>
-                  Example: <code>[&#123;"name": "github", "label": "GitHub Profile", "type": "url", "required": true&#125;]</code>
-                </p>
-                <textarea name="form_fields" defaultValue={JSON.stringify(oppModal.data?.form_fields || [], null, 2)} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'transparent', color: 'white', fontFamily: 'monospace'}} rows="4" />
-              </div>
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setOppModal({show: false})}>Cancel</button>
-                <button type="submit" className="btn-text">Save</button>
-              </div>
-            </form>
+      {/* Opportunity Full-Page Form */}
+      {showOppForm && (
+        <div className="modal-overlay" style={{ alignItems: 'stretch', padding: 0 }}>
+          <div style={{ width: '100%', height: '100%', overflow: 'auto', background: 'var(--bg-color)' }}>
+            <CreateOpportunityForm
+              initial={editOppData}
+              onSave={handleSaveOpportunity}
+              onCancel={() => { setShowOppForm(false); setEditOppData(null); }}
+              apiFetch={apiFetch}
+            />
           </div>
         </div>
       )}
@@ -1149,8 +1097,11 @@ function App() {
 
           {activeTab === 'opportunities' && (
             <div className="data-table-container">
-              <div style={{ padding: '1rem', display: 'flex', justifyContent: 'flex-end', borderBottom: '1px solid var(--border-color)' }}>
-                <button className="btn-text" onClick={() => setOppModal({ show: true, mode: 'create', data: null })}>
+              <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                <div>
+                  <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{opportunities.length} opportunit{opportunities.length !== 1 ? 'ies' : 'y'}</span>
+                </div>
+                <button className="btn-text" onClick={() => { setEditOppData(null); setShowOppForm(true); }}>
                   <><Plus size={16} style={{marginRight: "4px", verticalAlign: "middle"}} /> Add Opportunity</>
                 </button>
               </div>
@@ -1161,27 +1112,31 @@ function App() {
                       <tr>
                         <th>Title</th>
                         <th>Type</th>
+                        <th>Category</th>
                         <th>Location</th>
                         <th>Status</th>
+                        <th>Featured</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {opportunities.length === 0 ? (
-                        <tr><td colSpan="5" style={{textAlign: 'center'}}>No opportunities yet.</td></tr>
+                        <tr><td colSpan="7" style={{textAlign: 'center'}}>No opportunities yet.</td></tr>
                       ) : (
                         opportunities.map(opp => (
                           <tr key={opp.id}>
-                            <td>{opp.title}</td>
-                            <td>{opp.type}</td>
-                            <td>{opp.location}</td>
+                            <td><strong>{opp.title}</strong>{opp.summary && <div style={{fontSize:'0.73rem',color:'var(--text-secondary)',marginTop:'2px'}}>{opp.summary}</div>}</td>
+                            <td>{Array.isArray(opp.type) ? opp.type.join(', ') : (opp.type || '—')}</td>
+                            <td>{opp.category || '—'}</td>
+                            <td>{opp.location_type || opp.location || '—'}</td>
                             <td>
-                              <span className={`status-badge ${opp.status === 'active' ? 'active' : 'pending'}`}>
+                              <span className={`status-badge ${opp.status === 'active' ? 'active' : opp.status === 'closed' ? 'pending' : 'pending'}`}>
                                 {opp.status}
                               </span>
                             </td>
+                            <td style={{textAlign:'center'}}>{opp.featured ? '⭐' : '—'}</td>
                             <td>
-                              <button className="btn-text" onClick={() => setOppModal({ show: true, mode: 'edit', data: opp })}>
+                              <button className="btn-text" onClick={() => { setEditOppData(opp); setShowOppForm(true); }}>
                                 Edit
                               </button>
                               <button className="btn-icon" onClick={() => setOppToDelete(opp.id)} title="Delete Opportunity">

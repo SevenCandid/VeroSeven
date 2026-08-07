@@ -338,10 +338,36 @@ app.get('/api/admin/opportunities', async (req, res) => {
 
 app.post('/api/admin/opportunities', async (req, res) => {
   try {
-    const { title, description, requirements, type, location, status, form_fields } = req.body;
+    const {
+      title, summary, description, requirements, type, category, status, featured,
+      location_type, location, duration, weekly_commitment, positions, deadline, start_date,
+      responsibilities, benefits, skills, form_fields,
+      publish_immediately, accept_applications, show_on_website, featured_on_homepage
+    } = req.body;
     const result = await db.query(
-      'INSERT INTO opportunities (title, description, requirements, type, location, status, form_fields) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [title, description, requirements, type, location, status, JSON.stringify(form_fields || [])]
+      `INSERT INTO opportunities (
+        title, summary, description, requirements, type, category, status, featured,
+        location_type, location, duration, weekly_commitment, positions, deadline, start_date,
+        responsibilities, benefits, skills, form_fields,
+        publish_immediately, accept_applications, show_on_website, featured_on_homepage
+      ) VALUES (
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23
+      ) RETURNING *`,
+      [
+        title, summary, description, requirements, type, category, status || 'draft', featured || false,
+        location_type || 'Remote', location, duration, weekly_commitment,
+        positions || null,
+        deadline || null,
+        start_date || null,
+        JSON.stringify(responsibilities || []),
+        JSON.stringify(benefits || []),
+        JSON.stringify(skills || []),
+        JSON.stringify(form_fields || []),
+        publish_immediately || false,
+        accept_applications !== false,
+        show_on_website !== false,
+        featured_on_homepage || false
+      ]
     );
     await logActivity('Created Opportunity', 'Opportunity', result.rows[0].id, { title });
     res.status(201).json(result.rows[0]);
@@ -351,13 +377,42 @@ app.post('/api/admin/opportunities', async (req, res) => {
   }
 });
 
+
 app.put('/api/admin/opportunities/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, requirements, type, location, status, form_fields } = req.body;
+    const {
+      title, summary, description, requirements, type, category, status, featured,
+      location_type, location, duration, weekly_commitment, positions, deadline, start_date,
+      responsibilities, benefits, skills, form_fields,
+      publish_immediately, accept_applications, show_on_website, featured_on_homepage
+    } = req.body;
     const result = await db.query(
-      'UPDATE opportunities SET title = $1, description = $2, requirements = $3, type = $4, location = $5, status = $6, form_fields = $7 WHERE id = $8 RETURNING *',
-      [title, description, requirements, type, location, status, JSON.stringify(form_fields || []), id]
+      `UPDATE opportunities SET
+        title=$1, summary=$2, description=$3, requirements=$4, type=$5, category=$6,
+        status=$7, featured=$8, location_type=$9, location=$10, duration=$11,
+        weekly_commitment=$12, positions=$13, deadline=$14, start_date=$15,
+        responsibilities=$16, benefits=$17, skills=$18, form_fields=$19,
+        publish_immediately=$20, accept_applications=$21, show_on_website=$22,
+        featured_on_homepage=$23, updated_at=CURRENT_TIMESTAMP
+      WHERE id=$24 RETURNING *`,
+      [
+        title, summary, description, requirements, type, category,
+        status || 'draft', featured || false,
+        location_type || 'Remote', location, duration, weekly_commitment,
+        positions || null,
+        deadline || null,
+        start_date || null,
+        JSON.stringify(responsibilities || []),
+        JSON.stringify(benefits || []),
+        JSON.stringify(skills || []),
+        JSON.stringify(form_fields || []),
+        publish_immediately || false,
+        accept_applications !== false,
+        show_on_website !== false,
+        featured_on_homepage || false,
+        id
+      ]
     );
     await logActivity('Modified Opportunity', 'Opportunity', id, { title });
     res.status(200).json(result.rows[0]);
