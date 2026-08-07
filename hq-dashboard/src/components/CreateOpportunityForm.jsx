@@ -613,9 +613,12 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
 
   const [applicantConfig, setApplicantConfig] = useState(() => {
     const raw = initial?.applicant_config;
-    if (!raw) return { skills_required: true, areas_of_contribution_required: false };
-    if (typeof raw === 'object') return raw;
-    try { return JSON.parse(raw); } catch { return { skills_required: true, areas_of_contribution_required: false }; }
+    let config = { skills_required: true, areas_of_contribution_required: false, experience_level_required: true, experience_level_hidden: false };
+    if (typeof raw === 'object' && raw !== null) config = { ...config, ...raw };
+    else if (raw) {
+      try { config = { ...config, ...JSON.parse(raw) }; } catch (e) {}
+    }
+    return config;
   });
 
   // ── Section 7: Visibility
@@ -892,6 +895,19 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
                 checked={showOnSite} onChange={setShowOnSite} />
               <Toggle label="Featured on Homepage" desc="Pin this opportunity to the homepage hero"
                 checked={featuredHome} onChange={setFeaturedHome} />
+            </div>
+          </Section>
+
+          {/* S7.5: Applicant Form Options */}
+          <Section title="Applicant Form Options" icon="⚙️" defaultOpen={false}>
+            <p className="opp-hint">Configure which standard fields are required or hidden on the application form.</p>
+            <div className="toggles-stack" style={{ marginTop: '16px' }}>
+              <Toggle label="Experience Level Required" desc="Make the Experience Level field mandatory."
+                checked={applicantConfig.experience_level_required !== false} 
+                onChange={v => setApplicantConfig(prev => ({ ...prev, experience_level_required: v }))} />
+              <Toggle label="Hide Experience Level" desc="Remove the Experience Level field completely from the form."
+                checked={applicantConfig.experience_level_hidden === true} 
+                onChange={v => setApplicantConfig(prev => ({ ...prev, experience_level_hidden: v }))} />
             </div>
           </Section>
 

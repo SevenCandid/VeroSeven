@@ -579,8 +579,8 @@
                     <p class="section-header-subtitle">Tell us about your background, experience level, and current occupation.</p>
 
                     <div class="form-grid-2">
-                        <div class="form-group">
-                            <label for="experience_level">Experience Level <span class="req-star">*</span></label>
+                        <div class="form-group" id="experience-level-group">
+                            <label for="experience_level" id="experience-level-label">Experience Level <span class="req-star">*</span></label>
                             <select id="experience_level" name="experience_level" class="form-select" required>
                                 <option value="">Select your experience level...</option>
                                 <option value="Beginner / Student">Beginner / Student</option>
@@ -863,6 +863,21 @@
                 document.getElementById('areas-of-contribution-container').style.display = 'none';
             }
 
+            // Handle Experience Level
+            const expHidden = opp.applicant_config?.experience_level_hidden === true;
+            if (expHidden) {
+                const expGroup = document.getElementById('experience-level-group');
+                if (expGroup) expGroup.style.display = 'none';
+                document.getElementById('experience_level').removeAttribute('required');
+            } else {
+                const expRequired = opp.applicant_config?.experience_level_required !== false;
+                if (!expRequired) {
+                    document.getElementById('experience_level').removeAttribute('required');
+                    const reqStar = document.querySelector('#experience-level-label .req-star');
+                    if (reqStar) reqStar.style.display = 'none';
+                }
+            }
+
             // Handle Skills
             let skillsList = opp.skills;
             if (typeof skillsList === 'string') {
@@ -897,8 +912,12 @@
                 const placeholder = field.placeholder ? `placeholder="${field.placeholder}"` : '';
                 const helpText = field.helpText || field.description || '';
 
+                const isSingleCheckbox = (field.type || 'text').toLowerCase() === 'checkbox' && (!Array.isArray(field.options) || field.options.length === 0);
+
                 html += `<div class="form-group">`;
-                html += `<label for="${fieldName}">${field.label || `Question ${index + 1}`} ${reqStar}</label>`;
+                if (!isSingleCheckbox) {
+                    html += `<label for="${fieldName}">${field.label || `Question ${index + 1}`} ${reqStar}</label>`;
+                }
 
                 switch ((field.type || 'text').toLowerCase()) {
                     case 'textarea':
@@ -947,7 +966,7 @@
                             html += `
                                 <label class="custom-option-label">
                                     <input type="checkbox" id="${fieldName}" name="${fieldName}" value="Yes" ${reqAttr}>
-                                    <span>${field.placeholder || field.label}</span>
+                                    <span>${field.label || field.placeholder || 'Yes'} ${reqStar}</span>
                                 </label>`;
                         }
                         break;
@@ -1034,10 +1053,13 @@
             }
 
             // 2. Professional & Skills Validation
-            const experienceLevel = form.experience_level.value;
-            if (!experienceLevel) {
+            const expHidden = currentOpportunity?.applicant_config?.experience_level_hidden === true;
+            const expRequired = currentOpportunity?.applicant_config?.experience_level_required !== false;
+            
+            const experienceLevel = form.experience_level ? form.experience_level.value : '';
+            if (!expHidden && expRequired && !experienceLevel) {
                 errors.push('Please select your experience level.');
-                form.experience_level.classList.add('is-invalid');
+                if (form.experience_level) form.experience_level.classList.add('is-invalid');
             }
 
             const skills = form.skills ? form.skills.value.trim() : '';
