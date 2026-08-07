@@ -184,7 +184,7 @@ app.post('/api/applications', async (req, res) => {
       INSERT INTO applications (
         full_name, phone_number, email, location, occupation, 
         background, skills, areas_of_contribution, availability, experience_level,
-        education, current_role, institution,
+        education, "current_role", institution,
         portfolio_url, resume_url, motivation,
         opportunity_id, applicant_id, form_data, status, status_history
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, 'submitted', $20)
