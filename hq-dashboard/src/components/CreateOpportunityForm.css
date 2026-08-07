@@ -190,6 +190,7 @@
   font-family: 'Inter', sans-serif;
   transition: background 0.15s ease;
   user-select: none;
+  box-sizing: border-box;
 }
 .opp-section-header:hover {
   background: rgba(255, 255, 255, 0.03);
@@ -404,20 +405,28 @@
 
 .dynamic-list-input-row {
   display: flex;
+  align-items: center;
   gap: 0.6rem;
   margin-top: 0.25rem;
   flex-shrink: 0;
   width: 100%;
+  box-sizing: border-box;
+}
+
+.dynamic-list-input-row .opp-input {
+  flex: 1;
+  min-width: 0;
+  width: auto;
 }
 
 .opp-add-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.55rem 1rem;
+  padding: 0.6rem 1.1rem;
   border-radius: 8px;
-  border: 1px solid rgba(59, 130, 246, 0.35);
-  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.15);
   color: #60a5fa;
   font-size: 0.82rem;
   font-weight: 600;
@@ -428,7 +437,7 @@
   flex-shrink: 0;
 }
 .opp-add-btn:hover {
-  background: rgba(59, 130, 246, 0.22);
+  background: rgba(59, 130, 246, 0.25);
   border-color: #3b82f6;
   color: #93c5fd;
 }

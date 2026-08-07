@@ -1,41 +1,123 @@
 import React from 'react';
-import { LogOut, X } from 'lucide-react';
+import {
+  LayoutDashboard,
+  FolderKanban,
+  FileText,
+  Users,
+  ShieldCheck,
+  Bell,
+  Sparkles,
+  Layers,
+  Crown,
+  Activity,
+  LogOut,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen
+} from 'lucide-react';
 import { removeToken } from '../auth';
 
-const Sidebar = ({ logoUrl, activeTab, setActiveTab, setIsAuth, isMobileOpen, setIsMobileOpen }) => {
+const NAV_ITEMS = [
+  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'projects', label: 'Projects', icon: FolderKanban },
+  { id: 'applications', label: 'Applications', icon: FileText },
+  { id: 'team', label: 'Team', icon: Users },
+  { id: 'admin-hub', label: 'Admin Hub', icon: ShieldCheck },
+  { id: 'updates', label: 'Updates', icon: Bell },
+  { id: 'opportunities', label: 'Opportunities', icon: Sparkles },
+  { id: 'cms', label: 'CMS Content', icon: Layers },
+  { id: 'cms-flagship', label: 'Flagship Product', icon: Crown },
+  { id: 'activity', label: 'Activity Logs', icon: Activity },
+];
+
+const Sidebar = ({
+  logoUrl,
+  activeTab,
+  setActiveTab,
+  setIsAuth,
+  isMobileOpen,
+  setIsMobileOpen,
+  isCollapsed,
+  toggleCollapse
+}) => {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     setIsMobileOpen(false);
   };
 
   return (
-    <aside className={`sidebar ${isMobileOpen ? 'open' : ''}`}>
-      <div className="brand" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <img src={logoUrl} alt="VeroSeven Logo" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
-        <span>VeroSeven HQ</span>
+    <aside className={`sidebar ${isMobileOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
+      {/* Brand Header */}
+      <div className="brand">
+        <div className="brand-left" onClick={() => handleTabClick('overview')} title="VeroSeven HQ Overview">
+          <img src={logoUrl} alt="VeroSeven Logo" className="brand-logo" />
+          {!isCollapsed && <span className="brand-text">VeroSeven HQ</span>}
         </div>
-        <button className="mobile-menu-btn" onClick={() => setIsMobileOpen(false)}><X size={24} /></button>
+        
+        {/* Mobile Close Button */}
+        <button
+          type="button"
+          className="mobile-menu-btn"
+          onClick={() => setIsMobileOpen(false)}
+          title="Close Menu"
+          aria-label="Close Menu"
+        >
+          <X size={20} />
+        </button>
+
+        {/* Desktop Collapse Toggle Icon next to VeroSeven HQ */}
+        <button
+          type="button"
+          className="sidebar-collapse-btn header-toggle"
+          onClick={toggleCollapse}
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+        </button>
       </div>
       
+      {/* Navigation List */}
       <ul className="nav-menu">
-        <li className={`nav-item ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => handleTabClick('overview')}>Overview</li>
-        <li className={`nav-item ${activeTab === 'projects' ? 'active' : ''}`} onClick={() => handleTabClick('projects')}>Projects</li>
-        <li className={`nav-item ${activeTab === 'applications' ? 'active' : ''}`} onClick={() => handleTabClick('applications')}>Applications</li>
-        <li className={`nav-item ${activeTab === 'team' ? 'active' : ''}`} onClick={() => handleTabClick('team')}>Team</li>
-        <li className={`nav-item ${activeTab === 'admin-hub' ? 'active' : ''}`} onClick={() => handleTabClick('admin-hub')}>Admin Hub</li>
-        <li className={`nav-item ${activeTab === 'updates' ? 'active' : ''}`} onClick={() => handleTabClick('updates')}>Updates</li>
-        <li className={`nav-item ${activeTab === 'opportunities' ? 'active' : ''}`} onClick={() => handleTabClick('opportunities')}>Opportunities</li>
-        <li className={`nav-item ${activeTab === 'cms' ? 'active' : ''}`} onClick={() => handleTabClick('cms')}>CMS Content</li>
-        <li className={`nav-item ${activeTab === 'cms-flagship' ? 'active' : ''}`} onClick={() => handleTabClick('cms-flagship')}>Flagship Product</li>
-        <li className={`nav-item ${activeTab === 'activity' ? 'active' : ''}`} onClick={() => handleTabClick('activity')}>Activity Logs</li>
+        {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
+          <li
+            key={id}
+            className={`nav-item ${activeTab === id ? 'active' : ''}`}
+            onClick={() => handleTabClick(id)}
+            title={isCollapsed ? label : undefined}
+          >
+            <Icon size={18} className="nav-icon" />
+            {!isCollapsed && <span className="nav-label">{label}</span>}
+          </li>
+        ))}
       </ul>
-      <div style={{ marginTop: 'auto', padding: '1rem', borderTop: '1px solid var(--border-color)' }}>
-        <button 
-          onClick={() => { removeToken(); setIsAuth(false); }} 
-          style={{ width: '100%', padding: '0.8rem', background: 'transparent', color: '#ff4b4b', border: '1px solid rgba(255, 75, 75, 0.3)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontWeight: '500' }}
+
+      {/* Footer Actions */}
+      <div className="sidebar-footer">
+        {/* Toggle button right above logout button */}
+        <button
+          type="button"
+          className="sidebar-toggle-row"
+          onClick={toggleCollapse}
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          <><LogOut size={16} style={{marginRight: "4px", verticalAlign: "middle"}} /> Logout</>
+          {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          {!isCollapsed && <span>Collapse Sidebar</span>}
+        </button>
+
+        {/* Logout Button */}
+        <button 
+          type="button"
+          className="logout-btn"
+          onClick={() => { removeToken(); setIsAuth(false); }} 
+          title={isCollapsed ? "Logout" : undefined}
+          aria-label="Logout"
+        >
+          <LogOut size={16} className="logout-icon" />
+          {!isCollapsed && <span>Logout</span>}
         </button>
       </div>
     </aside>
