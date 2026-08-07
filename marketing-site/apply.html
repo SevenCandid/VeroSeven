@@ -5,59 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Application - VEROSEVEN</title>
     <link rel="icon" type="image/png" href="assets/vero_logo_favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
     <style>
         .form-container {
-            max-width: 800px;
+            max-width: 780px;
             margin: 0 auto;
-            padding: 3rem;
-            background: rgba(8, 18, 35, 0.7);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2.5rem;
+            background: rgba(16, 16, 24, 0.85);
+            border-radius: 16px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 1.5rem 0 1rem 0;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .form-section-title:first-of-type {
+            margin-top: 0;
+        }
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
         }
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
         }
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
-            color: var(--color-text-secondary);
+            margin-bottom: 0.4rem;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.88rem;
             font-weight: 500;
         }
         .form-group input, 
         .form-group textarea, 
         .form-group select {
             width: 100%;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--color-border);
+            padding: 0.85rem 1rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 8px;
-            color: var(--color-text-primary);
+            color: #ffffff;
             font-family: inherit;
-            transition: border-color var(--transition-fast);
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
         }
         .form-group input:focus,
         .form-group textarea:focus,
         .form-group select:focus {
             outline: none;
             border-color: var(--color-accent);
+            background: rgba(255, 255, 255, 0.07);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15);
+        }
+        .form-group select option {
+            background: #101018;
+            color: #ffffff;
         }
         .submit-btn {
             background-color: var(--color-accent);
-            color: var(--color-primary);
+            color: #081223;
             border: none;
             padding: 1rem 2rem;
-            font-weight: 600;
+            font-weight: 700;
             border-radius: 8px;
             cursor: pointer;
             width: 100%;
-            font-size: 1.1rem;
-            transition: opacity var(--transition-fast);
+            font-size: 1.05rem;
+            transition: all 0.2s ease;
             margin-top: 1rem;
         }
         .submit-btn:hover {
-            opacity: 0.9;
+            opacity: 0.92;
+            transform: translateY(-1px);
         }
         .submit-btn:disabled {
             opacity: 0.5;
@@ -66,55 +95,68 @@
         .success-message {
             display: none;
             text-align: center;
-            padding: 2rem;
-            background: rgba(212, 175, 55, 0.1);
-            border-radius: 8px;
-            border: 1px solid var(--color-accent);
-            color: var(--color-accent);
+            padding: 3rem 2rem;
+            background: rgba(52, 211, 153, 0.08);
+            border-radius: 12px;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            color: #ffffff;
+        }
+        .success-message h3 {
+            color: #34d399;
+            font-size: 1.6rem;
+            margin-bottom: 0.75rem;
         }
         #opp-header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2.5rem;
         }
         @media (max-width: 768px) {
             .form-container {
                 padding: 1.5rem;
+            }
+            .form-row-2 {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <div class="bg-gradient min-h-screen">
-        <section class="section" style="padding-top: 4rem;">
+        <section class="section" style="padding-top: 3.5rem; padding-bottom: 4rem;">
             <div class="container">
-                <a href="opportunities.html" style="color: var(--color-accent); text-decoration: none; margin-bottom: 2rem; display: inline-block;">
-                    &larr; Back to Opportunities
+                <a href="opportunities.html" id="back-link" style="color: var(--color-accent); text-decoration: none; margin-bottom: 1.5rem; display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 500; font-size: 0.9rem;">
+                    &larr; Back to Opportunity Details
                 </a>
 
                 <div id="opp-header">
-                    <img src="assets/vero_logo1.png" alt="VeroSeven Logo" style="height: 60px; margin-bottom: 1rem;">
+                    <img src="assets/vero_logo1.png" alt="VeroSeven Logo" style="height: 52px; margin-bottom: 0.75rem;">
                     <br>
-                    <div class="badge" style="margin-bottom: 1rem;" id="opp-type">Application</div>
-                    <h2 id="opp-title">Loading Opportunity...</h2>
-                    <p style="margin: 0 auto; color: var(--text-secondary);" id="opp-desc"></p>
+                    <div class="badge" style="margin-bottom: 0.75rem;" id="opp-type">Application</div>
+                    <h2 id="opp-title" style="font-size: 2rem; margin: 0.5rem 0; color: #ffffff;">Loading Opportunity...</h2>
+                    <p style="margin: 0 auto; color: rgba(255,255,255,0.7); max-width: 600px; font-size: 0.95rem;" id="opp-desc"></p>
                 </div>
                 
                 <div class="glass-panel form-container" id="application-form-container" style="display: none;">
                     <form id="dynamic-form">
                         <div id="dynamic-fields-container">
-                            <!-- JS injects form fields here based on DB schema -->
+                            <!-- Injected dynamically -->
                         </div>
                         <button type="submit" class="submit-btn" id="submit-btn">Submit Application</button>
                     </form>
                 </div>
 
                 <div class="glass-panel form-container text-center" id="loading-container">
-                    <p style="color: var(--text-secondary);">Loading application form...</p>
+                    <p style="color: rgba(255,255,255,0.7);">Loading application form...</p>
                 </div>
                 
                 <div class="success-message" id="success-message">
-                    <h3>Application Submitted Successfully</h3>
-                    <p style="margin: 0 auto;">Thank you for your application. Our team will review your submission and get back to you shortly.</p>
+                    <h3>Application Submitted Successfully!</h3>
+                    <p style="margin: 0 auto; max-width: 500px; color: rgba(255,255,255,0.85); line-height: 1.6;">
+                        Thank you for applying to VeroSeven. Our recruitment team has received your dossier and will review your qualifications and reach out soon.
+                    </p>
+                    <div style="margin-top: 1.5rem;">
+                        <a href="opportunities.html" class="btn btn-primary" style="padding: 0.6rem 1.4rem;">Browse Other Opportunities</a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -124,24 +166,22 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const oppId = urlParams.get('id');
-            const apiHost = window.location.hostname || 'localhost';
 
             if (!oppId) {
                 document.getElementById('opp-title').textContent = 'Opportunity Not Found';
-                document.getElementById('loading-container').innerHTML = '<p style="color: red;">No opportunity ID provided.</p>';
+                document.getElementById('loading-container').innerHTML = '<p style="color: #f87171;">No opportunity ID was specified in the link. Please browse our open positions.</p><a href="opportunities.html" class="btn btn-primary" style="margin-top:1rem; display:inline-block;">View Opportunities</a>';
                 return;
             }
 
             try {
-                // Fetch opportunity details
                 const res = await fetch(`https://veroseven-api.onrender.com/api/opportunities/${oppId}`);
                 if (!res.ok) throw new Error('Failed to fetch opportunity');
                 
-                const opp = await res.json();
+                const backLink = document.getElementById('back-link');
+                if (backLink) backLink.href = `opportunity-details.html?id=${oppId}`;
 
-                // Update UI headers
-                document.getElementById('opp-title').textContent = 'Apply for ' + opp.title;
-                document.getElementById('opp-desc').textContent = opp.summary || opp.description || 'Please complete this form to apply.';
+                document.getElementById('opp-title').textContent = opp.title;
+                document.getElementById('opp-desc').textContent = opp.summary || 'Please complete this application form accurately.';
 
                 let cats = opp.categories;
                 if (typeof cats === 'string') {
@@ -151,63 +191,112 @@
                     cats = opp.category ? [opp.category] : [];
                 }
 
-                const typeStr = Array.isArray(opp.type) ? opp.type.join(' · ') : (opp.type || 'Application');
+                const typeStr = Array.isArray(opp.type) ? opp.type.join(' · ') : (opp.type || 'Open Role');
                 const catStr = cats.length > 0 ? ` [${cats.join(', ')}]` : '';
                 document.getElementById('opp-type').textContent = `${typeStr}${catStr}`;
 
-                // Check status
-                if (opp.status !== 'active') {
-                    document.getElementById('loading-container').innerHTML = '<p style="color: red;">This opportunity is currently closed and no longer accepting applications.</p>';
+                if (opp.status && opp.status.toLowerCase() === 'closed') {
+                    document.getElementById('loading-container').innerHTML = '<p style="color: #f87171;">This opportunity is currently closed and no longer accepting new submissions.</p><a href="opportunities.html" class="btn btn-primary" style="margin-top:1rem; display:inline-block;">Explore Other Opportunities</a>';
                     return;
                 }
 
-                // Render form fields
                 const fieldsContainer = document.getElementById('dynamic-fields-container');
                 let formHtml = '';
 
-                // Fallback to basic fields if form_fields is empty
-                let fields = opp.form_fields && opp.form_fields.length > 0 
-                    ? opp.form_fields 
-                    : [
-                        { name: 'full_name', label: 'Full Name', type: 'text', required: true },
-                        { name: 'email', label: 'Email Address', type: 'email', required: true },
-                        { name: 'phone_number', label: 'Phone Number', type: 'tel', required: true },
-                        { name: 'resume_link', label: 'Link to Resume/CV (URL)', type: 'url', required: true }
-                    ];
+                if (opp.form_fields && Array.isArray(opp.form_fields) && opp.form_fields.length > 0) {
+                    // Custom form fields configured by admin
+                    opp.form_fields.forEach(field => {
+                        formHtml += `
+                            <div class="form-group">
+                                <label>${field.label} ${field.required ? '<span style="color:#d4af37">*</span>' : ''}</label>
+                                ${field.type === 'textarea' 
+                                    ? `<textarea name="${field.name}" rows="${field.rows || 3}" ${field.required ? 'required' : ''}></textarea>`
+                                    : field.type === 'select' && field.options
+                                        ? `<select name="${field.name}" ${field.required ? 'required' : ''}>
+                                             <option value="" disabled selected>Select an option</option>
+                                             ${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                                           </select>`
+                                        : `<input type="${field.type || 'text'}" name="${field.name}" ${field.required ? 'required' : ''}>`
+                                }
+                            </div>
+                        `;
+                    });
+                } else {
+                    // Standard comprehensive application form
+                    formHtml = `
+                        <div class="form-section-title">Personal & Contact Details</div>
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label>Full Name <span style="color:#d4af37">*</span></label>
+                                <input type="text" name="full_name" placeholder="e.g. Alex Morgan" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address <span style="color:#d4af37">*</span></label>
+                                <input type="email" name="email" placeholder="alex@example.com" required />
+                            </div>
+                        </div>
 
-                fields.forEach(field => {
-                    formHtml += `
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label>Phone / WhatsApp Number <span style="color:#d4af37">*</span></label>
+                                <input type="tel" name="phone_number" placeholder="+1 (555) 000-0000" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Current Location (City, Country) <span style="color:#d4af37">*</span></label>
+                                <input type="text" name="location" placeholder="e.g. Lagos, Nigeria or London, UK" required />
+                            </div>
+                        </div>
+
                         <div class="form-group">
-                            <label>${field.label} ${field.required ? '*' : ''}</label>
-                            ${field.type === 'textarea' 
-                                ? `<textarea name="${field.name}" rows="${field.rows || 3}" ${field.required ? 'required' : ''}></textarea>`
-                                : field.type === 'select' && field.options
-                                    ? `<select name="${field.name}" ${field.required ? 'required' : ''}>
-                                         <option value="" disabled selected>Select an option</option>
-                                         ${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
-                                       </select>`
-                                    : `<input type="${field.type || 'text'}" name="${field.name}" ${field.required ? 'required' : ''}>`
-                            }
+                            <label>Current Profession / Major / Title <span style="color:#d4af37">*</span></label>
+                            <input type="text" name="occupation" placeholder="e.g. Full-Stack Software Engineer / CS Student" required />
+                        </div>
+
+                        <div class="form-section-title">Profiles & Attachments</div>
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label>Portfolio / GitHub Profile URL</label>
+                                <input type="url" name="portfolio_url" placeholder="https://github.com/username or https://portfolio.dev" />
+                            </div>
+                            <div class="form-group">
+                                <label>Resume / CV Link (Google Drive, LinkedIn, etc.) <span style="color:#d4af37">*</span></label>
+                                <input type="url" name="resume_url" placeholder="https://drive.google.com/..." required />
+                            </div>
+                        </div>
+
+                        <div class="form-section-title">Experience & Motivation</div>
+                        <div class="form-group">
+                            <label>Key Skills & Technical Proficiencies <span style="color:#d4af37">*</span></label>
+                            <textarea name="skills" rows="3" placeholder="List your technical proficiencies, frameworks, tools (e.g. React, Node.js, Python, PostgreSQL, UI/UX, Docker)..." required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Statement of Purpose & Motivation <span style="color:#d4af37">*</span></label>
+                            <textarea name="motivation" rows="4" placeholder="Why are you interested in this role at VeroSeven? What strengths and contributions will you bring?" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Availability & Hours per Week Commitment <span style="color:#d4af37">*</span></label>
+                            <input type="text" name="availability" placeholder="e.g. 15-20 hours/week, available immediately" required />
                         </div>
                     `;
-                });
+                }
 
                 fieldsContainer.innerHTML = formHtml;
-                
                 document.getElementById('loading-container').style.display = 'none';
                 document.getElementById('application-form-container').style.display = 'block';
 
             } catch (err) {
                 console.error(err);
                 document.getElementById('opp-title').textContent = 'Error Loading Form';
-                document.getElementById('loading-container').innerHTML = '<p style="color: red;">Could not load opportunity details. Please try again later.</p>';
+                document.getElementById('loading-container').innerHTML = '<p style="color: #f87171;">Could not load opportunity details. Please check your internet connection and try again.</p>';
             }
 
-            // Handle submission
+            // Submission Handler
             document.getElementById('dynamic-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const btn = document.getElementById('submit-btn');
-                btn.textContent = 'Submitting...';
+                btn.textContent = 'Submitting Application...';
                 btn.disabled = true;
 
                 const formData = new FormData(e.target);
@@ -215,15 +304,19 @@
                 
                 const payload = {
                     opportunity_id: parseInt(oppId),
+                    full_name: data.full_name || data.name || '',
+                    email: data.email || '',
+                    phone_number: data.phone_number || data.phone || '',
+                    location: data.location || '',
+                    occupation: data.occupation || data.role || '',
+                    portfolio_url: data.portfolio_url || data.portfolio || data.github_url || data.github || '',
+                    resume_url: data.resume_url || data.resume_link || data.resume || '',
+                    skills: data.skills || '',
+                    background: data.background || data.experience || '',
+                    motivation: data.motivation || data.statement || data.why_join || '',
+                    availability: data.availability || '',
                     form_data: data
                 };
-
-                // Standard field extraction for backward compatibility if present in the dynamic form
-                if (data.full_name) payload.full_name = data.full_name;
-                if (data.email) payload.email = data.email;
-                if (data.phone_number) payload.phone_number = data.phone_number;
-                if (data.location) payload.location = data.location;
-                if (data.occupation) payload.occupation = data.occupation;
 
                 try {
                     const response = await fetch(`https://veroseven-api.onrender.com/api/applications`, {
@@ -237,14 +330,14 @@
                         document.getElementById('success-message').style.display = 'block';
                         document.getElementById('opp-header').style.display = 'none';
                     } else {
-                        const errText = await response.text();
-                        alert('Error submitting application: ' + errText);
+                        const err = await response.json().catch(() => ({}));
+                        alert('Error submitting application: ' + (err.message || 'Please verify your inputs.'));
                         btn.textContent = 'Submit Application';
                         btn.disabled = false;
                     }
                 } catch (err) {
                     console.error(err);
-                    alert('Could not connect to the server. Please check your connection.');
+                    alert('Could not connect to the server. Please check your internet connection.');
                     btn.textContent = 'Submit Application';
                     btn.disabled = false;
                 }

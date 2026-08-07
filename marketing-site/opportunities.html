@@ -3,74 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Opportunities — VEROSEVEN</title>
+  <title>Opportunities & Careers — VEROSEVEN</title>
   <link rel="icon" type="image/png" href="assets/vero_logo_favicon.png" />
-  <meta name="description" content="Stay up to date with VEROSEVEN's journey — product launches, behind-the-scenes development, and startup stories." />
+  <meta name="description" content="Explore open technical opportunities, internships, and collaborations at VEROSEVEN. Build impactful technology with us." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/components.css" />
-  <style>
-    .blog-card {
-      padding: 2.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      transition: all var(--transition-normal);
-      cursor: pointer;
-    }
-    .blog-card:hover {
-      background: var(--color-surface-hover);
-      border-color: rgba(212, 175, 55, 0.3);
-      transform: translateY(-4px);
-    }
-    .blog-meta {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.45);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .blog-meta .dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.3); }
-    .blog-title {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--color-white);
-      margin: 0;
-      line-height: 1.3;
-      transition: color var(--transition-fast);
-    }
-    .blog-card:hover .blog-title { color: var(--color-accent); }
-    .blog-excerpt {
-      color: rgba(255,255,255,0.6);
-      font-size: 0.9375rem;
-      line-height: 1.7;
-      margin: 0;
-    }
-    .blog-tag {
-      display: inline-block;
-      padding: 0.2rem 0.6rem;
-      border-radius: 100px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      background: rgba(212,175,55,0.1);
-      color: var(--color-accent);
-      border: 1px solid rgba(212,175,55,0.2);
-    }
-    .blog-read-more {
-      font-weight: 600;
-      font-size: 0.875rem;
-      color: var(--color-accent);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-  </style>
+  <link rel="stylesheet" href="css/opportunities.css" />
 </head>
 <body>
 
@@ -101,42 +42,82 @@
     </div>
   </nav>
 
-  <!-- Header -->
-  <section class="section bg-gradient" style="padding-top: 5.5rem; padding-bottom: 1.5rem;">
+  <!-- Hero Header -->
+  <section class="section bg-gradient" style="padding-top: 6rem; padding-bottom: 2rem;">
     <div class="container text-center fade-up">
-      <span class="badge">Careers</span>
-      <h1 style="margin-top:1rem;">Opportunities</h1>
-      <p style="margin: 1rem auto 0; font-size: 1.1rem; max-width: 600px; animation-delay:0.2s;">Join us in building authentic, impactful technology. Explore our open roles.</p>
+      <span class="badge">Careers & Programs</span>
+      <h1 style="margin-top: 1rem;">Explore Opportunities</h1>
+      <p style="margin: 1rem auto 0; font-size: 1.15rem; max-width: 650px; color: rgba(255,255,255,0.75);">
+        Build authentic, impactful technology with VeroSeven. Join our core engineering cohorts, technical programs, and open collaborations.
+      </p>
     </div>
   </section>
 
-  <!-- Blog Grid -->
-  <section class="section">
+  <!-- Main Listings Section -->
+  <section class="section" style="padding-top: 1rem; padding-bottom: 4rem;">
     <div class="container">
       
-      <!-- Category Filter Pills -->
-      <div id="category-filter-wrapper" style="margin-bottom: 2rem; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
-        <!-- JS will populate category filters -->
+      <!-- Search and Filter Controls -->
+      <div class="opp-controls-wrapper">
+        <div class="opp-search-bar">
+          <div class="opp-search-input-wrapper">
+            <i data-lucide="search" style="width: 18px; height: 18px;"></i>
+            <input
+              type="text"
+              id="oppSearchInput"
+              class="opp-search-input"
+              placeholder="Search opportunities by title, keywords, or skills (e.g. React, Python, DevOps)..."
+              oninput="handleSearchFilterChange()"
+            />
+          </div>
+          <select id="oppTypeSelect" class="opp-filter-select" onchange="handleSearchFilterChange()">
+            <option value="all">All Opportunity Types</option>
+            <option value="Volunteer">Volunteer</option>
+            <option value="Internship">Internship</option>
+            <option value="Paid Internship">Paid Internship</option>
+            <option value="Part-time">Part-time</option>
+            <option value="Full-time">Full-time</option>
+            <option value="Contract">Contract</option>
+            <option value="Ambassador">Ambassador</option>
+            <option value="Open Source">Open Source</option>
+          </select>
+        </div>
+
+        <!-- Multi-Category Filter Scrollable Pills -->
+        <div class="opp-categories-scroll" id="category-filter-wrapper">
+          <!-- Populated dynamically via JS -->
+        </div>
       </div>
 
-      <div class="grid grid-2" style="gap:1.5rem;" id="opportunities-grid">
-        <!-- JS will populate -->
+      <!-- Opportunities Grid -->
+      <div class="opp-grid" id="opportunities-grid">
+        <!-- Initial Loading State -->
+        <div class="opp-empty-state">
+          <i data-lucide="loader-2" class="opp-empty-icon" style="animation: spin 1s linear infinite;"></i>
+          <h3 class="opp-empty-title">Loading Opportunities...</h3>
+          <p class="opp-empty-text">Connecting to the VeroSeven Opportunities API...</p>
+        </div>
       </div>
+
     </div>
   </section>
 
-  <!-- CTA -->
-  <section class="section bg-gradient" style="padding-top:2rem; padding-bottom:2rem;">
+  <!-- CTA Community Section -->
+  <section class="section bg-gradient" style="padding-top: 2rem; padding-bottom: 2rem;">
     <div class="container">
-      <div class="glass-panel fade-up" style="padding:1.5rem 2rem; display:flex; align-items:center; justify-content:space-between; gap:2rem; flex-wrap:wrap;">
-        <div style="display:flex; align-items:center; gap:1.5rem;">
-          <div style="color:var(--color-accent); font-size:2rem;"><i data-lucide="rocket"></i></div>
+      <div class="glass-panel fade-up" style="padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; border-radius: 16px;">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+          <div style="color: var(--color-accent); font-size: 2.2rem;"><i data-lucide="rocket"></i></div>
           <div>
-            <h2 style="margin:0 0 0.25rem 0; font-size:1.5rem;">Follow the Journey</h2>
-            <p style="margin:0; font-size:0.95rem; color:rgba(255,255,255,0.7); max-width:600px;">Join the official VEROSEVEN WhatsApp Channel for updates, product launches, behind-the-scenes development, and opportunities to collaborate.</p>
+            <h2 style="margin: 0 0 0.25rem 0; font-size: 1.45rem; color: #ffffff;">Follow Our Technical Journey</h2>
+            <p style="margin: 0; font-size: 0.95rem; color: rgba(255,255,255,0.7); max-width: 600px;">
+              Join the official VEROSEVEN WhatsApp Channel for upcoming cohort announcements, product releases, and technical discussions.
+            </p>
           </div>
         </div>
-        <a href="https://whatsapp.com/channel/0029VbCP2pc2ER6ZSRBTLx2l" target="_blank" rel="noopener noreferrer" class="btn btn-primary" id="updates-whatsapp-btn" style="white-space:nowrap; padding:0.6rem 1.2rem;">Join WhatsApp Channel</a>
+        <a href="https://whatsapp.com/channel/0029VbCP2pc2ER6ZSRBTLx2l" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="white-space: nowrap; padding: 0.75rem 1.5rem;">
+          Join WhatsApp Channel
+        </a>
       </div>
     </div>
   </section>
@@ -146,12 +127,12 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <div class="logo" style="font-size:1.25rem; margin-bottom:0.75rem;">
+          <div class="logo" style="font-size: 1.25rem; margin-bottom: 0.75rem;">
             <img src="assets/vero_logo1.png" alt="VEROSEVEN Logo" />
             VEROSEVEN
           </div>
           <p class="footer-tagline">Authentic Innovation. Limitless Possibilities.</p>
-          <p style="margin-top:1rem; color:rgba(255,255,255,0.5); font-size:0.875rem;">Building technology that matters.</p>
+          <p style="margin-top: 1rem; color: rgba(255,255,255,0.5); font-size: 0.875rem;">Building technology that matters.</p>
         </div>
         <div class="footer-links">
           <h4>Quick Links</h4>
@@ -179,11 +160,14 @@
     </div>
   </footer>
 
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="js/main.js"></script>
   <script>
-    window.activeCategoryFilter = 'All';
+    window.allOpportunities = [];
+    window.activeCategory = 'All';
 
-    function getOppCategories(opp) {
+    // Helper: Normalize Categories
+    function getCategoriesList(opp) {
       if (Array.isArray(opp.categories) && opp.categories.length > 0) return opp.categories;
       if (typeof opp.categories === 'string') {
         try {
@@ -194,33 +178,51 @@
       return opp.category ? [opp.category] : [];
     }
 
-    function renderCategoryFilters(allOpps) {
-      const filterWrapper = document.getElementById('category-filter-wrapper');
-      if (!filterWrapper) return;
+    // Helper: Format Opportunity Type
+    function getTypeDisplay(opp) {
+      if (Array.isArray(opp.type)) return opp.type.join(' · ');
+      if (typeof opp.type === 'string') {
+        try {
+          const parsed = JSON.parse(opp.type);
+          if (Array.isArray(parsed)) return parsed.join(' · ');
+        } catch(e) {}
+        return opp.type;
+      }
+      return 'Opportunity';
+    }
+
+    // Helper: Format Deadline Date
+    function formatDeadline(opp) {
+      if (!opp.deadline && !opp.application_deadline) return 'Rolling Application';
+      const d = opp.deadline || opp.application_deadline;
+      try {
+        const dateObj = new Date(d);
+        if (isNaN(dateObj.getTime())) return d;
+        return 'Deadline: ' + dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      } catch(e) {
+        return d;
+      }
+    }
+
+    // Render Category Pills
+    function renderCategoryPills() {
+      const wrapper = document.getElementById('category-filter-wrapper');
+      if (!wrapper) return;
 
       const categorySet = new Set();
-      allOpps.forEach(opp => {
-        getOppCategories(opp).forEach(c => categorySet.add(c));
+      window.allOpportunities.forEach(opp => {
+        getCategoriesList(opp).forEach(c => categorySet.add(c));
       });
 
       const uniqueCategories = ['All', ...Array.from(categorySet)];
-      if (uniqueCategories.length <= 1) {
-        filterWrapper.innerHTML = '';
-        return;
-      }
-
-      filterWrapper.innerHTML = uniqueCategories.map(cat => {
-        const isActive = (window.activeCategoryFilter || 'All') === cat;
+      
+      wrapper.innerHTML = uniqueCategories.map(cat => {
+        const isActive = window.activeCategory === cat;
         return `
           <button
             type="button"
+            class="opp-category-filter-btn ${isActive ? 'active' : ''}"
             onclick="setCategoryFilter('${cat.replace(/'/g, "\\'")}')"
-            class="blog-tag"
-            style="cursor: pointer; border-radius: 999px; padding: 0.4rem 1rem; font-size: 0.78rem; font-family: inherit; transition: all 0.2s ease; ${
-              isActive
-                ? 'background: var(--color-accent); color: var(--color-primary); font-weight: 700; border-color: var(--color-accent);'
-                : 'background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15);'
-            }"
           >
             ${cat}
           </button>
@@ -228,130 +230,178 @@
       }).join('');
     }
 
-    function renderOppsGrid(oppsToRender) {
-      const gridContainer = document.getElementById('opportunities-grid');
-      let delay = 0;
+    window.setCategoryFilter = function(cat) {
+      window.activeCategory = cat;
+      renderCategoryPills();
+      filterAndRenderOpportunities();
+    };
 
-      if (!oppsToRender || oppsToRender.length === 0) {
-        gridContainer.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:rgba(255,255,255,0.5); padding: 3rem 0;">No open opportunities match this category.</p>';
+    window.handleSearchFilterChange = function() {
+      filterAndRenderOpportunities();
+    };
+
+    window.clearAllFilters = function() {
+      window.activeCategory = 'All';
+      document.getElementById('oppSearchInput').value = '';
+      document.getElementById('oppTypeSelect').value = 'all';
+      renderCategoryPills();
+      filterAndRenderOpportunities();
+    };
+
+    // Filter and Render Opportunity Cards
+    function filterAndRenderOpportunities() {
+      const grid = document.getElementById('opportunities-grid');
+      const searchTerm = (document.getElementById('oppSearchInput')?.value || '').toLowerCase().trim();
+      const selectedType = document.getElementById('oppTypeSelect')?.value || 'all';
+
+      const filtered = window.allOpportunities.filter(opp => {
+        // Category match
+        const oppCats = getCategoriesList(opp);
+        const categoryMatch = window.activeCategory === 'All' || oppCats.includes(window.activeCategory);
+
+        // Type match
+        const typeStr = getTypeDisplay(opp).toLowerCase();
+        const typeMatch = selectedType === 'all' || typeStr.includes(selectedType.toLowerCase());
+
+        // Search match (title, summary, description, skills, categories)
+        let searchMatch = true;
+        if (searchTerm) {
+          const title = (opp.title || '').toLowerCase();
+          const summary = (opp.summary || '').toLowerCase();
+          const desc = (opp.description || '').toLowerCase();
+          const skills = Array.isArray(opp.skills) ? opp.skills.join(' ').toLowerCase() : (opp.skills || '').toLowerCase();
+          const cats = oppCats.join(' ').toLowerCase();
+
+          searchMatch = title.includes(searchTerm) || 
+                        summary.includes(searchTerm) || 
+                        desc.includes(searchTerm) || 
+                        skills.includes(searchTerm) || 
+                        cats.includes(searchTerm);
+        }
+
+        return categoryMatch && typeMatch && searchMatch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="opp-empty-state">
+            <div class="opp-empty-icon"><i data-lucide="briefcase"></i></div>
+            <h3 class="opp-empty-title">No Opportunities Found</h3>
+            <p class="opp-empty-text">No active positions match your current search or category filter. Try refining your criteria.</p>
+            <button class="btn btn-outline" style="padding: 0.6rem 1.4rem; font-size: 0.88rem;" onclick="clearAllFilters()">
+              Clear All Filters
+            </button>
+          </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
         return;
       }
 
-      gridContainer.innerHTML = oppsToRender.map((opp) => {
-        const globalIdx = window.oppData.indexOf(opp);
-        const cats = getOppCategories(opp);
-        const catChips = cats.map(c => `<span class="blog-tag">${c}</span>`).join(' ');
-        const typeStr = Array.isArray(opp.type) ? opp.type.join(', ') : (opp.type || '');
-        const locStr = opp.location_type || opp.location || 'Remote';
+      grid.innerHTML = filtered.map(opp => {
+        const cats = getCategoriesList(opp);
+        const typeDisplay = getTypeDisplay(opp);
+        const loc = opp.location || opp.location_type || 'Remote';
+        const commitment = opp.weekly_commitment || 'Flexible hours';
+        const duration = opp.duration || 'Flexible duration';
+        const deadlineText = formatDeadline(opp);
+        const detailsUrl = `opportunity-details.html?id=${opp.id}`;
 
-        const cardHtml = `
-          <div class="glass-panel blog-card fade-up in-view" style="animation-delay:${delay}s;" onclick="openModal(${globalIdx})">
-            <div class="blog-meta" style="flex-wrap: wrap; gap: 0.4rem 0.6rem;">
-              ${catChips || '<span class="blog-tag">General</span>'}
-              ${typeStr ? `<span class="dot"></span><span style="color:var(--color-accent)">${typeStr}</span>` : ''}
-              <span class="dot"></span>
-              <span>${locStr}</span>
+        // Render compact category tags (limit to 3 chips on card with +N overflow)
+        let catChips = '';
+        if (cats.length > 0) {
+          const visibleCats = cats.slice(0, 3);
+          catChips = visibleCats.map(c => `<span class="opp-cat-pill">${c}</span>`).join('');
+          if (cats.length > 3) {
+            catChips += `<span class="opp-cat-pill secondary">+${cats.length - 3}</span>`;
+          }
+        }
+
+        return `
+          <div class="opp-card">
+            ${opp.featured ? `
+              <div class="opp-card-featured-tag">
+                <i data-lucide="star" style="width: 12px; height: 12px; fill: #fbbf24;"></i> Featured
+              </div>
+            ` : ''}
+
+            <div>
+              <!-- Type Badge and Categories -->
+              <div class="opp-badges-row">
+                <span class="opp-type-badge">
+                  <i data-lucide="tag" style="width: 10px; height: 10px;"></i>
+                  ${typeDisplay}
+                </span>
+                ${catChips}
+              </div>
+
+              <!-- Title -->
+              <h3 class="opp-card-title">${opp.title}</h3>
+
+              <!-- Summary (Truncated cleanly) -->
+              <p class="opp-card-summary">
+                ${opp.summary || opp.description || 'Join VeroSeven in building high-impact technology solutions. Click below to view the full responsibilities and qualifications.'}
+              </p>
             </div>
-            <h3 class="blog-title" style="margin-top: 0.5rem;">${opp.title}</h3>
-            ${opp.summary ? `<p class="blog-excerpt">${opp.summary}</p>` : ''}
-            <div class="blog-read-more" style="margin-top: auto; padding-top: 1rem;">View Details <i data-lucide="arrow-right"></i></div>
+
+            <div>
+              <!-- Key Logistics Meta List -->
+              <div class="opp-card-meta-list">
+                <div class="opp-card-meta-item">
+                  <i data-lucide="map-pin" style="width: 15px; height: 15px;"></i>
+                  <span>${loc}</span>
+                </div>
+                <div class="opp-card-meta-item">
+                  <i data-lucide="clock" style="width: 15px; height: 15px;"></i>
+                  <span>${commitment} · ${duration}</span>
+                </div>
+                <div class="opp-card-meta-item">
+                  <i data-lucide="calendar" style="width: 15px; height: 15px;"></i>
+                  <span style="color: ${deadlineText.includes('Deadline') ? '#fbbf24' : 'rgba(255,255,255,0.75)'}">${deadlineText}</span>
+                </div>
+              </div>
+
+              <!-- Action Link -->
+              <div class="opp-card-actions">
+                <a href="${detailsUrl}" class="opp-view-btn">
+                  View Details <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                </a>
+              </div>
+            </div>
           </div>
         `;
-        delay += 0.08;
-        return cardHtml;
       }).join('');
 
       if (window.lucide) window.lucide.createIcons();
     }
 
-    window.setCategoryFilter = function(cat) {
-      window.activeCategoryFilter = cat;
-      renderCategoryFilters(window.oppData);
-      if (cat === 'All') {
-        renderOppsGrid(window.oppData);
-      } else {
-        const filtered = window.oppData.filter(opp => getOppCategories(opp).includes(cat));
-        renderOppsGrid(filtered);
-      }
-    };
-
+    // Fetch Opportunities from API on load
     document.addEventListener('DOMContentLoaded', async () => {
-      window.oppData = [];
       try {
         const res = await fetch(`https://veroseven-api.onrender.com/api/opportunities`);
         if (res.ok) {
           const opps = await res.json();
-          window.oppData = opps;
-          renderCategoryFilters(opps);
-          renderOppsGrid(opps);
+          window.allOpportunities = opps;
+          renderCategoryPills();
+          filterAndRenderOpportunities();
+        } else {
+          throw new Error('Failed to load opportunities');
         }
       } catch (err) {
-        console.error('Failed to fetch opportunities:', err);
+        console.error('Error fetching opportunities:', err);
+        const grid = document.getElementById('opportunities-grid');
+        grid.innerHTML = `
+          <div class="opp-empty-state">
+            <div class="opp-empty-icon" style="color: #f87171;"><i data-lucide="alert-circle"></i></div>
+            <h3 class="opp-empty-title">Could Not Load Opportunities</h3>
+            <p class="opp-empty-text">We are unable to reach the opportunities service at this moment. Please check your internet connection or try again shortly.</p>
+            <button class="btn btn-primary" onclick="location.reload()" style="padding: 0.6rem 1.4rem;">
+              Retry
+            </button>
+          </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
       }
     });
-
-    window.openModal = function(idx) {
-      const opp = window.oppData[idx];
-      if (!opp) return;
-
-      const cats = getOppCategories(opp);
-      const catChips = cats.map(c => '<span class="blog-tag">' + c + '</span>').join(' ');
-      const typeStr = Array.isArray(opp.type) ? opp.type.join(', ') : (opp.type || '');
-      const locStr = opp.location_type || opp.location || 'Remote';
-
-      document.getElementById('modalMeta').innerHTML =
-        catChips +
-        (typeStr ? '<span class="dot"></span><span style="color:var(--color-accent)">' + typeStr + '</span>' : '') +
-        '<span class="dot"></span><span>' + locStr + '</span>';
-      
-      document.getElementById('modalTitle').innerText = opp.title;
-      
-      const contentHtml = (opp.description || opp.summary || '').replace(/\n/g, '<br/>');
-      const applyHref = opp.id ? `apply.html?id=${opp.id}` : `mailto:hello@veroseven.com?subject=Application for ${encodeURIComponent(opp.title)}`;
-      const applyBtn = '<div style="margin-top:2rem;"><a href="' + applyHref + '" class="btn btn-primary" style="display:inline-block; padding: 0.75rem 1.75rem;">Apply Now</a></div>';
-      
-      document.getElementById('modalContent').innerHTML = contentHtml + applyBtn;
-      document.getElementById('oppModal').style.display = 'block';
-    };
   </script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>lucide.createIcons();</script>
-
-  <!-- Modal for full update content -->
-  <style>
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
-    .modal-content { background: var(--color-primary); width: 90%; max-width: 800px; margin: 5rem auto; padding: 3rem; border-radius: 24px; border: 1px solid rgba(212,175,55,0.3); position: relative; max-height: 80vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,0.8); }
-    .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; }
-    
-    @media (max-width: 768px) {
-      .modal-content {
-        margin: 2rem auto;
-        padding: 1.5rem;
-        width: 95%;
-        border-radius: 16px;
-        max-height: 90vh;
-      }
-      .modal-close {
-        top: 0.75rem;
-        right: 0.75rem;
-        font-size: 1.5rem;
-      }
-      #modalTitle {
-        font-size: 1.75rem !important;
-        margin-top: 1.5rem !important;
-      }
-      #modalContent {
-        font-size: 1rem !important;
-      }
-    }
-  </style>
-  <div id="oppModal" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="document.getElementById('oppModal').style.display='none'">&times;</button>
-      <div class="blog-meta" id="modalMeta"></div>
-      <h2 id="modalTitle" style="margin: 1rem 0; font-size: 2.5rem;"></h2>
-      <div id="modalContent" style="font-size: 1.1rem; line-height: 1.8; color: rgba(255,255,255,0.8);"></div>
-    </div>
-  </div>
 </body>
 </html>
