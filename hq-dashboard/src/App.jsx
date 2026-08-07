@@ -598,22 +598,7 @@ function App() {
         </div>
       )}
 
-      {/* Opportunity Full-Page Form */}
-      {showOppForm && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          zIndex: 9999, background: '#0f172a', display: 'flex', flexDirection: 'column', overflow: 'hidden'
-        }}>
-          <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-            <CreateOpportunityForm
-              initial={editOppData}
-              onSave={handleSaveOpportunity}
-              onCancel={() => { setShowOppForm(false); setEditOppData(null); }}
-              apiFetch={apiFetch}
-            />
-          </div>
-        </div>
-      )}
+
 
       {/* View Details Modal */}
       {detailsModalApp && (
@@ -734,14 +719,23 @@ function App() {
 
       {/* Main Content Area */}
       <main className="main-content">
-        <Topbar setIsMobileSidebarOpen={setIsMobileSidebarOpen} logoUrl={logoUrl} />
-
-        <div className="dashboard-content">
-          <h1 className="page-title">
-            {activeTab === 'cms' ? 'Content Management' : 
-             activeTab === 'opportunities' ? 'Opportunities' :
-             activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-          </h1>
+        {showOppForm ? (
+          /* Full-page opportunity form — renders directly inside main-content so there are no stacking context issues */
+          <CreateOpportunityForm
+            initial={editOppData}
+            onSave={handleSaveOpportunity}
+            onCancel={() => { setShowOppForm(false); setEditOppData(null); }}
+            apiFetch={apiFetch}
+          />
+        ) : (
+          <>
+            <Topbar setIsMobileSidebarOpen={setIsMobileSidebarOpen} logoUrl={logoUrl} />
+            <div className="dashboard-content">
+              <h1 className="page-title">
+                {activeTab === 'cms' ? 'Content Management' : 
+                 activeTab === 'opportunities' ? 'Opportunities' :
+                 activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+              </h1>
 
           {activeTab === 'overview' && (
             <div className="stats-grid">
@@ -1194,7 +1188,9 @@ function App() {
               <CmsFlagship />
             </div>
           )}
-        </div>
+            </div>
+          </>
+        )}
       </main>
     </div>
       )}
