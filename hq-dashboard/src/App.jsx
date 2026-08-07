@@ -840,12 +840,11 @@ function App() {
                       opportunities={opportunities}
                       loading={loading}
                       onCreateNew={() => { setEditOppData(null); setShowOppForm(true); }}
-                      onEditOpportunity={(opp) => { setEditOppData(opp); setShowOppForm(true); }}
-                      onDuplicateOpportunity={handleDuplicateOpportunity}
+                      onEdit={(opp) => { setEditOppData(opp); setShowOppForm(true); }}
+                      onDuplicate={handleDuplicateOpportunity}
                       onStatusChange={handleOpportunityStatusChange}
-                      onToggleFeatured={handleToggleFeaturedOpportunity}
-                      onDeleteOpportunity={handleDeleteOpportunity}
-                      onViewApplicants={(oppId) => {
+                      onDelete={handleDeleteOpportunity}
+                      onViewApplications={(oppId) => {
                         setSelectedOppFilter(String(oppId));
                         setActiveTab('applications');
                       }}
