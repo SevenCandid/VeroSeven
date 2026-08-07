@@ -136,13 +136,16 @@ export default function ApplicationManagement({
   };
 
   const handleQuickStatusChange = async (appId, newStatus) => {
+    if (selectedApplicant && String(selectedApplicant.id) === String(appId)) {
+      setSelectedApplicant(prev => ({ ...prev, status: newStatus }));
+    }
     await onUpdateStatus(appId, newStatus, `Stage shifted to ${newStatus}`);
   };
 
   // Sync selectedApplicant if data updates
   const activeModalApplicant = useMemo(() => {
     if (!selectedApplicant) return null;
-    return applications.find(a => a.id === selectedApplicant.id) || selectedApplicant;
+    return applications.find(a => String(a.id) === String(selectedApplicant.id)) || selectedApplicant;
   }, [selectedApplicant, applications]);
 
   return (

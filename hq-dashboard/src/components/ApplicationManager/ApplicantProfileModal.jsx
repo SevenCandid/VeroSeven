@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X, Mail, Phone, MapPin, Briefcase, Calendar, Clock,
   ExternalLink, FileText, CheckCircle2, AlertCircle,
@@ -32,6 +32,13 @@ export default function ApplicantProfileModal({
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'messaging', 'timeline'
 
+  useEffect(() => {
+    if (application) {
+      setCurrentStatus((application.status || 'submitted').toLowerCase());
+      setInternalNotes(application.internal_notes || '');
+    }
+  }, [application?.id, application?.status, application?.internal_notes]);
+
   // Notification tab states
   const [notifySubject, setNotifySubject] = useState('');
   const [notifyMessage, setNotifyMessage] = useState('');
@@ -42,11 +49,19 @@ export default function ApplicantProfileModal({
 
   const handleStatusChange = async (newStatus) => {
     if (newStatus === currentStatus) return;
+    const prevStatus = currentStatus;
+    setCurrentStatus(newStatus);
     setIsUpdatingStatus(true);
     try {
-      await onUpdateStatus(application.id, newStatus, statusNote || `Stage shifted to ${newStatus.replace('_', ' ').toUpperCase()}`);
-      setCurrentStatus(newStatus);
-      setStatusNote('');
+      const res = await onUpdateStatus(application.id, newStatus, statusNote || `Stage shifted to ${newStatus.replace('_', ' ').toUpperCase()}`);
+      if (res === false) {
+        setCurrentStatus(prevStatus);
+      } else {
+        setStatusNote('');
+      }
+    } catch (err) {
+      console.error(err);
+      setCurrentStatus(prevStatus);
     } finally {
       setIsUpdatingStatus(false);
     }

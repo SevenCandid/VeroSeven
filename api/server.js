@@ -60,6 +60,7 @@ app.use(express.json());
     await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS current_role VARCHAR(255)`);
     await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS institution VARCHAR(255)`);
     await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS form_data JSONB DEFAULT '{}'::jsonb`);
+    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`);
 
     // Granular Application Responses table (for dynamic custom questions)
     await db.query(`
@@ -394,30 +395,44 @@ app.patch('/api/admin/applications/:id/status', async (req, res) => {
     const newHistoryEntry = {
       status,
       timestamp: new Date().toISOString(),
-      note: note || `Status changed to ${status.replace('_', ' ').toUpperCase()}`
+      note: note || `Status changed to ${String(status).replace('_', ' ').toUpperCase()}`
     };
+
+    const appRes = await db.query('SELECT * FROM applications WHERE id::text = $1::text', [id]);
+    if (appRes.rows.length === 0) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
+    const currentApp = appRes.rows[0];
+    let currentHistory = [];
+    if (Array.isArray(currentApp.status_history)) {
+      currentHistory = currentApp.status_history;
+    } else if (typeof currentApp.status_history === 'string') {
+      try {
+        currentHistory = JSON.parse(currentApp.status_history);
+      } catch (e) {
+        currentHistory = [];
+      }
+    }
+    currentHistory.push(newHistoryEntry);
 
     const result = await db.query(
       `UPDATE applications 
        SET 
          status = $1, 
          internal_notes = COALESCE($2, internal_notes),
-         status_history = COALESCE(status_history, '[]'::jsonb) || $3::jsonb,
+         status_history = $3::jsonb,
          updated_at = CURRENT_TIMESTAMP
-       WHERE id = $4 
+       WHERE id::text = $4::text 
        RETURNING *`,
-      [status, internal_notes, JSON.stringify([newHistoryEntry]), id]
+      [status, internal_notes !== undefined ? internal_notes : null, JSON.stringify(currentHistory), id]
     );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Application not found' });
-    }
 
     await logActivity('Updated Application Status', 'Application', id, { status, note });
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error updating application status:', error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: 'Server Error: ' + error.message });
   }
 });
 
@@ -427,7 +442,7 @@ app.post('/api/admin/applications/:id/notify', async (req, res) => {
     const { id } = req.params;
     const { subject, message, new_status } = req.body;
 
-    const appRes = await db.query('SELECT * FROM applications WHERE id = $1', [id]);
+    const appRes = await db.query('SELECT * FROM applications WHERE id::text = $1::text', [id]);
     if (appRes.rows.length === 0) {
       return res.status(404).json({ message: 'Application not found' });
     }
@@ -446,15 +461,27 @@ app.post('/api/admin/applications/:id/notify', async (req, res) => {
       }
     };
 
+    let currentHistory = [];
+    if (Array.isArray(appData.status_history)) {
+      currentHistory = appData.status_history;
+    } else if (typeof appData.status_history === 'string') {
+      try {
+        currentHistory = JSON.parse(appData.status_history);
+      } catch (e) {
+        currentHistory = [];
+      }
+    }
+    currentHistory.push(notificationLog);
+
     const updateRes = await db.query(
       `UPDATE applications 
        SET 
          status = COALESCE($1, status),
-         status_history = COALESCE(status_history, '[]'::jsonb) || $2::jsonb,
+         status_history = $2::jsonb,
          updated_at = CURRENT_TIMESTAMP
-       WHERE id = $3
+       WHERE id::text = $3::text
        RETURNING *`,
-      [new_status || null, JSON.stringify([notificationLog]), id]
+      [new_status || null, JSON.stringify(currentHistory), id]
     );
 
     await logActivity('Sent Applicant Notification', 'Application', id, {
@@ -470,7 +497,7 @@ app.post('/api/admin/applications/:id/notify', async (req, res) => {
     });
   } catch (error) {
     console.error('Error sending applicant notification:', error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: 'Server Error: ' + error.message });
   }
 });
 
@@ -483,7 +510,7 @@ app.patch('/api/admin/applications/:id/notes', async (req, res) => {
     const result = await db.query(
       `UPDATE applications 
        SET internal_notes = $1, updated_at = CURRENT_TIMESTAMP 
-       WHERE id = $2 
+       WHERE id::text = $2::text 
        RETURNING *`,
       [internal_notes, id]
     );
@@ -494,7 +521,7 @@ app.patch('/api/admin/applications/:id/notes', async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: 'Server Error: ' + error.message });
   }
 });
 
@@ -503,48 +530,48 @@ app.put('/api/admin/applications/:id', async (req, res) => {
     const { status, internal_notes, note } = req.body;
     const { id } = req.params;
 
-    let updateQuery;
-    let queryParams;
+    const appRes = await db.query('SELECT * FROM applications WHERE id::text = $1::text', [id]);
+    if (appRes.rows.length === 0) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+    const appData = appRes.rows[0];
+
+    let currentHistory = [];
+    if (Array.isArray(appData.status_history)) {
+      currentHistory = appData.status_history;
+    } else if (typeof appData.status_history === 'string') {
+      try {
+        currentHistory = JSON.parse(appData.status_history);
+      } catch (e) {
+        currentHistory = [];
+      }
+    }
 
     if (status) {
-      const historyEntry = {
+      currentHistory.push({
         status,
         timestamp: new Date().toISOString(),
         note: note || 'Application details and status updated'
-      };
-      updateQuery = `
-        UPDATE applications 
-        SET 
-          status = $1, 
-          internal_notes = $2,
-          status_history = COALESCE(status_history, '[]'::jsonb) || $3::jsonb,
-          updated_at = CURRENT_TIMESTAMP
-        WHERE id = $4 
-        RETURNING *
-      `;
-      queryParams = [status, internal_notes, JSON.stringify([historyEntry]), id];
-    } else {
-      updateQuery = `
-        UPDATE applications 
-        SET 
-          internal_notes = $1,
-          updated_at = CURRENT_TIMESTAMP
-        WHERE id = $2 
-        RETURNING *
-      `;
-      queryParams = [internal_notes, id];
+      });
     }
 
-    const result = await db.query(updateQuery, queryParams);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Application not found' });
-    }
+    const result = await db.query(
+      `UPDATE applications 
+       SET 
+         status = COALESCE($1, status),
+         internal_notes = COALESCE($2, internal_notes),
+         status_history = $3::jsonb,
+         updated_at = CURRENT_TIMESTAMP
+       WHERE id::text = $4::text 
+       RETURNING *`,
+      [status || null, internal_notes !== undefined ? internal_notes : null, JSON.stringify(currentHistory), id]
+    );
 
     await logActivity('Updated Application Details', 'Application', id, { status, internal_notes });
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error modifying application:', error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: 'Server Error: ' + error.message });
   }
 });
 
@@ -552,11 +579,11 @@ app.put('/api/admin/applications/:id', async (req, res) => {
 app.delete('/api/admin/applications/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await db.query('DELETE FROM applications WHERE id = $1', [id]);
+    await db.query('DELETE FROM applications WHERE id::text = $1::text', [id]);
     await logActivity('Deleted Application', 'Application', id);
     res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: 'Server Error: ' + error.message });
   }
 });
 

@@ -314,6 +314,22 @@ function App() {
 
   // Candidate Application Actions
   const handleUpdateAppStatus = async (appId, newStatus, note = '') => {
+    // Optimistic UI state update
+    setApplications(prev => prev.map(a => {
+      if (String(a.id) === String(appId)) {
+        const newHist = [
+          ...(Array.isArray(a.status_history) ? a.status_history : []),
+          {
+            status: newStatus,
+            timestamp: new Date().toISOString(),
+            note: note || `Status changed to ${String(newStatus).replace('_', ' ').toUpperCase()}`
+          }
+        ];
+        return { ...a, status: newStatus, status_history: newHist };
+      }
+      return a;
+    }));
+
     try {
       const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/applications/${appId}/status`, {
         method: 'PATCH',
@@ -323,31 +339,50 @@ function App() {
       if (res.ok) {
         showToast(`Candidate stage moved to ${newStatus.replace('_', ' ')}`, 'success');
         fetchApplications();
+        return true;
       } else {
-        showToast('Failed to update stage', 'error');
+        const err = await res.json().catch(() => ({}));
+        showToast(err.message || 'Failed to update stage', 'error');
+        fetchApplications();
+        return false;
       }
     } catch (err) {
       console.error(err);
       showToast('Network error updating stage', 'error');
+      fetchApplications();
+      return false;
     }
   };
 
   const handleSaveAppNotes = async (appId, internalNotes) => {
+    // Optimistic UI state update
+    setApplications(prev => prev.map(a => {
+      if (String(a.id) === String(appId)) {
+        return { ...a, internal_notes: internalNotes };
+      }
+      return a;
+    }));
+
     try {
-      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/applications/${appId}`, {
-        method: 'PUT',
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/applications/${appId}/notes`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ internal_notes: internalNotes })
       });
       if (res.ok) {
         showToast('Internal evaluation notes saved', 'success');
         fetchApplications();
+        return true;
       } else {
         showToast('Failed to save notes', 'error');
+        fetchApplications();
+        return false;
       }
     } catch (err) {
       console.error(err);
       showToast('Network error saving notes', 'error');
+      fetchApplications();
+      return false;
     }
   };
 
@@ -363,7 +398,7 @@ function App() {
         fetchApplications();
         return true;
       } else {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         showToast(err.message || 'Failed to dispatch notification', 'error');
         return false;
       }
