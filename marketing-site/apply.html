@@ -831,18 +831,53 @@
             }
             if (Array.isArray(areas) && areas.length > 0) {
                 const areasContainer = document.getElementById('areas-of-contribution-container');
-                let html = `<label>Areas of Contribution <span class="req-star">*</span></label>`;
-                html += `<div class="checkbox-group" style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">`;
+                const isRequired = opp.applicant_config?.areas_of_contribution_required === true;
+                const reqStarHtml = isRequired ? '<span class="req-star">*</span>' : '';
+                let html = `<label>Areas of Contribution ${reqStarHtml}</label>`;
+                
+                html += `<div class="areas-pill-group" style="display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.6rem;">`;
                 areas.forEach(area => {
                     html += `
-                        <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
-                            <input type="checkbox" name="areas_of_contribution_cb" value="${area}" style="width: 16px; height: 16px;">
-                            ${area}
+                        <label class="area-pill-label" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; user-select: none;">
+                            <input type="checkbox" name="areas_of_contribution_cb" value="${area}" style="width: 14px; height: 14px; cursor: pointer; margin: 0;">
+                            <span>${area}</span>
                         </label>
                     `;
                 });
                 html += `</div>`;
+                // Add styles for the checked state
+                html += `
+                <style>
+                    .area-pill-label:has(input:checked) {
+                        background: rgba(212, 175, 55, 0.15) !important;
+                        border-color: rgba(212, 175, 55, 0.5) !important;
+                        color: #ffffff;
+                    }
+                    .area-pill-label:hover {
+                        background: rgba(255,255,255,0.08);
+                    }
+                </style>
+                `;
                 areasContainer.innerHTML = html;
+            } else {
+                document.getElementById('areas-of-contribution-container').style.display = 'none';
+            }
+
+            // Handle Skills
+            let skillsList = opp.skills;
+            if (typeof skillsList === 'string') {
+                try { skillsList = JSON.parse(skillsList); } catch(e) { skillsList = []; }
+            }
+            if (!Array.isArray(skillsList) || skillsList.length === 0) {
+                document.getElementById('skills-container').style.display = 'none';
+                document.getElementById('skills').removeAttribute('required');
+            } else {
+                const isRequired = opp.applicant_config?.skills_required !== false;
+                if (!isRequired) {
+                    document.getElementById('skills').removeAttribute('required');
+                    const reqStar = document.querySelector('#skills-label .req-star');
+                    if (reqStar) reqStar.style.display = 'none';
+                }
             }
 
             if (window.lucide) window.lucide.createIcons();
@@ -1005,10 +1040,11 @@
                 form.experience_level.classList.add('is-invalid');
             }
 
-            const skills = form.skills.value.trim();
-            if (!skills) {
+            const skills = form.skills ? form.skills.value.trim() : '';
+            const isSkillsRequired = currentOpportunity?.applicant_config?.skills_required !== false && (!Array.isArray(currentOpportunity?.skills) || currentOpportunity?.skills.length > 0);
+            if (isSkillsRequired && !skills) {
                 errors.push('Please specify at least one skill or technology.');
-                form.skills.classList.add('is-invalid');
+                if (form.skills) form.skills.classList.add('is-invalid');
             }
 
             const availability = form.availability.value;
@@ -1073,6 +1109,11 @@
                 areasVal = Array.from(cbNodes).map(cb => cb.value).join(', ');
             } else if (form.areas_of_contribution) {
                 areasVal = form.areas_of_contribution.value.trim();
+            }
+
+            const isAreasRequired = currentOpportunity?.applicant_config?.areas_of_contribution_required === true && (!Array.isArray(currentOpportunity?.areas_of_contribution) || currentOpportunity?.areas_of_contribution.length > 0);
+            if (isAreasRequired && !areasVal) {
+                errors.push('Please select at least one area of contribution.');
             }
 
             const payload = {

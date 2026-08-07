@@ -20,14 +20,17 @@ const FIELD_TYPES       = ['text','textarea','email','phone','url','number','sel
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function Section({ title, icon, defaultOpen = true, children }) {
+function Section({ title, icon, defaultOpen = true, headerRight, children }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="opp-section">
-      <button type="button" className="opp-section-header" onClick={() => setOpen(o => !o)}>
-        <span className="opp-section-title">{icon} {title}</span>
-        {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-      </button>
+      <div className="opp-section-header-wrap" style={{ display: 'flex', alignItems: 'center' }}>
+        <button type="button" className="opp-section-header" onClick={() => setOpen(o => !o)} style={{ flex: 1 }}>
+          <span className="opp-section-title">{icon} {title}</span>
+          {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </button>
+        {headerRight && <div className="opp-section-header-right">{headerRight}</div>}
+      </div>
       {open && <div className="opp-section-body">{children}</div>}
     </div>
   );
@@ -608,6 +611,13 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
     try { return JSON.parse(raw); } catch { return []; }
   });
 
+  const [applicantConfig, setApplicantConfig] = useState(() => {
+    const raw = initial?.applicant_config;
+    if (!raw) return { skills_required: true, areas_of_contribution_required: false };
+    if (typeof raw === 'object') return raw;
+    try { return JSON.parse(raw); } catch { return { skills_required: true, areas_of_contribution_required: false }; }
+  });
+
   // ── Section 7: Visibility
   const [publishNow, setPublishNow]       = useState(initial?.publish_immediately || false);
   const [acceptApps, setAcceptApps]       = useState(initial?.accept_applications !== false);
@@ -647,6 +657,7 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
     benefits: JSON.stringify(benefits.map(b => b.value)),
     skills,
     areas_of_contribution: areasOfContribution,
+    applicant_config: applicantConfig,
     form_fields: formFields.map(({ id, ...rest }) => rest),
     publish_immediately: publishNow,
     accept_applications: acceptApps,
@@ -839,7 +850,12 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
           </Section>
 
           {/* S6: Skills */}
-          <Section title="Skills" icon="🛠">
+          <Section title="Skills" icon="🛠" headerRight={
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748b', marginRight: '16px', cursor: 'pointer' }}>
+              <input type="checkbox" checked={applicantConfig.skills_required} onChange={e => setApplicantConfig(prev => ({ ...prev, skills_required: e.target.checked }))} />
+              Required on Application
+            </label>
+          }>
             <TagsInput
               label="Required / Preferred Skills"
               selected={skills}
@@ -848,7 +864,12 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
             />
           </Section>
 
-          <Section title="Areas of Contribution" icon="🎯">
+          <Section title="Areas of Contribution" icon="🎯" headerRight={
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748b', marginRight: '16px', cursor: 'pointer' }}>
+              <input type="checkbox" checked={applicantConfig.areas_of_contribution_required} onChange={e => setApplicantConfig(prev => ({ ...prev, areas_of_contribution_required: e.target.checked }))} />
+              Required on Application
+            </label>
+          }>
             <TagsInput
               label="Available Areas of Contribution"
               selected={areasOfContribution}
