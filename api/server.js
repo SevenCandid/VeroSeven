@@ -91,7 +91,14 @@ app.use(express.json());
          'note', 'Application received'
        )
      )
-     WHERE status_history IS NULL OR status_history = '[]'::jsonb`
+     WHERE status_history IS NULL OR status_history = '[]'::jsonb`,
+    `CREATE TABLE IF NOT EXISTS teams (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      description TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `ALTER TABLE team_members ADD COLUMN IF NOT EXISTS team_id INT`
   ];
 
   for (const sql of migrations) {
@@ -630,10 +637,60 @@ app.delete('/api/admin/projects/:id', async (req, res) => {
   }
 });
 
+// Teams Routes
+app.get('/api/admin/teams', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM teams ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+app.post('/api/admin/teams', async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const result = await db.query(
+      'INSERT INTO teams (name, description) VALUES ($1, $2) RETURNING *',
+      [name, description || '']
+    );
+    await logActivity('Created Team', 'Team', result.rows[0].id, { name });
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+app.put('/api/admin/teams/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description } = req.body;
+    const result = await db.query(
+      'UPDATE teams SET name=$1, description=$2 WHERE id=$3 RETURNING *',
+      [name, description || '', id]
+    );
+    await logActivity('Updated Team', 'Team', id, { name });
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+app.delete('/api/admin/teams/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.query('DELETE FROM teams WHERE id=$1', [id]);
+    await logActivity('Deleted Team', 'Team', id);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
 // Team Members Routes
 app.get('/api/admin/team-members', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM team_members ORDER BY project_group, name');
+    const result = await db.query('SELECT * FROM team_members ORDER BY team_id, name');
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
@@ -642,12 +699,12 @@ app.get('/api/admin/team-members', async (req, res) => {
 
 app.post('/api/admin/team-members', async (req, res) => {
   try {
-    const { name, role, email, project_group, status } = req.body;
+    const { name, role, email, project_group, status, team_id } = req.body;
     const result = await db.query(
-      'INSERT INTO team_members (name, role, email, project_group, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [name, role, email, project_group, status]
+      'INSERT INTO team_members (name, role, email, project_group, status, team_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [name, role, email, project_group, status, team_id || null]
     );
-    await logActivity('Added Team Member', 'TeamMember', result.rows[0].id, { name, project_group });
+    await logActivity('Added Team Member', 'TeamMember', result.rows[0].id, { name, team_id });
     res.status(201).json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
@@ -657,12 +714,12 @@ app.post('/api/admin/team-members', async (req, res) => {
 app.put('/api/admin/team-members/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, role, email, project_group, status } = req.body;
+    const { name, role, email, project_group, status, team_id } = req.body;
     const result = await db.query(
-      'UPDATE team_members SET name=$1, role=$2, email=$3, project_group=$4, status=$5 WHERE id=$6 RETURNING *',
-      [name, role, email, project_group, status, id]
+      'UPDATE team_members SET name=$1, role=$2, email=$3, project_group=$4, status=$5, team_id=$6 WHERE id=$7 RETURNING *',
+      [name, role, email, project_group, status, team_id || null, id]
     );
-    await logActivity('Updated Team Member', 'TeamMember', id, { name, project_group });
+    await logActivity('Updated Team Member', 'TeamMember', id, { name, team_id });
     res.json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });

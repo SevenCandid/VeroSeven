@@ -11,6 +11,7 @@ import OpportunityManagement from './components/OpportunityManager/OpportunityMa
 import ApplicationManagement from './components/ApplicationManager/ApplicationManagement';
 import OverviewDashboard from './components/Overview/OverviewDashboard';
 import ExperienceManager from './components/ExperienceManager/ExperienceManager';
+import TeamManagement from './components/TeamManager/TeamManagement';
 import Toast from './components/Toast';
 import {
   Globe, Settings, BookOpen, Pencil, Trash2, LogOut, Plus, Search, ExternalLink
@@ -1034,57 +1035,8 @@ function App() {
 
                   {/* TEAM TAB */}
                   {activeTab === 'team' && (
-                    <div className="data-table-container">
-                      <div style={{ padding: '1rem', display: 'flex', justifyContent: 'flex-end', borderBottom: '1px solid var(--border-color)' }}>
-                        <button className="btn-text" onClick={() => setTeamModal({ show: true, mode: 'create', data: null })}>
-                          <><Plus size={16} style={{marginRight: "4px", verticalAlign: "middle"}} /> Add Team Member</>
-                        </button>
-                      </div>
-                      {loading ? <p style={{padding: '1rem'}}>Loading team members...</p> : (
-                        <div className="table-responsive">
-                          <table className="data-table">
-                            <thead>
-                              <tr>
-                                <th>Name</th>
-                                <th>Role</th>
-                                <th>Project / Group</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {teamMembers.length === 0 ? (
-                                <tr><td colSpan="5" style={{textAlign: 'center'}}>No team members added yet.</td></tr>
-                              ) : (
-                                teamMembers.map(member => (
-                                  <tr key={member.id}>
-                                    <td>{member.name} {member.email && <div style={{fontSize: '0.8rem', color: 'var(--text-secondary)'}}>{member.email}</div>}</td>
-                                    <td>{member.role}</td>
-                                    <td>
-                                      <span style={{padding: '0.2rem 0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.1)', fontSize: '0.85rem'}}>
-                                        {member.project_group}
-                                      </span>
-                                    </td>
-                                    <td>
-                                      <span className={`status-badge ${member.status === 'active' ? 'active' : 'pending'}`}>
-                                        {member.status}
-                                      </span>
-                                    </td>
-                                    <td>
-                                      <button className="btn-text" onClick={() => setTeamModal({ show: true, mode: 'edit', data: member })}>
-                                        Edit
-                                      </button>
-                                      <button className="btn-icon" onClick={() => setTeamToDelete(member.id)} title="Remove Member">
-                                        <Trash2 size={16} />
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
+                    <div style={{ padding: '1rem' }}>
+                      <TeamManagement apiFetch={apiFetch} showToast={showToast} />
                     </div>
                   )}
 
