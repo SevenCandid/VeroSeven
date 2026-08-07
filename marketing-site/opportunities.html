@@ -114,6 +114,10 @@
   <section class="section">
     <div class="container">
       
+      <!-- Category Filter Pills -->
+      <div id="category-filter-wrapper" style="margin-bottom: 2rem; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
+        <!-- JS will populate category filters -->
+      </div>
 
       <div class="grid grid-2" style="gap:1.5rem;" id="opportunities-grid">
         <!-- JS will populate -->
@@ -177,37 +181,109 @@
 
   <script src="js/main.js"></script>
   <script>
+    window.activeCategoryFilter = 'All';
+
+    function getOppCategories(opp) {
+      if (Array.isArray(opp.categories) && opp.categories.length > 0) return opp.categories;
+      if (typeof opp.categories === 'string') {
+        try {
+          const parsed = JSON.parse(opp.categories);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch(e) {}
+      }
+      return opp.category ? [opp.category] : [];
+    }
+
+    function renderCategoryFilters(allOpps) {
+      const filterWrapper = document.getElementById('category-filter-wrapper');
+      if (!filterWrapper) return;
+
+      const categorySet = new Set();
+      allOpps.forEach(opp => {
+        getOppCategories(opp).forEach(c => categorySet.add(c));
+      });
+
+      const uniqueCategories = ['All', ...Array.from(categorySet)];
+      if (uniqueCategories.length <= 1) {
+        filterWrapper.innerHTML = '';
+        return;
+      }
+
+      filterWrapper.innerHTML = uniqueCategories.map(cat => {
+        const isActive = (window.activeCategoryFilter || 'All') === cat;
+        return `
+          <button
+            type="button"
+            onclick="setCategoryFilter('${cat.replace(/'/g, "\\'")}')"
+            class="blog-tag"
+            style="cursor: pointer; border-radius: 999px; padding: 0.4rem 1rem; font-size: 0.78rem; font-family: inherit; transition: all 0.2s ease; ${
+              isActive
+                ? 'background: var(--color-accent); color: var(--color-primary); font-weight: 700; border-color: var(--color-accent);'
+                : 'background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15);'
+            }"
+          >
+            ${cat}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderOppsGrid(oppsToRender) {
+      const gridContainer = document.getElementById('opportunities-grid');
+      let delay = 0;
+
+      if (!oppsToRender || oppsToRender.length === 0) {
+        gridContainer.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:rgba(255,255,255,0.5); padding: 3rem 0;">No open opportunities match this category.</p>';
+        return;
+      }
+
+      gridContainer.innerHTML = oppsToRender.map((opp) => {
+        const globalIdx = window.oppData.indexOf(opp);
+        const cats = getOppCategories(opp);
+        const catChips = cats.map(c => `<span class="blog-tag">${c}</span>`).join(' ');
+        const typeStr = Array.isArray(opp.type) ? opp.type.join(', ') : (opp.type || '');
+        const locStr = opp.location_type || opp.location || 'Remote';
+
+        const cardHtml = `
+          <div class="glass-panel blog-card fade-up in-view" style="animation-delay:${delay}s;" onclick="openModal(${globalIdx})">
+            <div class="blog-meta" style="flex-wrap: wrap; gap: 0.4rem 0.6rem;">
+              ${catChips || '<span class="blog-tag">General</span>'}
+              ${typeStr ? `<span class="dot"></span><span style="color:var(--color-accent)">${typeStr}</span>` : ''}
+              <span class="dot"></span>
+              <span>${locStr}</span>
+            </div>
+            <h3 class="blog-title" style="margin-top: 0.5rem;">${opp.title}</h3>
+            ${opp.summary ? `<p class="blog-excerpt">${opp.summary}</p>` : ''}
+            <div class="blog-read-more" style="margin-top: auto; padding-top: 1rem;">View Details <i data-lucide="arrow-right"></i></div>
+          </div>
+        `;
+        delay += 0.08;
+        return cardHtml;
+      }).join('');
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    window.setCategoryFilter = function(cat) {
+      window.activeCategoryFilter = cat;
+      renderCategoryFilters(window.oppData);
+      if (cat === 'All') {
+        renderOppsGrid(window.oppData);
+      } else {
+        const filtered = window.oppData.filter(opp => getOppCategories(opp).includes(cat));
+        renderOppsGrid(filtered);
+      }
+    };
+
     document.addEventListener('DOMContentLoaded', async () => {
       window.oppData = [];
       try {
-        const apiHost = window.location.hostname || 'localhost';
         const res = await fetch(`https://veroseven-api.onrender.com/api/opportunities`);
         if (res.ok) {
           const opps = await res.json();
           window.oppData = opps;
-          const gridContainer = document.getElementById('opportunities-grid');
-          let delay = 0;
-          
-          if(opps.length === 0) {
-            gridContainer.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:rgba(255,255,255,0.5);">No open opportunities right now. Check back later!</p>';
-          }
-
-          opps.forEach((opp, idx) => {
-            gridContainer.innerHTML += `
-              <div class="glass-panel blog-card fade-up in-view" style="animation-delay:${delay}s;" onclick="openModal(${idx})">
-                <div class="blog-meta">
-                  <span class="blog-tag">${opp.category}</span>
-                  <span class="dot"></span>
-                  <span style="color:var(--color-accent)">${opp.type}</span>
-                  <span class="dot"></span>
-                  <span>${opp.location}</span>
-                </div>
-                <h3 class="blog-title">${opp.title}</h3>
-                <div class="blog-read-more" style="margin-top:1rem;">View Details <i data-lucide="arrow-right"></i></div>
-              </div>
-            `;
-            delay += 0.1;
-          });
+          renderCategoryFilters(opps);
+          renderOppsGrid(opps);
         }
       } catch (err) {
         console.error('Failed to fetch opportunities:', err);
@@ -216,11 +292,23 @@
 
     window.openModal = function(idx) {
       const opp = window.oppData[idx];
-      document.getElementById('modalMeta').innerHTML = '<span class="blog-tag">' + opp.category + '</span><span class="dot"></span><span style="color:var(--color-accent)">' + opp.type + '</span><span class="dot"></span><span>' + opp.location + '</span>';
+      if (!opp) return;
+
+      const cats = getOppCategories(opp);
+      const catChips = cats.map(c => '<span class="blog-tag">' + c + '</span>').join(' ');
+      const typeStr = Array.isArray(opp.type) ? opp.type.join(', ') : (opp.type || '');
+      const locStr = opp.location_type || opp.location || 'Remote';
+
+      document.getElementById('modalMeta').innerHTML =
+        catChips +
+        (typeStr ? '<span class="dot"></span><span style="color:var(--color-accent)">' + typeStr + '</span>' : '') +
+        '<span class="dot"></span><span>' + locStr + '</span>';
+      
       document.getElementById('modalTitle').innerText = opp.title;
       
-      const contentHtml = opp.description.replace(/\n/g, '<br/>');
-      const applyBtn = '<div style="margin-top:2rem;"><a href="mailto:hello@veroseven.com?subject=Application for ' + encodeURIComponent(opp.title) + '" class="btn btn-primary">Apply Now</a></div>';
+      const contentHtml = (opp.description || opp.summary || '').replace(/\n/g, '<br/>');
+      const applyHref = opp.id ? `apply.html?id=${opp.id}` : `mailto:hello@veroseven.com?subject=Application for ${encodeURIComponent(opp.title)}`;
+      const applyBtn = '<div style="margin-top:2rem;"><a href="' + applyHref + '" class="btn btn-primary" style="display:inline-block; padding: 0.75rem 1.75rem;">Apply Now</a></div>';
       
       document.getElementById('modalContent').innerHTML = contentHtml + applyBtn;
       document.getElementById('oppModal').style.display = 'block';
@@ -231,8 +319,7 @@
 
   <!-- Modal for full update content -->
   <style>
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px); }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
     .modal-content { background: var(--color-primary); width: 90%; max-width: 800px; margin: 5rem auto; padding: 3rem; border-radius: 24px; border: 1px solid rgba(212,175,55,0.3); position: relative; max-height: 80vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,0.8); }
     .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; }
     

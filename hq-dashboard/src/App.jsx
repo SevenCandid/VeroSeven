@@ -66,6 +66,9 @@ function App() {
   const [appStatusFilter, setAppStatusFilter] = useState('all');
   const [projSearch, setProjSearch] = useState('');
   const [projStatusFilter, setProjStatusFilter] = useState('all');
+  const [oppSearch, setOppSearch] = useState('');
+  const [oppCategoryFilter, setOppCategoryFilter] = useState('all');
+  const [oppStatusFilter, setOppStatusFilter] = useState('all');
 
   // Teams
   const [teamMembers, setTeamMembers] = useState([]);
@@ -1113,63 +1116,168 @@ function App() {
             </div>
           )}
 
-          {activeTab === 'opportunities' && (
-            <div className="data-table-container">
-              <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)' }}>
-                <div>
-                  <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{opportunities.length} opportunit{opportunities.length !== 1 ? 'ies' : 'y'}</span>
+          {activeTab === 'opportunities' && (() => {
+            const allOppCategories = Array.from(new Set(opportunities.flatMap(opp => {
+              let cats = opp.categories;
+              if (typeof cats === 'string') {
+                try { cats = JSON.parse(cats); } catch (e) { cats = [cats]; }
+              }
+              if (!Array.isArray(cats) || cats.length === 0) {
+                return opp.category ? [opp.category] : [];
+              }
+              return cats;
+            }))).filter(Boolean);
+
+            const filteredOpportunities = opportunities.filter(opp => {
+              let cats = opp.categories;
+              if (typeof cats === 'string') {
+                try { cats = JSON.parse(cats); } catch (e) { cats = [cats]; }
+              }
+              if (!Array.isArray(cats) || cats.length === 0) {
+                cats = opp.category ? [opp.category] : [];
+              }
+
+              if (oppStatusFilter !== 'all' && (opp.status || 'draft').toLowerCase() !== oppStatusFilter.toLowerCase()) return false;
+              if (oppCategoryFilter !== 'all' && !cats.includes(oppCategoryFilter)) return false;
+
+              if (oppSearch.trim()) {
+                const q = oppSearch.toLowerCase();
+                const titleMatch = (opp.title || '').toLowerCase().includes(q);
+                const summaryMatch = (opp.summary || '').toLowerCase().includes(q);
+                const typeMatch = Array.isArray(opp.type) ? opp.type.some(t => t.toLowerCase().includes(q)) : (opp.type || '').toLowerCase().includes(q);
+                const catMatch = cats.some(c => c.toLowerCase().includes(q));
+                if (!titleMatch && !summaryMatch && !typeMatch && !catMatch) return false;
+              }
+              return true;
+            });
+
+            return (
+              <div className="data-table-container">
+                <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', borderBottom: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', flex: 1 }}>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Search opportunities (title, type, category)..."
+                      value={oppSearch}
+                      onChange={e => setOppSearch(e.target.value)}
+                      style={{ maxWidth: '280px', padding: '0.45rem 0.75rem', fontSize: '0.82rem' }}
+                    />
+                    <select
+                      className="form-control"
+                      value={oppCategoryFilter}
+                      onChange={e => setOppCategoryFilter(e.target.value)}
+                      style={{ maxWidth: '180px', padding: '0.45rem 0.75rem', fontSize: '0.82rem' }}
+                    >
+                      <option value="all">All Categories</option>
+                      {allOppCategories.map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                    <select
+                      className="form-control"
+                      value={oppStatusFilter}
+                      onChange={e => setOppStatusFilter(e.target.value)}
+                      style={{ maxWidth: '130px', padding: '0.45rem 0.75rem', fontSize: '0.82rem' }}
+                    >
+                      <option value="all">All Status</option>
+                      <option value="active">Active</option>
+                      <option value="draft">Draft</option>
+                      <option value="closed">Closed</option>
+                    </select>
+                    <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                      Showing {filteredOpportunities.length} of {opportunities.length}
+                    </span>
+                  </div>
+                  <button className="btn-text" onClick={() => { setEditOppData(null); setShowOppForm(true); }}>
+                    <><Plus size={16} style={{marginRight: "4px", verticalAlign: "middle"}} /> Add Opportunity</>
+                  </button>
                 </div>
-                <button className="btn-text" onClick={() => { setEditOppData(null); setShowOppForm(true); }}>
-                  <><Plus size={16} style={{marginRight: "4px", verticalAlign: "middle"}} /> Add Opportunity</>
-                </button>
+                {loading ? <p style={{padding: '1rem'}}>Loading opportunities...</p> : (
+                  <div className="table-responsive">
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>Title</th>
+                          <th>Type</th>
+                          <th>Categories</th>
+                          <th>Location</th>
+                          <th>Status</th>
+                          <th>Featured</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredOpportunities.length === 0 ? (
+                          <tr><td colSpan="7" style={{textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)'}}>No opportunities match your filter.</td></tr>
+                        ) : (
+                          filteredOpportunities.map(opp => {
+                            let cats = opp.categories;
+                            if (typeof cats === 'string') {
+                              try { cats = JSON.parse(cats); } catch (e) { cats = [cats]; }
+                            }
+                            if (!Array.isArray(cats) || cats.length === 0) {
+                              cats = opp.category ? [opp.category] : [];
+                            }
+
+                            return (
+                              <tr key={opp.id}>
+                                <td>
+                                  <strong>{opp.title}</strong>
+                                  {opp.summary && <div style={{fontSize:'0.73rem',color:'var(--text-secondary)',marginTop:'2px'}}>{opp.summary}</div>}
+                                </td>
+                                <td>{Array.isArray(opp.type) ? opp.type.join(', ') : (opp.type || '—')}</td>
+                                <td>
+                                  {cats.length === 0 ? (
+                                    <span style={{ color: 'var(--text-secondary)' }}>—</span>
+                                  ) : (
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                                      {cats.map(cat => (
+                                        <span
+                                          key={cat}
+                                          style={{
+                                            fontSize: '0.72rem',
+                                            padding: '0.15rem 0.5rem',
+                                            borderRadius: '4px',
+                                            background: 'rgba(168, 85, 247, 0.15)',
+                                            color: '#d8b4fe',
+                                            border: '1px solid rgba(168, 85, 247, 0.3)',
+                                            fontWeight: 500,
+                                            whiteSpace: 'nowrap'
+                                          }}
+                                        >
+                                          {cat}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </td>
+                                <td>{opp.location_type || opp.location || '—'}</td>
+                                <td>
+                                  <span className={`status-badge ${opp.status === 'active' ? 'active' : opp.status === 'closed' ? 'pending' : 'pending'}`}>
+                                    {opp.status}
+                                  </span>
+                                </td>
+                                <td style={{textAlign:'center'}}>{opp.featured ? '⭐' : '—'}</td>
+                                <td>
+                                  <button className="btn-text" onClick={() => { setEditOppData(opp); setShowOppForm(true); }}>
+                                    Edit
+                                  </button>
+                                  <button className="btn-icon" onClick={() => setOppToDelete(opp.id)} title="Delete Opportunity">
+                                    <Trash2 size={16} />
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
-              {loading ? <p style={{padding: '1rem'}}>Loading opportunities...</p> : (
-                <div className="table-responsive">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Title</th>
-                        <th>Type</th>
-                        <th>Category</th>
-                        <th>Location</th>
-                        <th>Status</th>
-                        <th>Featured</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {opportunities.length === 0 ? (
-                        <tr><td colSpan="7" style={{textAlign: 'center'}}>No opportunities yet.</td></tr>
-                      ) : (
-                        opportunities.map(opp => (
-                          <tr key={opp.id}>
-                            <td><strong>{opp.title}</strong>{opp.summary && <div style={{fontSize:'0.73rem',color:'var(--text-secondary)',marginTop:'2px'}}>{opp.summary}</div>}</td>
-                            <td>{Array.isArray(opp.type) ? opp.type.join(', ') : (opp.type || '—')}</td>
-                            <td>{opp.category || '—'}</td>
-                            <td>{opp.location_type || opp.location || '—'}</td>
-                            <td>
-                              <span className={`status-badge ${opp.status === 'active' ? 'active' : opp.status === 'closed' ? 'pending' : 'pending'}`}>
-                                {opp.status}
-                              </span>
-                            </td>
-                            <td style={{textAlign:'center'}}>{opp.featured ? '⭐' : '—'}</td>
-                            <td>
-                              <button className="btn-text" onClick={() => { setEditOppData(opp); setShowOppForm(true); }}>
-                                Edit
-                              </button>
-                              <button className="btn-icon" onClick={() => setOppToDelete(opp.id)} title="Delete Opportunity">
-                                <Trash2 size={16} />
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          )}
+            );
+          })()}
 
           {activeTab === 'cms' && (
             <div className="cms-container" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1rem' }}>

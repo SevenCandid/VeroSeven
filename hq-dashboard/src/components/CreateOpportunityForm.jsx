@@ -114,6 +114,134 @@ function CheckGroup({ label, options, selected, setSelected, single }) {
   );
 }
 
+function CategoryMultiSelect({ selected = [], setSelected }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [customList, setCustomList] = useState(CATEGORIES);
+
+  const allAvailableCategories = Array.from(new Set([...customList, ...selected]));
+
+  const filteredCategories = allAvailableCategories.filter(cat =>
+    cat.toLowerCase().includes(searchTerm.trim().toLowerCase())
+  );
+
+  const isExactMatch = allAvailableCategories.some(
+    cat => cat.toLowerCase() === searchTerm.trim().toLowerCase()
+  );
+
+  const addCategory = (cat) => {
+    const trimmed = cat.trim();
+    if (!trimmed) return;
+    if (!selected.includes(trimmed)) {
+      setSelected([...selected, trimmed]);
+    }
+    if (!customList.includes(trimmed)) {
+      setCustomList(prev => [...prev, trimmed]);
+    }
+    setSearchTerm('');
+  };
+
+  const removeCategory = (cat) => {
+    setSelected(selected.filter(c => c !== cat));
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (searchTerm.trim()) {
+        addCategory(searchTerm.trim());
+      }
+    }
+  };
+
+  return (
+    <div className="opp-field category-multi-select-field">
+      <div className="category-select-header">
+        <label className="opp-label">
+          Categories <span className="required-star">*</span>
+          <span className="opp-label-sub"> (Select one or multiple areas)</span>
+        </label>
+        {selected.length > 0 && (
+          <button
+            type="button"
+            className="category-clear-btn"
+            onClick={() => setSelected([])}
+          >
+            Clear all ({selected.length})
+          </button>
+        )}
+      </div>
+
+      {selected.length > 0 && (
+        <div className="selected-categories-chips">
+          {selected.map(cat => (
+            <span key={cat} className="category-chip selected">
+              <span className="category-chip-text">{cat}</span>
+              <button
+                type="button"
+                className="category-chip-remove"
+                onClick={() => removeCategory(cat)}
+                title={`Remove ${cat}`}
+              >
+                <X size={12} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="category-search-bar">
+        <input
+          type="text"
+          className="opp-input category-search-input"
+          placeholder="Search categories or type a new custom category & press Enter…"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+        {searchTerm.trim() && !isExactMatch && (
+          <button
+            type="button"
+            className="opp-add-custom-cat-btn"
+            onClick={() => addCategory(searchTerm.trim())}
+          >
+            <Plus size={14} /> Add "{searchTerm.trim()}"
+          </button>
+        )}
+      </div>
+
+      <div className="category-suggestions-wrapper">
+        <div className="category-suggestions-title">
+          {searchTerm ? 'Matching Categories:' : 'Suggested Categories (Click to select/unselect):'}
+        </div>
+        <div className="category-suggestions-list">
+          {filteredCategories.map(cat => {
+            const isSelected = selected.includes(cat);
+            return (
+              <button
+                key={cat}
+                type="button"
+                className={`category-suggestion-pill ${isSelected ? 'is-selected' : ''}`}
+                onClick={() => isSelected ? removeCategory(cat) : addCategory(cat)}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  if (isSelected) removeCategory(cat);
+                  else addCategory(cat);
+                }}
+              >
+                {isSelected ? <Check size={12} className="pill-check-icon" /> : <Plus size={12} className="pill-plus-icon" />}
+                <span>{cat}</span>
+              </button>
+            );
+          })}
+          {filteredCategories.length === 0 && !searchTerm.trim() && (
+            <span className="no-categories-hint">No categories found.</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Toggle({ label, desc, checked, onChange }) {
   return (
     <div className="toggle-row" onClick={() => onChange(!checked)} role="button" tabIndex={0} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onChange(!checked); } }}>
@@ -198,95 +326,103 @@ function FormBuilder({ fields, setFields }) {
     }));
   };
 
-  // Drag reorder
-  const dragItem = useRef(null);
-  const dragOver = useRef(null);
-  const handleDrop = () => {
+  // Drag-to-reorder fields
+  const dragField = useRef(null);
+  const dragOverField = useRef(null);
+  const handleFieldDrop = () => {
     const copy = [...fields];
-    const dragged = copy.splice(dragItem.current, 1)[0];
-    copy.splice(dragOver.current, 0, dragged);
-    dragItem.current = null; dragOver.current = null;
+    const dragged = copy.splice(dragField.current, 1)[0];
+    copy.splice(dragOverField.current, 0, dragged);
+    dragField.current = null; dragOverField.current = null;
     setFields(copy);
   };
 
   return (
-    <div className="form-builder">
-      <div className="field-type-picker">
-        <span className="opp-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Add Field:</span>
-        <div className="field-type-grid">
+    <div className="opp-field">
+      <div className="form-builder-toolbar">
+        <span className="toolbar-label">Add Field:</span>
+        <div className="field-type-chips">
           {FIELD_TYPES.map(ft => (
-            <button key={ft} type="button" className="field-type-btn" onClick={() => addField(ft)}>
-              <Plus size={12} /> {ft}
+            <button key={ft} type="button" className="field-type-chip" onClick={() => addField(ft)}>
+              <Plus size={11} /> {ft}
             </button>
           ))}
         </div>
       </div>
+
       {fields.length === 0 && (
-        <div className="form-builder-empty">
-          <AlertCircle size={24} />
-          <p>No fields added yet. Click a field type above to start building your application form.</p>
+        <div className="empty-fields-notice">
+          No custom fields added yet. Default fields (Full Name, Email, Phone, Background, Availability, Motivation) will be used.
         </div>
       )}
-      <div className="form-builder-fields">
-        {fields.map((field, i) => (
-          <div
-            key={field.id}
-            className="form-builder-field"
+
+      <div className="form-fields-list">
+        {fields.map((f, i) => (
+          <div key={f.id} className="field-builder-card"
             draggable
-            onDragStart={() => { dragItem.current = i; }}
-            onDragEnter={() => { dragOver.current = i; }}
-            onDragEnd={handleDrop}
+            onDragStart={() => { dragField.current = i; }}
+            onDragEnter={() => { dragOverField.current = i; }}
+            onDragEnd={handleFieldDrop}
             onDragOver={e => e.preventDefault()}
           >
-            <div className="fb-field-header">
-              <GripVertical size={14} className="drag-handle" />
-              <span className="fb-field-type">{field.type}</span>
-              <span className="fb-field-label-preview">{field.label || 'Untitled Field'}</span>
-              {field.required && <span className="fb-required-badge">Required</span>}
-              <button type="button" className="list-remove-btn" onClick={() => removeField(field.id)}><Trash2 size={13} /></button>
+            <div className="field-card-header">
+              <div className="field-card-drag"><GripVertical size={14} /></div>
+              <span className="field-type-badge">{f.type}</span>
+              <input
+                type="text"
+                className="field-label-input"
+                placeholder="Field Label (e.g. GitHub Profile URL)"
+                value={f.label}
+                onChange={e => updateField(f.id, 'label', e.target.value)}
+              />
+              <button type="button" className="field-remove-btn" onClick={() => removeField(f.id)}><Trash2 size={14} /></button>
             </div>
-            <div className="fb-field-config">
-              <div className="fb-config-grid">
-                <div className="opp-field">
-                  <label className="opp-label">Label *</label>
-                  <input className="opp-input" type="text" value={field.label}
-                    onChange={e => updateField(field.id, 'label', e.target.value)} placeholder="Field label" />
-                </div>
-                <div className="opp-field">
-                  <label className="opp-label">Placeholder</label>
-                  <input className="opp-input" type="text" value={field.placeholder}
-                    onChange={e => updateField(field.id, 'placeholder', e.target.value)} placeholder="Placeholder text" />
-                </div>
-                <div className="opp-field">
-                  <label className="opp-label">Help Text</label>
-                  <input className="opp-input" type="text" value={field.helpText}
-                    onChange={e => updateField(field.id, 'helpText', e.target.value)} placeholder="Shown below field" />
-                </div>
-                <div className="opp-field">
-                  <label className="opp-label">Default Value</label>
-                  <input className="opp-input" type="text" value={field.defaultValue}
-                    onChange={e => updateField(field.id, 'defaultValue', e.target.value)} placeholder="Pre-filled value" />
-                </div>
+            <div className="field-card-body">
+              <div className="field-card-row">
+                <input
+                  type="text"
+                  className="opp-input opp-input-sm"
+                  placeholder="Placeholder text…"
+                  value={f.placeholder}
+                  onChange={e => updateField(f.id, 'placeholder', e.target.value)}
+                />
+                <input
+                  type="text"
+                  className="opp-input opp-input-sm"
+                  placeholder="Help text / description…"
+                  value={f.helpText || ''}
+                  onChange={e => updateField(f.id, 'helpText', e.target.value)}
+                />
               </div>
-              {(field.type === 'select' || field.type === 'multi-select' || field.type === 'radio') && (
-                <div className="opp-field" style={{ marginTop: '0.75rem' }}>
-                  <label className="opp-label">Options</label>
-                  {(field.options || []).map((opt, idx) => (
-                    <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                      <input className="opp-input" type="text" value={opt}
-                        onChange={e => updateOption(field.id, idx, e.target.value)} placeholder={`Option ${idx + 1}`} />
-                      <button type="button" className="list-remove-btn" onClick={() => removeOption(field.id, idx)}><X size={12} /></button>
+
+              {['select','multi-select','checkbox','radio'].includes(f.type) && (
+                <div className="field-options-builder">
+                  <label className="field-options-label">Options:</label>
+                  {(f.options || []).map((opt, oi) => (
+                    <div key={oi} className="field-opt-row">
+                      <input
+                        type="text"
+                        className="opp-input opp-input-sm"
+                        placeholder={`Option ${oi + 1}`}
+                        value={opt}
+                        onChange={e => updateOption(f.id, oi, e.target.value)}
+                      />
+                      <button type="button" className="list-remove-btn" onClick={() => removeOption(f.id, oi)}><X size={12} /></button>
                     </div>
                   ))}
-                  <button type="button" className="opp-add-btn" onClick={() => addOption(field.id)} style={{ marginTop: '0.25rem' }}>
-                    <Plus size={13} /> Add Option
+                  <button type="button" className="opp-btn-ghost-sm" onClick={() => addOption(f.id)}>
+                    <Plus size={12} /> Add Option
                   </button>
                 </div>
               )}
-              <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
-                <label className="opp-checkbox-row">
-                  <input type="checkbox" checked={field.required}
-                    onChange={e => updateField(field.id, 'required', e.target.checked)} />
+
+              <div className="field-card-footer">
+                <label className="field-req-toggle">
+                  <input
+                    type="checkbox"
+                    checked={f.required}
+                    onChange={e => updateField(f.id, 'required', e.target.checked)}
+                  />
                   <span>Required</span>
                 </label>
               </div>
@@ -300,15 +436,22 @@ function FormBuilder({ fields, setFields }) {
 
 // ─── Live Preview ─────────────────────────────────────────────────────────────
 function LivePreview({ data }) {
-  const { title, summary, description, type, category, location_type, location, duration, weekly_commitment,
+  const { title, summary, description, type, category, categories, location_type, location, duration, weekly_commitment,
     requirements, responsibilities, benefits, skills, status, positions, deadline, start_date, featured } = data;
+
+  const displayCategories = Array.isArray(categories) && categories.length > 0
+    ? categories
+    : (category ? [category] : []);
+
   return (
     <div className="live-preview">
       <div className="preview-header">
         {featured && <span className="preview-featured-badge"><Star size={11} /> Featured</span>}
         <div className="preview-type-row">
           {type && type.length > 0 && <span className="preview-tag blue">{Array.isArray(type) ? type[0] : type}</span>}
-          {category && <span className="preview-tag purple">{category}</span>}
+          {displayCategories.map(cat => (
+            <span key={cat} className="preview-tag purple">{cat}</span>
+          ))}
           <span className={`preview-tag ${status?.toLowerCase() === 'active' ? 'green' : status?.toLowerCase() === 'closed' ? 'red' : 'gray'}`}>
             {status || 'Draft'}
           </span>
@@ -384,7 +527,21 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
     try { return Array.isArray(initial.type) ? initial.type : JSON.parse(initial.type); }
     catch { return [initial.type]; }
   });
-  const [category, setCategory]   = useState(initial?.category ? [initial.category] : []);
+  const [categories, setCategories] = useState(() => {
+    if (Array.isArray(initial?.categories) && initial.categories.length > 0) {
+      return initial.categories;
+    }
+    if (typeof initial?.categories === 'string') {
+      try {
+        const parsed = JSON.parse(initial.categories);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {}
+    }
+    if (initial?.category) {
+      return [initial.category];
+    }
+    return [];
+  });
   const [status, setStatus]       = useState(initial?.status ? [initial.status.charAt(0).toUpperCase() + initial.status.slice(1)] : ['Draft']);
   const [featured, setFeatured]   = useState(initial?.featured || false);
 
@@ -452,7 +609,8 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
     description,
     requirements: JSON.stringify(requirements.map(r => r.value)),
     type: JSON.stringify(type),
-    category: category[0] || '',
+    categories,
+    category: categories[0] || '',
     status: (overrideStatus || status[0] || 'draft').toLowerCase(),
     featured,
     location_type: locationType[0] || 'Remote',
@@ -487,7 +645,7 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
 
   const previewData = {
     title, summary, description,
-    type, category: category[0], location_type: locationType[0], location,
+    type, category: categories[0] || '', categories, location_type: locationType[0], location,
     duration: duration[0], weekly_commitment: weeklyCommit[0],
     requirements, responsibilities, benefits, skills,
     status: status[0], positions, deadline, start_date: startDate, featured
@@ -544,7 +702,7 @@ export default function CreateOpportunityForm({ initial, onSave, onCancel, apiFe
                 placeholder="Describe the role in detail. What will the person work on? What's the team like?" />
             </div>
             <CheckGroup label="Opportunity Type" options={OPPORTUNITY_TYPES} selected={type} setSelected={setType} />
-            <CheckGroup label="Category" options={CATEGORIES} selected={category} setSelected={setCategory} single />
+            <CategoryMultiSelect selected={categories} setSelected={setCategories} />
             <CheckGroup label="Status" options={STATUSES} selected={status} setSelected={setStatus} single />
             <Toggle label="Featured Opportunity" desc="Highlight this opportunity with a star badge"
               checked={featured} onChange={setFeatured} />

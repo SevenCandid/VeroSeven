@@ -141,8 +141,19 @@
 
                 // Update UI headers
                 document.getElementById('opp-title').textContent = 'Apply for ' + opp.title;
-                document.getElementById('opp-desc').textContent = opp.description || 'Please complete this form to apply.';
-                document.getElementById('opp-type').textContent = opp.type || 'Application';
+                document.getElementById('opp-desc').textContent = opp.summary || opp.description || 'Please complete this form to apply.';
+
+                let cats = opp.categories;
+                if (typeof cats === 'string') {
+                    try { cats = JSON.parse(cats); } catch(e) { cats = [cats]; }
+                }
+                if (!Array.isArray(cats) || cats.length === 0) {
+                    cats = opp.category ? [opp.category] : [];
+                }
+
+                const typeStr = Array.isArray(opp.type) ? opp.type.join(' · ') : (opp.type || 'Application');
+                const catStr = cats.length > 0 ? ` [${cats.join(', ')}]` : '';
+                document.getElementById('opp-type').textContent = `${typeStr}${catStr}`;
 
                 // Check status
                 if (opp.status !== 'active') {

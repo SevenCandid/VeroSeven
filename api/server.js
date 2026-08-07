@@ -11,6 +11,22 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+// Auto-migration on startup: ensure categories column exists and backfills from category
+(async () => {
+  try {
+    await db.query(`ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS categories JSONB DEFAULT '[]'::jsonb`);
+    await db.query(`
+      UPDATE opportunities
+      SET categories = jsonb_build_array(category)
+      WHERE (categories IS NULL OR categories = '[]'::jsonb)
+        AND category IS NOT NULL
+        AND category != ''
+    `);
+  } catch (err) {
+    console.log('Categories auto-migration check:', err.message);
+  }
+})();
+
 // Activity Logger Helper
 const logActivity = async (action, entity_type, entity_id = null, details = {}) => {
   try {
@@ -310,6 +326,23 @@ app.delete('/api/admin/updates/:id', async (req, res) => {
   }
 });
 
+// Helper to normalize opportunity records for full multi-category backward compatibility
+const normalizeOpp = (opp) => {
+  if (!opp) return opp;
+  let categories = opp.categories;
+  if (typeof categories === 'string') {
+    try { categories = JSON.parse(categories); } catch(e) { categories = [categories]; }
+  }
+  if (!Array.isArray(categories) || categories.length === 0) {
+    categories = opp.category ? [opp.category] : [];
+  }
+  return {
+    ...opp,
+    categories,
+    category: categories[0] || opp.category || ''
+  };
+};
+
 // ==========================================
 // Opportunities Routes
 // ==========================================
@@ -318,9 +351,24 @@ app.delete('/api/admin/updates/:id', async (req, res) => {
 app.get('/api/opportunities', async (req, res) => {
   try {
     const result = await db.query("SELECT * FROM opportunities WHERE status = 'active' ORDER BY created_at DESC");
-    res.status(200).json(result.rows);
+    res.status(200).json(result.rows.map(normalizeOpp));
   } catch (error) {
     console.error('Error fetching opportunities:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Public Route to fetch single opportunity by ID
+app.get('/api/opportunities/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db.query('SELECT * FROM opportunities WHERE id = $1', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Opportunity not found' });
+    }
+    res.status(200).json(normalizeOpp(result.rows[0]));
+  } catch (error) {
+    console.error('Error fetching opportunity by id:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 });
@@ -329,7 +377,7 @@ app.get('/api/opportunities', async (req, res) => {
 app.get('/api/admin/opportunities', async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM opportunities ORDER BY created_at DESC');
-    res.status(200).json(result.rows);
+    res.status(200).json(result.rows.map(normalizeOpp));
   } catch (error) {
     console.error('Error fetching admin opportunities:', error);
     res.status(500).json({ message: 'Server Error' });
@@ -339,22 +387,33 @@ app.get('/api/admin/opportunities', async (req, res) => {
 app.post('/api/admin/opportunities', async (req, res) => {
   try {
     const {
-      title, summary, description, requirements, type, category, status, featured,
+      title, summary, description, requirements, type, category, categories, status, featured,
       location_type, location, duration, weekly_commitment, positions, deadline, start_date,
       responsibilities, benefits, skills, form_fields,
       publish_immediately, accept_applications, show_on_website, featured_on_homepage
     } = req.body;
+
+    let finalCategories = categories;
+    if (typeof finalCategories === 'string') {
+      try { finalCategories = JSON.parse(finalCategories); } catch(e) { finalCategories = [finalCategories]; }
+    }
+    if (!Array.isArray(finalCategories)) {
+      finalCategories = category ? [category] : [];
+    }
+    const primaryCategory = finalCategories[0] || category || '';
+
     const result = await db.query(
       `INSERT INTO opportunities (
-        title, summary, description, requirements, type, category, status, featured,
+        title, summary, description, requirements, type, category, categories, status, featured,
         location_type, location, duration, weekly_commitment, positions, deadline, start_date,
         responsibilities, benefits, skills, form_fields,
         publish_immediately, accept_applications, show_on_website, featured_on_homepage
       ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24
       ) RETURNING *`,
       [
-        title, summary, description, requirements, type, category, status || 'draft', featured || false,
+        title, summary, description, requirements, type, primaryCategory, JSON.stringify(finalCategories),
+        status || 'draft', featured || false,
         location_type || 'Remote', location, duration, weekly_commitment,
         positions || null,
         deadline || null,
@@ -370,34 +429,43 @@ app.post('/api/admin/opportunities', async (req, res) => {
       ]
     );
     await logActivity('Created Opportunity', 'Opportunity', result.rows[0].id, { title });
-    res.status(201).json(result.rows[0]);
+    res.status(201).json(normalizeOpp(result.rows[0]));
   } catch (error) {
     console.error('Error creating opportunity:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 });
 
-
 app.put('/api/admin/opportunities/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const {
-      title, summary, description, requirements, type, category, status, featured,
+      title, summary, description, requirements, type, category, categories, status, featured,
       location_type, location, duration, weekly_commitment, positions, deadline, start_date,
       responsibilities, benefits, skills, form_fields,
       publish_immediately, accept_applications, show_on_website, featured_on_homepage
     } = req.body;
+
+    let finalCategories = categories;
+    if (typeof finalCategories === 'string') {
+      try { finalCategories = JSON.parse(finalCategories); } catch(e) { finalCategories = [finalCategories]; }
+    }
+    if (!Array.isArray(finalCategories)) {
+      finalCategories = category ? [category] : [];
+    }
+    const primaryCategory = finalCategories[0] || category || '';
+
     const result = await db.query(
       `UPDATE opportunities SET
-        title=$1, summary=$2, description=$3, requirements=$4, type=$5, category=$6,
-        status=$7, featured=$8, location_type=$9, location=$10, duration=$11,
-        weekly_commitment=$12, positions=$13, deadline=$14, start_date=$15,
-        responsibilities=$16, benefits=$17, skills=$18, form_fields=$19,
-        publish_immediately=$20, accept_applications=$21, show_on_website=$22,
-        featured_on_homepage=$23, updated_at=CURRENT_TIMESTAMP
-      WHERE id=$24 RETURNING *`,
+        title=$1, summary=$2, description=$3, requirements=$4, type=$5, category=$6, categories=$7,
+        status=$8, featured=$9, location_type=$10, location=$11, duration=$12,
+        weekly_commitment=$13, positions=$14, deadline=$15, start_date=$16,
+        responsibilities=$17, benefits=$18, skills=$19, form_fields=$20,
+        publish_immediately=$21, accept_applications=$22, show_on_website=$23,
+        featured_on_homepage=$24, updated_at=CURRENT_TIMESTAMP
+      WHERE id=$25 RETURNING *`,
       [
-        title, summary, description, requirements, type, category,
+        title, summary, description, requirements, type, primaryCategory, JSON.stringify(finalCategories),
         status || 'draft', featured || false,
         location_type || 'Remote', location, duration, weekly_commitment,
         positions || null,
@@ -415,7 +483,7 @@ app.put('/api/admin/opportunities/:id', async (req, res) => {
       ]
     );
     await logActivity('Modified Opportunity', 'Opportunity', id, { title });
-    res.status(200).json(result.rows[0]);
+    res.status(200).json(normalizeOpp(result.rows[0]));
   } catch (error) {
     console.error('Error updating opportunity:', error);
     res.status(500).json({ message: 'Server Error' });

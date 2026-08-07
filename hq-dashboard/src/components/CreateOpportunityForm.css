@@ -924,6 +924,205 @@
   box-shadow: 0 6px 20px rgba(99,102,241,0.48);
 }
 
+/* ── Category Multi-Select ─────────────────────────────────────── */
+.category-multi-select-field {
+  width: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.category-select-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.opp-label-sub {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.category-clear-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+.category-clear-btn:hover {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+}
+
+/* Selected Category Chips */
+.selected-categories-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  min-height: 42px;
+  align-items: center;
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.25));
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  color: #e0e7ff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.category-chip:hover {
+  border-color: #c084fc;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(168, 85, 247, 0.35));
+}
+
+.category-chip-text {
+  line-height: 1;
+}
+
+.category-chip-remove {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #cbd5e1;
+  padding: 0;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.category-chip-remove:hover {
+  background: #ef4444;
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+/* Category Search Bar */
+.category-search-bar {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  align-items: center;
+}
+
+.category-search-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.opp-add-custom-cat-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.55rem 0.95rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+.opp-add-custom-cat-btn:hover {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.45);
+  transform: translateY(-1px);
+}
+
+/* Category Suggestions Wrapper */
+.category-suggestions-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  background: rgba(15, 23, 42, 0.35);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #1e293b;
+}
+
+.category-suggestions-title {
+  font-size: 0.76rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.category-suggestions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.category-suggestion-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.category-suggestion-pill:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(168, 85, 247, 0.5);
+  color: #e0e7ff;
+}
+
+.category-suggestion-pill.is-selected {
+  background: rgba(99, 102, 241, 0.25);
+  border-color: #818cf8;
+  color: #a5b4fc;
+  font-weight: 600;
+}
+
+.pill-check-icon {
+  color: #34d399;
+}
+
+.pill-plus-icon {
+  color: #94a3b8;
+}
+
+.no-categories-hint {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-style: italic;
+}
+
 /* ── Responsive Mobile Breakpoints ───────────────────────────────── */
 @media (max-width: 900px) {
   .opp-form-body.with-preview {
