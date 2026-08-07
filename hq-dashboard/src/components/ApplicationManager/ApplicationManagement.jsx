@@ -25,6 +25,7 @@ export default function ApplicationManagement({
   onOppFilterChange,
   onUpdateStatus,
   onSaveNotes,
+  onSendNotification,
   onDeleteApplication
 }) {
   const [viewMode, setViewMode] = useState('kanban'); // 'kanban' or 'table'
@@ -591,6 +592,7 @@ export default function ApplicationManagement({
           onClose={() => setSelectedApplicant(null)}
           onUpdateStatus={onUpdateStatus}
           onSaveNotes={onSaveNotes}
+          onSendNotification={onSendNotification}
         />
       )}
 

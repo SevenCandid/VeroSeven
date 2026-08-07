@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.78);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
@@ -19,11 +19,11 @@
   border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
   border-radius: 14px;
   width: 100%;
-  max-width: 880px;
+  max-width: 900px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2);
   overflow: hidden;
   animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -97,6 +97,16 @@
   border-radius: 12px;
   border: 1px solid;
   text-transform: capitalize;
+}
+
+.applicant-ref-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .applicant-opp-title {
@@ -257,6 +267,35 @@
 
 .btn-dossier-link:hover {
   background: rgba(212, 175, 55, 0.22);
+}
+
+.dossier-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.6rem;
+}
+
+.dossier-meta-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.meta-box-label {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.meta-box-val {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #ffffff;
 }
 
 .dossier-text-block {
@@ -421,6 +460,193 @@
   border-color: #d4af37;
 }
 
+/* Candidate Messaging Styles */
+.applicant-messaging-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.messaging-header-info {
+  background: rgba(212, 175, 55, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.messaging-header-info h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.messaging-header-info p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.messaging-header-info a {
+  color: #d4af37;
+  text-decoration: none;
+}
+
+.template-selectors-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.template-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-right: 0.25rem;
+}
+
+.btn-template {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-template:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.btn-template.green:hover {
+  background: rgba(52, 211, 153, 0.2);
+  border-color: #34d399;
+  color: #34d399;
+}
+
+.btn-template.indigo:hover {
+  background: rgba(129, 140, 248, 0.2);
+  border-color: #818cf8;
+  color: #818cf8;
+}
+
+.btn-template.yellow:hover {
+  background: rgba(251, 191, 36, 0.2);
+  border-color: #fbbf24;
+  color: #fbbf24;
+}
+
+.btn-template.red:hover {
+  background: rgba(248, 113, 113, 0.2);
+  border-color: #f87171;
+  color: #f87171;
+}
+
+.notify-composer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group-notify {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-group-notify label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.notify-input {
+  padding: 0.6rem 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 0.85rem;
+}
+
+.notify-input:focus, .notify-textarea:focus {
+  outline: none;
+  border-color: #d4af37;
+}
+
+.notify-textarea {
+  padding: 0.75rem 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.notify-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.stage-sync-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.stage-sync-option label {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.notify-stage-select {
+  padding: 0.4rem 0.75rem;
+  background: #1e1e28;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 0.8rem;
+}
+
+.btn-send-notify {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background: linear-gradient(135deg, #d4af37 0%, #a4821c 100%);
+  color: #0b0b0f;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-send-notify:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.btn-send-notify:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Timeline View */
 .applicant-timeline-view {
   display: flex;
@@ -502,6 +728,30 @@
   color: #cbd5e1;
 }
 
+.timeline-notification-preview {
+  margin-top: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.78rem;
+}
+
+.timeline-notification-preview strong {
+  display: block;
+  color: #d4af37;
+  margin-bottom: 0.35rem;
+}
+
+.timeline-notification-preview pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: inherit;
+  color: #cbd5e1;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
 .timeline-empty {
   text-align: center;
   padding: 3rem;
@@ -516,5 +766,12 @@
 @media (max-width: 768px) {
   .applicant-dossier-grid {
     grid-template-columns: 1fr;
+  }
+  .notify-actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .btn-send-notify {
+    justify-content: center;
   }
 }

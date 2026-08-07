@@ -9,6 +9,7 @@ import CmsFlagship from './components/CmsFlagship';
 import CreateOpportunityForm from './components/CreateOpportunityForm';
 import OpportunityManagement from './components/OpportunityManager/OpportunityManagement';
 import ApplicationManagement from './components/ApplicationManager/ApplicationManagement';
+import OverviewDashboard from './components/Overview/OverviewDashboard';
 import Toast from './components/Toast';
 import {
   Globe, Settings, BookOpen, Pencil, Trash2, LogOut, Plus, Search, ExternalLink
@@ -105,6 +106,9 @@ function App() {
       fetchProjects();
       fetchApplications();
       fetchOpportunities();
+      fetchActivityLogs();
+      fetchTeamMembers();
+      fetchUpdates();
     }
   }, [activeTab]);
 
@@ -344,6 +348,29 @@ function App() {
     } catch (err) {
       console.error(err);
       showToast('Network error saving notes', 'error');
+    }
+  };
+
+  const handleSendApplicantNotification = async (appId, subject, message, newStatus) => {
+    try {
+      const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/applications/${appId}/notify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject, message, new_status: newStatus })
+      });
+      if (res.ok) {
+        showToast('Notification dispatched & logged to candidate timeline', 'success');
+        fetchApplications();
+        return true;
+      } else {
+        const err = await res.json();
+        showToast(err.message || 'Failed to dispatch notification', 'error');
+        return false;
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Network error sending notification', 'error');
+      return false;
     }
   };
 
@@ -739,34 +766,37 @@ function App() {
               <>
                 <Topbar setIsMobileSidebarOpen={setIsMobileSidebarOpen} logoUrl={logoUrl} />
                 <div className="dashboard-content">
-                  <h1 className="page-title">
-                    {activeTab === 'cms' ? 'Content Management' : 
-                     activeTab === 'opportunities' ? 'Opportunity Management' :
-                     activeTab === 'applications' ? 'Recruitment Pipeline' :
-                     activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                  </h1>
+                  {activeTab !== 'overview' && (
+                    <h1 className="page-title">
+                      {activeTab === 'cms' ? 'Content Management' : 
+                       activeTab === 'opportunities' ? 'Opportunity Management' :
+                       activeTab === 'applications' ? 'Recruitment Pipeline' :
+                       activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                    </h1>
+                  )}
 
                   {/* OVERVIEW TAB */}
                   {activeTab === 'overview' && (
-                    <div className="stats-grid">
-                      <div className="stat-card" onClick={() => setActiveTab('projects')} style={{ cursor: 'pointer' }}>
-                        <span className="stat-label">Active Projects</span>
-                        <span className="stat-value">{projects.filter(p => p.status === 'active').length || '0'}</span>
-                        <span className="stat-change">{projects.filter(p => p.status === 'in_development').length} In Development</span>
-                      </div>
-                      <div className="stat-card" onClick={() => setActiveTab('opportunities')} style={{ cursor: 'pointer' }}>
-                        <span className="stat-label">Total Opportunities</span>
-                        <span className="stat-value">{opportunities.length || '0'}</span>
-                        <span className="stat-change">{opportunities.filter(o => (o.status || 'draft').toLowerCase() === 'active').length} Active</span>
-                      </div>
-                      <div className="stat-card" onClick={() => setActiveTab('applications')} style={{ cursor: 'pointer' }}>
-                        <span className="stat-label">Candidate Applications</span>
-                        <span className="stat-value">{applications.length || '0'}</span>
-                        <span className="stat-change">
-                          {applications.filter(a => (a.status || 'submitted').toLowerCase() === 'submitted' || (a.status || '').toLowerCase() === 'under_review').length} In Review
-                        </span>
-                      </div>
-                    </div>
+                    <OverviewDashboard
+                      projects={projects}
+                      opportunities={opportunities}
+                      applications={applications}
+                      activityLogs={activityLogs}
+                      teamMembers={teamMembers}
+                      updates={updates}
+                      loading={loading}
+                      onNavigateTab={(tab) => setActiveTab(tab)}
+                      onCreateOpportunity={() => { setEditOppData(null); setShowOppForm(true); }}
+                      onCreateProject={() => setProjectModal({ show: true, mode: 'create', data: null })}
+                      onCreateUpdate={() => setUpdateModal({ show: true, mode: 'create', data: null })}
+                      onViewOpportunity={(oppId) => {
+                        setSelectedOppFilter(String(oppId));
+                        setActiveTab('applications');
+                      }}
+                      onViewApplicant={() => {
+                        setActiveTab('applications');
+                      }}
+                    />
                   )}
 
                   {/* OPPORTUNITIES MANAGEMENT TAB */}
@@ -797,6 +827,7 @@ function App() {
                       onOppFilterChange={(oppId) => setSelectedOppFilter(oppId)}
                       onUpdateStatus={handleUpdateAppStatus}
                       onSaveNotes={handleSaveAppNotes}
+                      onSendNotification={handleSendApplicantNotification}
                       onDeleteApplication={handleDeleteApplication}
                     />
                   )}

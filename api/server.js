@@ -32,7 +32,23 @@ app.use(express.json());
         AND category != ''
     `);
 
+    // Applicants table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS applicants (
+        id SERIAL PRIMARY KEY,
+        full_name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE,
+        phone_number VARCHAR(100),
+        location VARCHAR(255),
+        occupation VARCHAR(255),
+        portfolio_url TEXT,
+        resume_url TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Applications table migrations
+    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS applicant_id INT`);
     await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'submitted'`);
     await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS status_history JSONB DEFAULT '[]'::jsonb`);
     await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS internal_notes TEXT DEFAULT ''`);
@@ -40,7 +56,36 @@ app.use(express.json());
     await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS resume_url TEXT`);
     await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS experience_level VARCHAR(100)`);
     await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS availability VARCHAR(100)`);
+    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS education VARCHAR(255)`);
+    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS current_role VARCHAR(255)`);
+    await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS institution VARCHAR(255)`);
     await db.query(`ALTER TABLE applications ADD COLUMN IF NOT EXISTS form_data JSONB DEFAULT '{}'::jsonb`);
+
+    // Granular Application Responses table (for dynamic custom questions)
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS application_responses (
+        id SERIAL PRIMARY KEY,
+        application_id INT,
+        field_name VARCHAR(255),
+        field_label VARCHAR(255),
+        field_type VARCHAR(100),
+        field_value TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Uploaded / Attached files table
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS application_files (
+        id SERIAL PRIMARY KEY,
+        application_id INT,
+        file_name VARCHAR(255),
+        file_url TEXT,
+        file_size INT,
+        file_type VARCHAR(100),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
 
     // Normalize legacy status values in applications
     await db.query(`
@@ -79,7 +124,7 @@ const logActivity = async (action, entity_type, entity_id = null, details = {}) 
   }
 };
 
-// API Route for submitting the private application
+// API Route for submitting a public / private opportunity application
 app.post('/api/applications', async (req, res) => {
   try {
     const {
@@ -93,61 +138,149 @@ app.post('/api/applications', async (req, res) => {
       areas_of_contribution,
       availability,
       experience_level,
+      education,
+      current_role,
+      institution,
       portfolio_url,
       resume_url,
       motivation,
       opportunity_id,
-      form_data
+      form_data,
+      uploaded_files
     } = req.body;
+
+    const applicantName = (full_name || form_data?.name || form_data?.full_name || 'Applicant').trim();
+    const applicantEmail = (email || form_data?.email || '').trim().toLowerCase();
+    const applicantPhone = (phone_number || form_data?.phone || form_data?.phone_number || '').trim();
+    const applicantLocation = (location || form_data?.location || '').trim();
+    const applicantOccupation = (occupation || current_role || form_data?.occupation || form_data?.role || '').trim();
+    const applicantPortfolio = (portfolio_url || form_data?.portfolio || form_data?.portfolio_url || form_data?.github || form_data?.linkedin || '').trim();
+    const applicantResume = (resume_url || form_data?.resume || form_data?.resume_url || form_data?.cv || '').trim();
+
+    // Upsert or register applicant profile
+    let applicantId = null;
+    if (applicantEmail) {
+      try {
+        const applicantRes = await db.query(
+          `INSERT INTO applicants (full_name, email, phone_number, location, occupation, portfolio_url, resume_url)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)
+           ON CONFLICT (email) DO UPDATE 
+           SET full_name = EXCLUDED.full_name,
+               phone_number = COALESCE(NULLIF(EXCLUDED.phone_number, ''), applicants.phone_number),
+               location = COALESCE(NULLIF(EXCLUDED.location, ''), applicants.location),
+               occupation = COALESCE(NULLIF(EXCLUDED.occupation, ''), applicants.occupation),
+               portfolio_url = COALESCE(NULLIF(EXCLUDED.portfolio_url, ''), applicants.portfolio_url),
+               resume_url = COALESCE(NULLIF(EXCLUDED.resume_url, ''), applicants.resume_url)
+           RETURNING id`,
+          [applicantName, applicantEmail, applicantPhone, applicantLocation, applicantOccupation, applicantPortfolio, applicantResume]
+        );
+        if (applicantRes.rows.length > 0) {
+          applicantId = applicantRes.rows[0].id;
+        }
+      } catch (appErr) {
+        console.warn('Applicant profile sync notice:', appErr.message);
+      }
+    }
 
     const initialHistory = [
       {
         status: 'submitted',
         timestamp: new Date().toISOString(),
-        note: 'Application submitted by applicant'
+        note: 'Application submitted successfully by candidate.'
       }
     ];
 
-    const query = `
+    const insertQuery = `
       INSERT INTO applications (
         full_name, phone_number, email, location, occupation, 
         background, skills, areas_of_contribution, availability, experience_level,
+        education, current_role, institution,
         portfolio_url, resume_url, motivation,
-        opportunity_id, form_data, status, status_history
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, 'submitted', $16)
+        opportunity_id, applicant_id, form_data, status, status_history
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, 'submitted', $20)
       RETURNING *;
     `;
     
     const values = [
-      full_name || form_data?.name || form_data?.full_name || 'Applicant',
-      phone_number || form_data?.phone || form_data?.phone_number || '',
-      email || form_data?.email || '',
-      location || form_data?.location || '',
-      occupation || form_data?.occupation || form_data?.role || '',
-      background || form_data?.background || '',
+      applicantName,
+      applicantPhone,
+      applicantEmail,
+      applicantLocation,
+      applicantOccupation,
+      background || form_data?.background || form_data?.experience || '',
       skills || form_data?.skills || '',
-      areas_of_contribution || form_data?.areas_of_contribution || '',
+      areas_of_contribution || form_data?.areas_of_contribution || form_data?.interests || '',
       availability || form_data?.availability || '',
       experience_level || form_data?.experience_level || form_data?.experience || '',
-      portfolio_url || form_data?.portfolio || form_data?.portfolio_url || form_data?.github || '',
-      resume_url || form_data?.resume || form_data?.resume_url || form_data?.cv || '',
-      motivation || form_data?.motivation || '',
+      education || form_data?.education || '',
+      current_role || form_data?.current_role || applicantOccupation || '',
+      institution || form_data?.institution || form_data?.university || '',
+      applicantPortfolio,
+      applicantResume,
+      motivation || form_data?.motivation || form_data?.statement || '',
       opportunity_id || null,
+      applicantId,
       form_data || {},
       JSON.stringify(initialHistory)
     ];
 
-    const result = await db.query(query, values);
-    await logActivity('Submitted Application', 'Application', result.rows[0].id, {
-      full_name: values[0],
-      email: values[2],
+    const result = await db.query(insertQuery, values);
+    const createdApp = result.rows[0];
+
+    // Store custom question responses into application_responses table
+    if (form_data && typeof form_data === 'object') {
+      const ignoredKeys = [
+        'name', 'full_name', 'email', 'phone', 'phone_number', 'location', 
+        'education', 'current_role', 'institution', 'skills', 'areas_of_contribution', 
+        'availability', 'experience_level', 'portfolio_url', 'resume_url', 
+        'motivation', 'agreement_confirmed', 'portfolio', 'resume', 'cv', 'github', 'linkedin'
+      ];
+      for (const [key, val] of Object.entries(form_data)) {
+        if (!ignoredKeys.includes(key) && val !== null && val !== undefined && val !== '') {
+          const valString = typeof val === 'object' ? JSON.stringify(val) : String(val);
+          await db.query(
+            `INSERT INTO application_responses (application_id, field_name, field_label, field_value)
+             VALUES ($1, $2, $3, $4)`,
+            [createdApp.id, key, key.replace(/_/g, ' '), valString]
+          ).catch(e => console.warn('Response item insert note:', e.message));
+        }
+      }
+    }
+
+    // Store attached files if present
+    if (Array.isArray(uploaded_files)) {
+      for (const fileObj of uploaded_files) {
+        if (fileObj && fileObj.file_url) {
+          await db.query(
+            `INSERT INTO application_files (application_id, file_name, file_url, file_size, file_type)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [createdApp.id, fileObj.file_name || 'Document', fileObj.file_url, fileObj.file_size || 0, fileObj.file_type || '']
+          ).catch(e => console.warn('File record insert note:', e.message));
+        }
+      }
+    } else if (applicantResume && applicantResume.startsWith('http')) {
+      await db.query(
+        `INSERT INTO application_files (application_id, file_name, file_url, file_type)
+         VALUES ($1, 'Resume / CV', $2, 'link')`,
+        [createdApp.id, applicantResume]
+      ).catch(() => {});
+    }
+
+    await logActivity('Submitted Application', 'Application', createdApp.id, {
+      full_name: applicantName,
+      email: applicantEmail,
       opportunity_id
     });
 
-    res.status(201).json({ success: true, application: result.rows[0] });
+    res.status(201).json({
+      success: true,
+      application: createdApp,
+      reference_id: `VS-APP-${String(createdApp.id).padStart(5, '0')}`,
+      message: 'Your application has been submitted successfully. We will review your application and contact you with the next steps.'
+    });
   } catch (error) {
     console.error('Error submitting application:', error);
-    res.status(500).json({ success: false, message: 'Server Error' });
+    res.status(500).json({ success: false, message: 'Server Error: ' + error.message });
   }
 });
 
@@ -159,10 +292,11 @@ app.post('/api/admin/login', login);
 // Protect all subsequent /api/admin routes
 app.use('/api/admin', authenticateToken);
 
-// Admin Route to fetch all applications with rich opportunity metadata
+// Admin Route to fetch all applications with rich opportunity metadata and filters
 app.get('/api/admin/applications', async (req, res) => {
   try {
-    const result = await db.query(`
+    const { status, opportunity_id, search } = req.query;
+    let query = `
       SELECT 
         a.*, 
         o.title as opportunity_title,
@@ -170,9 +304,34 @@ app.get('/api/admin/applications', async (req, res) => {
         o.type as opportunity_type,
         o.status as opportunity_status
       FROM applications a 
-      LEFT JOIN opportunities o ON a.opportunity_id = o.id 
-      ORDER BY a.created_at DESC
-    `);
+      LEFT JOIN opportunities o ON a.opportunity_id::text = o.id::text 
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (status && status !== 'all') {
+      params.push(status.toLowerCase());
+      query += ` AND LOWER(a.status) = $${params.length}`;
+    }
+
+    if (opportunity_id && opportunity_id !== 'all') {
+      params.push(opportunity_id.toString());
+      query += ` AND a.opportunity_id::text = $${params.length}`;
+    }
+
+    if (search && search.trim() !== '') {
+      params.push(`%${search.trim().toLowerCase()}%`);
+      query += ` AND (
+        LOWER(a.full_name) LIKE $${params.length} OR 
+        LOWER(a.email) LIKE $${params.length} OR 
+        LOWER(a.phone_number) LIKE $${params.length} OR 
+        LOWER(COALESCE(o.title, '')) LIKE $${params.length}
+      )`;
+    }
+
+    query += ` ORDER BY a.created_at DESC`;
+
+    const result = await db.query(query, params);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error('Error fetching applications:', error);
@@ -180,7 +339,7 @@ app.get('/api/admin/applications', async (req, res) => {
   }
 });
 
-// Admin Route to fetch single application by ID
+// Admin Route to fetch single application by ID with responses & attached files
 app.get('/api/admin/applications/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -192,16 +351,34 @@ app.get('/api/admin/applications/:id', async (req, res) => {
         o.type as opportunity_type,
         o.status as opportunity_status,
         o.location as opportunity_location,
-        o.location_type as opportunity_location_type
+        o.location_type as opportunity_location_type,
+        o.form_fields as opportunity_form_fields
       FROM applications a 
-      LEFT JOIN opportunities o ON a.opportunity_id = o.id 
+      LEFT JOIN opportunities o ON a.opportunity_id::text = o.id::text 
       WHERE a.id = $1
     `, [id]);
     
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Application not found' });
     }
-    res.status(200).json(result.rows[0]);
+    
+    const application = result.rows[0];
+
+    // Fetch custom responses
+    const responsesRes = await db.query(
+      'SELECT * FROM application_responses WHERE application_id = $1 ORDER BY id ASC',
+      [id]
+    ).catch(() => ({ rows: [] }));
+    application.responses = responsesRes.rows || [];
+
+    // Fetch attached files
+    const filesRes = await db.query(
+      'SELECT * FROM application_files WHERE application_id = $1 ORDER BY id ASC',
+      [id]
+    ).catch(() => ({ rows: [] }));
+    application.files = filesRes.rows || [];
+
+    res.status(200).json(application);
   } catch (error) {
     console.error('Error fetching application by id:', error);
     res.status(500).json({ message: 'Server Error' });
@@ -217,7 +394,7 @@ app.patch('/api/admin/applications/:id/status', async (req, res) => {
     const newHistoryEntry = {
       status,
       timestamp: new Date().toISOString(),
-      note: note || `Status changed to ${status}`
+      note: note || `Status changed to ${status.replace('_', ' ').toUpperCase()}`
     };
 
     const result = await db.query(
@@ -240,6 +417,83 @@ app.patch('/api/admin/applications/:id/status', async (req, res) => {
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error updating application status:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Admin Route to dispatch applicant notification / message
+app.post('/api/admin/applications/:id/notify', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { subject, message, new_status } = req.body;
+
+    const appRes = await db.query('SELECT * FROM applications WHERE id = $1', [id]);
+    if (appRes.rows.length === 0) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+    const appData = appRes.rows[0];
+
+    const notificationLog = {
+      type: 'notification_sent',
+      status: new_status || appData.status,
+      timestamp: new Date().toISOString(),
+      note: `Notification sent to ${appData.email}: "${subject || 'Update on your VeroSeven Application'}"`,
+      notification: {
+        subject,
+        message,
+        recipient: appData.email,
+        sent_at: new Date().toISOString()
+      }
+    };
+
+    const updateRes = await db.query(
+      `UPDATE applications 
+       SET 
+         status = COALESCE($1, status),
+         status_history = COALESCE(status_history, '[]'::jsonb) || $2::jsonb,
+         updated_at = CURRENT_TIMESTAMP
+       WHERE id = $3
+       RETURNING *`,
+      [new_status || null, JSON.stringify([notificationLog]), id]
+    );
+
+    await logActivity('Sent Applicant Notification', 'Application', id, {
+      applicant_email: appData.email,
+      subject,
+      new_status
+    });
+
+    res.json({
+      success: true,
+      message: 'Notification sent and logged.',
+      application: updateRes.rows[0]
+    });
+  } catch (error) {
+    console.error('Error sending applicant notification:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Admin Route to update internal review notes
+app.patch('/api/admin/applications/:id/notes', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { internal_notes } = req.body;
+
+    const result = await db.query(
+      `UPDATE applications 
+       SET internal_notes = $1, updated_at = CURRENT_TIMESTAMP 
+       WHERE id = $2 
+       RETURNING *`,
+      [internal_notes, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
     res.status(500).json({ message: 'Server Error' });
   }
 });
