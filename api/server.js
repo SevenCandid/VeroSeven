@@ -762,9 +762,15 @@ const normalizeOpp = (opp) => {
   const parseJsonField = (val, fallback = []) => {
     if (val === null || val === undefined) return fallback;
     if (typeof val === 'string') {
-      try { return JSON.parse(val); } catch(e) { return [val]; }
+      try { return JSON.parse(val); } catch(e) { return Array.isArray(fallback) ? [val] : fallback; }
     }
-    return Array.isArray(val) ? val : fallback;
+    if (Array.isArray(fallback)) {
+      return Array.isArray(val) ? val : fallback;
+    }
+    if (typeof fallback === 'object' && fallback !== null) {
+      return (typeof val === 'object' && val !== null && !Array.isArray(val)) ? val : fallback;
+    }
+    return val;
   };
 
   let categories = opp.categories;
