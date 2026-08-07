@@ -600,8 +600,11 @@ function App() {
 
       {/* Opportunity Full-Page Form */}
       {showOppForm && (
-        <div className="modal-overlay" style={{ alignItems: 'stretch', padding: 0 }}>
-          <div style={{ width: '100%', height: '100%', overflow: 'auto', background: 'var(--bg-color)' }}>
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          zIndex: 9999, background: '#0f172a', display: 'flex', flexDirection: 'column', overflow: 'hidden'
+        }}>
+          <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
             <CreateOpportunityForm
               initial={editOppData}
               onSave={handleSaveOpportunity}
