@@ -927,7 +927,7 @@ app.put('/api/admin/opportunities/:id', async (req, res) => {
     const {
       title, summary, description, requirements, type, category, categories, status, featured,
       location_type, location, duration, weekly_commitment, positions, deadline, start_date,
-      responsibilities, benefits, skills, areas_of_contribution, form_fields,
+      responsibilities, benefits, skills, areas_of_contribution, applicant_config, form_fields,
       publish_immediately, accept_applications, show_on_website, featured_on_homepage
     } = req.body;
 
