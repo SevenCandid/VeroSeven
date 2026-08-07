@@ -154,7 +154,7 @@ export default function OverviewDashboard({
         </div>
       </div>
 
-      {/* Primary KPI Metric Cards */}
+      {/* Primary KPI Metric Cards - Compact single row */}
       <div className="overview-kpi-grid">
         {/* Metric 1: Candidate Applications */}
         <div
@@ -163,20 +163,18 @@ export default function OverviewDashboard({
         >
           <div className="kpi-card-header">
             <span className="kpi-title">Candidate Pipeline</span>
-            <div className="kpi-icon-box gold">
-              <Users size={20} />
-            </div>
+            <Users size={15} className="kpi-icon" style={{ color: '#d4af37' }} />
           </div>
           <div className="kpi-value-row">
             <span className="kpi-number">{metrics.totalApps}</span>
             <span className="kpi-trend up">
-              <TrendingUp size={13} />
+              <TrendingUp size={11} />
               <span>{metrics.pendingReviewApps} Pending</span>
             </span>
           </div>
           <div className="kpi-footer-meta">
             <span>{metrics.acceptedApps} Accepted candidates</span>
-            <ChevronRight size={14} className="kpi-arrow" />
+            <ChevronRight size={12} className="kpi-arrow" />
           </div>
         </div>
 
@@ -187,9 +185,7 @@ export default function OverviewDashboard({
         >
           <div className="kpi-card-header">
             <span className="kpi-title">Opportunities</span>
-            <div className="kpi-icon-box purple">
-              <Briefcase size={20} />
-            </div>
+            <Briefcase size={15} className="kpi-icon" style={{ color: '#c084fc' }} />
           </div>
           <div className="kpi-value-row">
             <span className="kpi-number">{metrics.totalOpps}</span>
@@ -199,7 +195,7 @@ export default function OverviewDashboard({
           </div>
           <div className="kpi-footer-meta">
             <span>{metrics.draftOpps} in Draft stage</span>
-            <ChevronRight size={14} className="kpi-arrow" />
+            <ChevronRight size={12} className="kpi-arrow" />
           </div>
         </div>
 
@@ -210,9 +206,7 @@ export default function OverviewDashboard({
         >
           <div className="kpi-card-header">
             <span className="kpi-title">Ecosystem Projects</span>
-            <div className="kpi-icon-box blue">
-              <FolderGit2 size={20} />
-            </div>
+            <FolderGit2 size={15} className="kpi-icon" style={{ color: '#60a5fa' }} />
           </div>
           <div className="kpi-value-row">
             <span className="kpi-number">{metrics.totalProjects}</span>
@@ -221,8 +215,8 @@ export default function OverviewDashboard({
             </span>
           </div>
           <div className="kpi-footer-meta">
-            <span>{metrics.devProjects} in development</span>
-            <ChevronRight size={14} className="kpi-arrow" />
+            <span>{metrics.devProjects} in dev</span>
+            <ChevronRight size={12} className="kpi-arrow" />
           </div>
         </div>
 
@@ -233,9 +227,7 @@ export default function OverviewDashboard({
         >
           <div className="kpi-card-header">
             <span className="kpi-title">Core Team & Updates</span>
-            <div className="kpi-icon-box emerald">
-              <ShieldCheck size={20} />
-            </div>
+            <ShieldCheck size={15} className="kpi-icon" style={{ color: '#34d399' }} />
           </div>
           <div className="kpi-value-row">
             <span className="kpi-number">{metrics.totalTeam}</span>
@@ -245,7 +237,7 @@ export default function OverviewDashboard({
           </div>
           <div className="kpi-footer-meta">
             <span>Enterprise Admin Verified</span>
-            <ChevronRight size={14} className="kpi-arrow" />
+            <ChevronRight size={12} className="kpi-arrow" />
           </div>
         </div>
       </div>

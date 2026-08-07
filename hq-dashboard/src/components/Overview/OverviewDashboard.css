@@ -179,99 +179,96 @@
    ========================================================================== */
 .overview-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+  width: 100%;
 }
 
 .kpi-card {
   background: #14141c;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 1.25rem 1.35rem;
+  border-radius: 8px;
+  padding: 0.65rem 0.8rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.35rem;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.18s ease;
   position: relative;
+  min-width: 0;
 }
 
 .kpi-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
 .kpi-card.gold-glow:hover {
   border-color: rgba(212, 175, 55, 0.4);
-  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15);
+  box-shadow: 0 6px 16px rgba(212, 175, 55, 0.12);
 }
 
 .kpi-card.purple-glow:hover {
   border-color: rgba(192, 132, 252, 0.4);
-  box-shadow: 0 10px 25px rgba(192, 132, 252, 0.15);
+  box-shadow: 0 6px 16px rgba(192, 132, 252, 0.12);
 }
 
 .kpi-card.blue-glow:hover {
   border-color: rgba(96, 165, 250, 0.4);
-  box-shadow: 0 10px 25px rgba(96, 165, 250, 0.15);
+  box-shadow: 0 6px 16px rgba(96, 165, 250, 0.12);
 }
 
 .kpi-card.emerald-glow:hover {
   border-color: rgba(52, 211, 153, 0.4);
-  box-shadow: 0 10px 25px rgba(52, 211, 153, 0.15);
+  box-shadow: 0 6px 16px rgba(52, 211, 153, 0.12);
 }
 
 .kpi-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.35rem;
 }
 
 .kpi-title {
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.kpi-icon-box {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.kpi-icon {
+  flex-shrink: 0;
 }
-
-.kpi-icon-box.gold { background: rgba(212, 175, 55, 0.12); color: #d4af37; }
-.kpi-icon-box.purple { background: rgba(192, 132, 252, 0.12); color: #c084fc; }
-.kpi-icon-box.blue { background: rgba(96, 165, 250, 0.12); color: #60a5fa; }
-.kpi-icon-box.emerald { background: rgba(52, 211, 153, 0.12); color: #34d399; }
 
 .kpi-value-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .kpi-number {
-  font-size: 2rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #ffffff;
-  line-height: 1;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .kpi-trend {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.75rem;
+  gap: 0.2rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
 }
 
 .kpi-trend.up {
@@ -280,10 +277,10 @@
 }
 
 .kpi-tag-badge {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  padding: 0.2rem 0.55rem;
-  border-radius: 6px;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
 }
 
 .kpi-tag-badge.active { background: rgba(192, 132, 252, 0.15); color: #c084fc; }
@@ -294,10 +291,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 0.6rem;
+  padding-top: 0.35rem;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   color: #64748b;
+  margin-top: 0.1rem;
 }
 
 .kpi-arrow {
@@ -306,8 +304,20 @@
 }
 
 .kpi-card:hover .kpi-arrow {
-  transform: translateX(3px);
+  transform: translateX(2px);
   color: #ffffff;
+}
+
+@media (max-width: 1024px) {
+  .overview-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 580px) {
+  .overview-kpi-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ==========================================================================

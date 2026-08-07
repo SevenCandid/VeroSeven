@@ -65,60 +65,48 @@
   filter: brightness(1.08);
 }
 
-/* Metrics Grid */
+/* Metrics Grid: 5 compact cards on one single line */
 .opp-metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.6rem;
+  width: 100%;
 }
 
 .opp-metric-card {
   display: flex;
-  align-items: center;
-  gap: 0.85rem;
+  flex-direction: column;
+  justify-content: space-between;
   background: #12121a;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 1rem 1.15rem;
-  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.18s ease;
+  min-width: 0;
 }
 
 .opp-metric-card:hover {
   border-color: rgba(212, 175, 55, 0.35);
   transform: translateY(-2px);
   background: #171722;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
-.metric-icon-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 8px;
-  flex-shrink: 0;
+.opp-metric-card.active {
+  border-color: rgba(212, 175, 55, 0.5);
+  background: rgba(212, 175, 55, 0.06);
 }
 
-.metric-info {
-  display: flex;
-  flex-direction: column;
+@media (max-width: 1024px) {
+  .opp-metrics-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
-.metric-label {
-  font-size: 0.76rem;
-  color: #94a3b8;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.metric-number {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #ffffff;
+@media (max-width: 580px) {
+  .opp-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* Controls Panel */

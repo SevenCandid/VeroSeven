@@ -161,66 +161,72 @@ export default function ApplicationManagement({
           </div>
         </div>
 
-        {/* Metrics Grid */}
+        {/* Metrics Grid - Single row compact stats cards */}
         <div className="app-metrics-grid">
-          <div className="app-metric-card" onClick={() => { setStageFilter('all'); if (onOppFilterChange) onOppFilterChange('all'); }}>
-            <div className="metric-icon-box" style={{ background: 'rgba(212, 175, 55, 0.1)', color: '#d4af37' }}>
-              <Users size={20} />
-            </div>
-            <div className="metric-info">
+          <div
+            className={`app-metric-card ${stageFilter === 'all' ? 'active' : ''}`}
+            onClick={() => { setStageFilter('all'); if (onOppFilterChange) onOppFilterChange('all'); }}
+          >
+            <div className="metric-header">
               <span className="metric-label">Total Candidates</span>
-              <span className="metric-number">{stats.total}</span>
+              <Users size={15} className="metric-icon" style={{ color: '#d4af37' }} />
             </div>
+            <div className="metric-number">{stats.total}</div>
           </div>
 
-          <div className="app-metric-card" onClick={() => setStageFilter('submitted')}>
-            <div className="metric-icon-box" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa' }}>
-              <Clock size={20} />
-            </div>
-            <div className="metric-info">
+          <div
+            className={`app-metric-card ${stageFilter === 'submitted' ? 'active' : ''}`}
+            onClick={() => setStageFilter('submitted')}
+          >
+            <div className="metric-header">
               <span className="metric-label">Submitted</span>
-              <span className="metric-number">{stats.submitted}</span>
+              <Clock size={15} className="metric-icon" style={{ color: '#60a5fa' }} />
             </div>
+            <div className="metric-number">{stats.submitted}</div>
           </div>
 
-          <div className="app-metric-card" onClick={() => setStageFilter('under_review')}>
-            <div className="metric-icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24' }}>
-              <Eye size={20} />
-            </div>
-            <div className="metric-info">
+          <div
+            className={`app-metric-card ${stageFilter === 'under_review' ? 'active' : ''}`}
+            onClick={() => setStageFilter('under_review')}
+          >
+            <div className="metric-header">
               <span className="metric-label">Under Review</span>
-              <span className="metric-number">{stats.review}</span>
+              <Eye size={15} className="metric-icon" style={{ color: '#fbbf24' }} />
             </div>
+            <div className="metric-number">{stats.review}</div>
           </div>
 
-          <div className="app-metric-card" onClick={() => setStageFilter('shortlisted')}>
-            <div className="metric-icon-box" style={{ background: 'rgba(192, 132, 252, 0.1)', color: '#c084fc' }}>
-              <Sparkles size={20} />
-            </div>
-            <div className="metric-info">
+          <div
+            className={`app-metric-card ${stageFilter === 'shortlisted' ? 'active' : ''}`}
+            onClick={() => setStageFilter('shortlisted')}
+          >
+            <div className="metric-header">
               <span className="metric-label">Shortlisted</span>
-              <span className="metric-number">{stats.shortlisted}</span>
+              <Sparkles size={15} className="metric-icon" style={{ color: '#c084fc' }} />
             </div>
+            <div className="metric-number">{stats.shortlisted}</div>
           </div>
 
-          <div className="app-metric-card" onClick={() => setStageFilter('interview')}>
-            <div className="metric-icon-box" style={{ background: 'rgba(129, 140, 248, 0.1)', color: '#818cf8' }}>
-              <Briefcase size={20} />
-            </div>
-            <div className="metric-info">
+          <div
+            className={`app-metric-card ${stageFilter === 'interview' ? 'active' : ''}`}
+            onClick={() => setStageFilter('interview')}
+          >
+            <div className="metric-header">
               <span className="metric-label">Interview</span>
-              <span className="metric-number">{stats.interview}</span>
+              <Briefcase size={15} className="metric-icon" style={{ color: '#818cf8' }} />
             </div>
+            <div className="metric-number">{stats.interview}</div>
           </div>
 
-          <div className="app-metric-card" onClick={() => setStageFilter('accepted')}>
-            <div className="metric-icon-box" style={{ background: 'rgba(52, 211, 153, 0.1)', color: '#34d399' }}>
-              <CheckCircle2 size={20} />
-            </div>
-            <div className="metric-info">
+          <div
+            className={`app-metric-card ${stageFilter === 'accepted' ? 'active' : ''}`}
+            onClick={() => setStageFilter('accepted')}
+          >
+            <div className="metric-header">
               <span className="metric-label">Accepted</span>
-              <span className="metric-number">{stats.accepted}</span>
+              <CheckCircle2 size={15} className="metric-icon" style={{ color: '#34d399' }} />
             </div>
+            <div className="metric-number">{stats.accepted}</div>
           </div>
         </div>
       </div>

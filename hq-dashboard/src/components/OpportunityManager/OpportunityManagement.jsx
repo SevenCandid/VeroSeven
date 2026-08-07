@@ -236,56 +236,61 @@ export default function OpportunityManagement({
           </button>
         </div>
 
-        {/* Metrics Grid */}
+        {/* Metrics Grid - Compact single row */}
         <div className="opp-metrics-grid">
-          <div className="opp-metric-card" onClick={() => { setStatusFilter('all'); setCurrentPage(1); }}>
-            <div className="metric-icon-box" style={{ background: 'rgba(212, 175, 55, 0.1)', color: '#d4af37' }}>
-              <Sparkles size={20} />
-            </div>
-            <div className="metric-info">
+          <div
+            className={`opp-metric-card ${statusFilter === 'all' ? 'active' : ''}`}
+            onClick={() => { setStatusFilter('all'); setCurrentPage(1); }}
+          >
+            <div className="metric-header">
               <span className="metric-label">Total Opportunities</span>
-              <span className="metric-number">{stats.total}</span>
+              <Sparkles size={15} className="metric-icon" style={{ color: '#d4af37' }} />
             </div>
+            <div className="metric-number">{stats.total}</div>
           </div>
 
-          <div className="opp-metric-card" onClick={() => { setStatusFilter('active'); setCurrentPage(1); }}>
-            <div className="metric-icon-box" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#34d399' }}>
-              <CheckCircle2 size={20} />
-            </div>
-            <div className="metric-info">
+          <div
+            className={`opp-metric-card ${statusFilter === 'active' ? 'active' : ''}`}
+            onClick={() => { setStatusFilter('active'); setCurrentPage(1); }}
+          >
+            <div className="metric-header">
               <span className="metric-label">Active / Live</span>
-              <span className="metric-number">{stats.active}</span>
+              <CheckCircle2 size={15} className="metric-icon" style={{ color: '#34d399' }} />
             </div>
+            <div className="metric-number">{stats.active}</div>
           </div>
 
-          <div className="opp-metric-card" onClick={() => { setStatusFilter('draft'); setCurrentPage(1); }}>
-            <div className="metric-icon-box" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24' }}>
-              <Pencil size={20} />
-            </div>
-            <div className="metric-info">
+          <div
+            className={`opp-metric-card ${statusFilter === 'draft' ? 'active' : ''}`}
+            onClick={() => { setStatusFilter('draft'); setCurrentPage(1); }}
+          >
+            <div className="metric-header">
               <span className="metric-label">Drafts</span>
-              <span className="metric-number">{stats.draft}</span>
+              <Pencil size={15} className="metric-icon" style={{ color: '#fbbf24' }} />
             </div>
+            <div className="metric-number">{stats.draft}</div>
           </div>
 
-          <div className="opp-metric-card" onClick={() => { setStatusFilter('closed'); setCurrentPage(1); }}>
-            <div className="metric-icon-box" style={{ background: 'rgba(148, 163, 184, 0.1)', color: '#94a3b8' }}>
-              <AlertCircle size={20} />
-            </div>
-            <div className="metric-info">
+          <div
+            className={`opp-metric-card ${statusFilter === 'closed' ? 'active' : ''}`}
+            onClick={() => { setStatusFilter('closed'); setCurrentPage(1); }}
+          >
+            <div className="metric-header">
               <span className="metric-label">Closed / Archived</span>
-              <span className="metric-number">{stats.closed + stats.archived}</span>
+              <AlertCircle size={15} className="metric-icon" style={{ color: '#94a3b8' }} />
             </div>
+            <div className="metric-number">{stats.closed + stats.archived}</div>
           </div>
 
-          <div className="opp-metric-card" onClick={() => onViewApplications && onViewApplications('all')}>
-            <div className="metric-icon-box" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8' }}>
-              <Users size={20} />
+          <div
+            className="opp-metric-card"
+            onClick={() => onViewApplications && onViewApplications('all')}
+          >
+            <div className="metric-header">
+              <span className="metric-label">Applications</span>
+              <Users size={15} className="metric-icon" style={{ color: '#818cf8' }} />
             </div>
-            <div className="metric-info">
-              <span className="metric-label">Total Applications</span>
-              <span className="metric-number">{stats.totalApps}</span>
-            </div>
+            <div className="metric-number">{stats.totalApps}</div>
           </div>
         </div>
       </div>
