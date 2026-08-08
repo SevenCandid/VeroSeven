@@ -3,6 +3,8 @@ import { Plus, Trash2, Edit, ChevronDown, ChevronUp, Users } from 'lucide-react'
 import './TeamManagement.css';
 
 const TeamManagement = ({ apiFetch, showToast }) => {
+  const API_BASE_URL = 'https://veroseven-api.onrender.com';
+  
   const [teams, setTeams] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +26,8 @@ const TeamManagement = ({ apiFetch, showToast }) => {
     setLoading(true);
     try {
       const [teamsRes, membersRes] = await Promise.all([
-        apiFetch('/api/admin/teams'),
-        apiFetch('/api/admin/team-members')
+        apiFetch(`${API_BASE_URL}/api/admin/teams`),
+        apiFetch(`${API_BASE_URL}/api/admin/team-members`)
       ]);
 
       if (teamsRes.ok && membersRes.ok) {
@@ -53,7 +55,7 @@ const TeamManagement = ({ apiFetch, showToast }) => {
     };
 
     try {
-      const url = teamModal.mode === 'create' ? '/api/admin/teams' : `/api/admin/teams/${teamModal.data.id}`;
+      const url = teamModal.mode === 'create' ? `${API_BASE_URL}/api/admin/teams` : `${API_BASE_URL}/api/admin/teams/${teamModal.data.id}`;
       const method = teamModal.mode === 'create' ? 'POST' : 'PUT';
 
       const res = await apiFetch(url, {
@@ -77,7 +79,7 @@ const TeamManagement = ({ apiFetch, showToast }) => {
   const handleDeleteTeam = async (id) => {
     if (!window.confirm('Are you sure you want to delete this team? Members will not be deleted but will be orphaned.')) return;
     try {
-      const res = await apiFetch(`/api/admin/teams/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`${API_BASE_URL}/api/admin/teams/${id}`, { method: 'DELETE' });
       if (res.ok) {
         showToast('Team deleted');
         fetchData();
@@ -100,7 +102,7 @@ const TeamManagement = ({ apiFetch, showToast }) => {
     };
 
     try {
-      const url = memberModal.mode === 'create' ? '/api/admin/team-members' : `/api/admin/team-members/${memberModal.data.id}`;
+      const url = memberModal.mode === 'create' ? `${API_BASE_URL}/api/admin/team-members` : `${API_BASE_URL}/api/admin/team-members/${memberModal.data.id}`;
       const method = memberModal.mode === 'create' ? 'POST' : 'PUT';
 
       const res = await apiFetch(url, {
@@ -124,7 +126,7 @@ const TeamManagement = ({ apiFetch, showToast }) => {
   const handleDeleteMember = async (id) => {
     if (!window.confirm('Remove this member?')) return;
     try {
-      const res = await apiFetch(`/api/admin/team-members/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`${API_BASE_URL}/api/admin/team-members/${id}`, { method: 'DELETE' });
       if (res.ok) {
         showToast('Member removed');
         fetchData();
