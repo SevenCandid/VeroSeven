@@ -7,6 +7,7 @@ const TeamManagement = ({ apiFetch, showToast }) => {
   
   const [teams, setTeams] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
+  const [platformMembers, setPlatformMembers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Modals
@@ -25,14 +26,38 @@ const TeamManagement = ({ apiFetch, showToast }) => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [teamsRes, membersRes] = await Promise.all([
+      const [teamsRes, membersRes, appsRes] = await Promise.all([
         apiFetch(`${API_BASE_URL}/api/admin/teams`),
-        apiFetch(`${API_BASE_URL}/api/admin/team-members`)
+        apiFetch(`${API_BASE_URL}/api/admin/team-members`),
+        apiFetch(`${API_BASE_URL}/api/admin/applications`)
       ]);
 
       if (teamsRes.ok && membersRes.ok) {
-        setTeams(await teamsRes.json());
-        setTeamMembers(await membersRes.json());
+        const t = await teamsRes.json();
+        const m = await membersRes.json();
+        setTeams(t);
+        setTeamMembers(m);
+
+        let pMembers = m.map(x => ({ name: x.name, email: x.email || '' }));
+        if (appsRes.ok) {
+          const apps = await appsRes.json();
+          apps.forEach(a => {
+            if (a.full_name) {
+              pMembers.push({ name: a.full_name, email: a.email || '' });
+            }
+          });
+        }
+        
+        // Deduplicate by name
+        const unique = [];
+        const seen = new Set();
+        pMembers.forEach(x => {
+          if (!seen.has(x.name)) {
+            seen.add(x.name);
+            unique.push(x);
+          }
+        });
+        setPlatformMembers(unique);
       }
     } catch (err) {
       console.error(err);
@@ -277,13 +302,13 @@ const TeamManagement = ({ apiFetch, showToast }) => {
             </div>
             <form onSubmit={handleSaveTeam}>
               <div className="modal-body">
-                <div className="form-group">
+                <div className="form-group full-width">
                   <label>Team Name</label>
-                  <input type="text" name="name" defaultValue={teamModal.data?.name || ''} required className="modal-input" />
+                  <input type="text" name="name" defaultValue={teamModal.data?.name || ''} required className="modal-input" placeholder="e.g. VeroSeven Core Team" />
                 </div>
-                <div className="form-group">
+                <div className="form-group full-width">
                   <label>Description (Optional)</label>
-                  <textarea name="description" defaultValue={teamModal.data?.description || ''} className="modal-input" rows="3" />
+                  <textarea name="description" defaultValue={teamModal.data?.description || ''} className="modal-input" rows="3" placeholder="What does this team do?" />
                 </div>
               </div>
               <div className="modal-footer">
@@ -303,7 +328,30 @@ const TeamManagement = ({ apiFetch, showToast }) => {
               <button className="modal-close" onClick={() => setMemberModal({ show: false, mode: 'create', data: null, prefilledTeamId: null })}>×</button>
             </div>
             <form onSubmit={handleSaveMember}>
-              <div className="modal-body">
+              <div className="modal-body grid-layout">
+                {memberModal.mode === 'create' && platformMembers.length > 0 && (
+                  <div className="form-group full-width" style={{ paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', marginBottom: '0.5rem' }}>
+                    <label style={{ color: 'var(--color-accent)' }}>Autofill from Platform (Optional)</label>
+                    <select 
+                      className="modal-input" 
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val) {
+                          const [name, email] = val.split('|');
+                          document.getElementById('member-name-input').value = name;
+                          document.getElementById('member-email-input').value = email !== 'undefined' ? email : '';
+                        }
+                      }}
+                    >
+                      <option value="">-- Select an existing member --</option>
+                      {platformMembers.map((m, i) => (
+                        <option key={i} value={`${m.name}|${m.email}`}>{m.name} {m.email ? `(${m.email})` : ''}</option>
+                      ))}
+                    </select>
+                    <small style={{ color: 'var(--text-secondary)' }}>Select someone to quickly fill in their name and email.</small>
+                  </div>
+                )}
+                
                 <div className="form-group">
                   <label>Team</label>
                   <select name="team_id" defaultValue={memberModal.data?.team_id || memberModal.prefilledTeamId || ''} className="modal-input">
@@ -313,19 +361,19 @@ const TeamManagement = ({ apiFetch, showToast }) => {
                 </div>
                 <div className="form-group">
                   <label>Name</label>
-                  <input type="text" name="name" defaultValue={memberModal.data?.name || ''} required className="modal-input" />
+                  <input id="member-name-input" type="text" name="name" defaultValue={memberModal.data?.name || ''} required className="modal-input" />
                 </div>
                 <div className="form-group">
                   <label>Email</label>
-                  <input type="email" name="email" defaultValue={memberModal.data?.email || ''} className="modal-input" />
+                  <input id="member-email-input" type="email" name="email" defaultValue={memberModal.data?.email || ''} className="modal-input" />
                 </div>
                 <div className="form-group">
                   <label>Role</label>
-                  <input type="text" name="role" defaultValue={memberModal.data?.role || ''} className="modal-input" />
+                  <input type="text" name="role" defaultValue={memberModal.data?.role || ''} className="modal-input" placeholder="e.g. Lead Designer" />
                 </div>
                 <div className="form-group">
                   <label>Legacy Project Group</label>
-                  <input type="text" name="project_group" defaultValue={memberModal.data?.project_group || ''} className="modal-input" />
+                  <input type="text" name="project_group" defaultValue={memberModal.data?.project_group || ''} className="modal-input" placeholder="e.g. V7 Experience" />
                 </div>
                 <div className="form-group">
                   <label>Status</label>

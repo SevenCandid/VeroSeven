@@ -25,7 +25,7 @@ text = text.replace(/<div class="nav-links" id="navLinks">[\s\S]*?<\/button>\s*<
 text = text.replace(/<div class="footer-grid">[\s\S]*?<div class="footer-bottom">/, `<div class="footer-grid">
         <div class="footer-brand">
           <div class="logo" style="font-size:1.25rem; margin-bottom:0.75rem;">
-            <img src="assets/vero_logo1.png" alt="VEROSEVEN Logo" />
+            <img src="assets/vero_logo.png" alt="VEROSEVEN Logo" />
             VEROSEVEN
           </div>
           <p class="footer-tagline">Authentic Innovation. Limitless Possibilities.</p>

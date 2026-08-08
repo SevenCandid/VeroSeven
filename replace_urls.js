@@ -1,48 +1,29 @@
 const fs = require('fs');
 const path = require('path');
 
-const targetDirs = ['./marketing-site', './hq-dashboard/src'];
-
-const walkSync = function(dir, filelist) {
-  const files = fs.readdirSync(dir);
-  filelist = filelist || [];
-  files.forEach(function(file) {
-    if (fs.statSync(path.join(dir, file)).isDirectory()) {
-      filelist = walkSync(path.join(dir, file), filelist);
+function replaceInFile(filePath) {
+    if (!filePath.endsWith('.html') && !filePath.endsWith('.js') && !filePath.endsWith('.jsx')) return;
+    const content = fs.readFileSync(filePath, 'utf8');
+    let newContent = content
+        .replace(/assets\/vero_logo1\.png/g, 'assets/vero_logo.png')
+        .replace(/assets\/vero_logo_favicon\.png/g, 'assets/favicon.png')
+        .replace(/\/favicon\.ico/g, '/favicon.png');
+    if (content !== newContent) {
+        fs.writeFileSync(filePath, newContent);
+        console.log('Updated', filePath);
     }
-    else {
-      filelist.push(path.join(dir, file));
-    }
-  });
-  return filelist;
-};
+}
 
-const regexes = [
-  { pattern: /`http:\/\/\$\{apiHost\}:3001/g, replacement: '`https://veroseven-api.onrender.com' },
-  { pattern: /'http:\/\/localhost:3001/g, replacement: "'https://veroseven-api.onrender.com" },
-  { pattern: /`http:\/\/localhost:3001/g, replacement: "`https://veroseven-api.onrender.com" }
-];
+function traverseDir(dir) {
+    fs.readdirSync(dir).forEach(file => {
+        let fullPath = path.join(dir, file);
+        if (fs.lstatSync(fullPath).isDirectory()) {
+            if (file !== 'node_modules' && file !== '.git') traverseDir(fullPath);
+        } else {
+            replaceInFile(fullPath);
+        }
+    });
+}
 
-let changedFiles = 0;
-
-targetDirs.forEach(dir => {
-  const files = walkSync(dir);
-  files.forEach(file => {
-    if (file.endsWith('.js') || file.endsWith('.jsx') || file.endsWith('.html') || file.endsWith('.cjs')) {
-      let content = fs.readFileSync(file, 'utf8');
-      let newContent = content;
-      
-      regexes.forEach(regex => {
-        newContent = newContent.replace(regex.pattern, regex.replacement);
-      });
-
-      if (content !== newContent) {
-        fs.writeFileSync(file, newContent, 'utf8');
-        console.log('Updated:', file);
-        changedFiles++;
-      }
-    }
-  });
-});
-
-console.log(`Updated ${changedFiles} files.`);
+traverseDir(path.join(__dirname, 'marketing-site'));
+traverseDir(path.join(__dirname, 'hq-dashboard'));
