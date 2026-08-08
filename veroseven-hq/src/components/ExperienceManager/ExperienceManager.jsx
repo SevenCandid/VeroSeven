@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Image as ImageIcon, MessageSquare, Calendar } from 'lucide-react';
+import { uploadToCloudinary } from '../../utils/cloudinary';
 import './ExperienceManager.css';
 
 export default function ExperienceManager({ apiFetch, showToast }) {
@@ -53,6 +54,22 @@ export default function ExperienceManager({ apiFetch, showToast }) {
     const formData = new FormData(e.target);
     const payload = Object.fromEntries(formData.entries());
     
+    const file = formData.get('image_file');
+    let finalImageUrl = payload.image_url;
+    if (file && file.size > 0) {
+      setLoading(true);
+      try {
+        finalImageUrl = await uploadToCloudinary(file);
+      } catch (err) {
+        showToast(err.message || 'Failed to upload image', 'error');
+        setLoading(false);
+        return;
+      }
+      setLoading(false);
+    }
+    payload.image_url = finalImageUrl;
+    delete payload.image_file;
+
     try {
       const url = eventModal.mode === 'create' 
         ? 'https://veroseven-api.onrender.com/api/admin/events'
@@ -119,6 +136,28 @@ export default function ExperienceManager({ apiFetch, showToast }) {
     const formData = new FormData(e.target);
     const payload = Object.fromEntries(formData.entries());
     
+    const file = formData.get('image_file');
+    let finalImageUrl = payload.image_url;
+    if (file && file.size > 0) {
+      setLoading(true);
+      try {
+        finalImageUrl = await uploadToCloudinary(file);
+      } catch (err) {
+        showToast(err.message || 'Failed to upload image', 'error');
+        setLoading(false);
+        return;
+      }
+      setLoading(false);
+    }
+    
+    if (!finalImageUrl) {
+      showToast('Image is required', 'error');
+      return;
+    }
+    
+    payload.image_url = finalImageUrl;
+    delete payload.image_file;
+
     try {
       const res = await apiFetch('https://veroseven-api.onrender.com/api/admin/gallery', {
         method: 'POST',
@@ -271,8 +310,10 @@ export default function ExperienceManager({ apiFetch, showToast }) {
                 <textarea name="description" defaultValue={eventModal.data?.description || ''} className="opp-input" rows="3"></textarea>
               </div>
               <div className="detail-group" style={{ marginTop: '1rem' }}>
-                <label className="detail-label">Cover Image URL</label>
-                <input type="text" name="image_url" defaultValue={eventModal.data?.image_url || ''} className="opp-input" />
+                <label className="detail-label">Cover Image</label>
+                {eventModal.data?.image_url && <p style={{fontSize: '0.8rem', marginBottom: '0.5rem', color: 'var(--color-accent)'}}>Current image: {eventModal.data.image_url}</p>}
+                <input type="file" name="image_file" accept="image/*" className="opp-input" style={{background: 'transparent', padding: 0, border: 'none'}} />
+                <input type="hidden" name="image_url" value={eventModal.data?.image_url || ''} />
               </div>
               <div className="modal-actions" style={{ marginTop: '1.5rem' }}>
                 <button type="button" className="btn-cancel" onClick={() => setEventModal({ show: false })}>Cancel</button>
@@ -327,8 +368,9 @@ export default function ExperienceManager({ apiFetch, showToast }) {
             <h3>Add Tech Moment (Gallery)</h3>
             <form onSubmit={handleSaveGallery}>
               <div className="detail-group">
-                <label className="detail-label">Image URL</label>
-                <input type="text" name="image_url" required className="opp-input" />
+                <label className="detail-label">Upload Image</label>
+                <input type="file" name="image_file" accept="image/*" required className="opp-input" style={{background: 'transparent', padding: 0, border: 'none'}} />
+                <input type="hidden" name="image_url" value="" />
               </div>
               <div className="detail-group" style={{ marginTop: '1rem' }}>
                 <label className="detail-label">Caption (Optional)</label>

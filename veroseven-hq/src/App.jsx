@@ -16,6 +16,7 @@ import Toast from './components/Toast';
 import {
   Globe, Settings, BookOpen, Pencil, Trash2, LogOut, Plus, Search, ExternalLink
 } from 'lucide-react';
+import { uploadToCloudinary } from './utils/cloudinary';
 
 function App() {
   const [isAuth, setIsAuth] = useState(isAuthenticated());
@@ -545,6 +546,22 @@ function App() {
     const formData = new FormData(e.target);
     const payload = Object.fromEntries(formData.entries());
     
+    const file = formData.get('image_file');
+    let finalImageUrl = payload.image_url;
+    if (file && file.size > 0) {
+      setLoading(true);
+      try {
+        finalImageUrl = await uploadToCloudinary(file);
+      } catch (err) {
+        showToast(err.message || 'Failed to upload image', 'error');
+        setLoading(false);
+        return;
+      }
+      setLoading(false);
+    }
+    payload.image_url = finalImageUrl;
+    delete payload.image_file;
+    
     try {
       const url = updateModal.mode === 'create' 
         ? `https://veroseven-api.onrender.com/api/admin/updates`
@@ -767,7 +784,13 @@ function App() {
                       <input type="text" name="date_label" defaultValue={updateModal.data?.date_label || ''} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'transparent', color: 'white'}} />
                     </div>
                   </div>
-                  <div className="modal-actions">
+                  <div className="detail-group" style={{ marginTop: '1rem' }}>
+                    <label className="detail-label">Cover Image</label>
+                    {updateModal.data?.image_url && <p style={{fontSize: '0.8rem', marginBottom: '0.5rem', color: 'var(--color-accent)'}}>Current image: {updateModal.data.image_url}</p>}
+                    <input type="file" name="image_file" accept="image/*" style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'transparent', color: 'white'}} />
+                    <input type="hidden" name="image_url" value={updateModal.data?.image_url || ''} />
+                  </div>
+                  <div className="modal-actions" style={{ marginTop: '1.5rem' }}>
                     <button type="button" className="btn-cancel" onClick={() => setUpdateModal({show: false})}>Cancel</button>
                     <button type="submit" className="btn-text">Save</button>
                   </div>

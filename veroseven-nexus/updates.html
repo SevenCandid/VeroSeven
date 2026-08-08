@@ -199,6 +199,58 @@
           const gridContainer = document.getElementById('updates-grid-container');
           
           let delay = 0;
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo" style="font-size:1.25rem; margin-bottom:0.75rem;">
+            <img src="assets/vero_logo.png" alt="VEROSEVEN Logo" />
+            VEROSEVEN
+          </div>
+          <p class="footer-tagline">Authentic Innovation. Limitless Possibilities.</p>
+          <p style="margin-top:1rem; color:rgba(255,255,255,0.5); font-size:0.875rem;">Building technology that matters.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="ecosystem.html">Ecosystem</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="updates.html">Updates</a></li>
+            <li><a href="opportunities.html">Opportunities</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Get In Touch</h4>
+          <ul>
+            <li><a href="mailto:hello@veroseven.com">hello@veroseven.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 VEROSEVEN. All Rights Reserved.</span>
+        <span>Building technology that matters.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    // Fetch live Updates data
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const apiHost = window.location.hostname || 'localhost';
+        const res = await fetch(`https://veroseven-api.onrender.com/api/updates`);
+        if (res.ok) {
+          const updates = await res.json();
+          const gridContainer = document.getElementById('updates-grid-container');
+          
+          let delay = 0;
           
           window.updatesData = updates;
           updates.forEach((upd, idx) => {
@@ -206,6 +258,7 @@
               const featuredPost = document.getElementById('post-welcome');
               if (featuredPost) {
                 featuredPost.innerHTML = `
+                  ${upd.image_url ? `<img src="${upd.image_url}" alt="${upd.title}" style="width:100%; height:350px; object-fit:cover; border-radius:12px; margin-bottom:1.5rem;" />` : ''}
                   <div class="blog-meta">
                     <span class="blog-tag">${upd.tag}</span><span class="dot"></span><span>${upd.date_label}</span>
                   </div>
@@ -217,6 +270,7 @@
             } else {
               gridContainer.innerHTML += `
                 <div class="glass-panel blog-card fade-up in-view" style="animation-delay:${delay}s;" onclick="openModal(${idx})">
+                  ${upd.image_url ? `<div style="height:200px; border-radius:8px; overflow:hidden; margin-bottom:1rem;"><img src="${upd.image_url}" style="width:100%; height:100%; object-fit:cover;" /></div>` : ''}
                   <div class="blog-meta">
                     <span class="blog-tag">${upd.tag}</span><span class="dot"></span><span>${upd.date_label}</span>
                   </div>
@@ -238,6 +292,16 @@
       const upd = window.updatesData[idx];
       document.getElementById('modalMeta').innerHTML = '<span class="blog-tag">' + upd.tag + '</span><span class="dot"></span><span>' + upd.date_label + '</span>';
       document.getElementById('modalTitle').innerText = upd.title;
+      
+      const modalImage = document.getElementById('modalImage');
+      if (upd.image_url) {
+        modalImage.src = upd.image_url;
+        modalImage.style.display = 'block';
+      } else {
+        modalImage.style.display = 'none';
+        modalImage.src = '';
+      }
+
       // Convert line breaks to paragraphs or br, handling null content
       const contentStr = upd.content || upd.excerpt || '';
       document.getElementById('modalContent').innerHTML = contentStr.replace(/\n/g, '<br/>');
@@ -281,6 +345,7 @@
       <button class="modal-close" onclick="document.getElementById('updatesModal').style.display='none'">&times;</button>
       <div class="blog-meta" id="modalMeta"></div>
       <h2 id="modalTitle" style="margin: 1rem 0; font-size: 2.5rem;"></h2>
+      <img id="modalImage" style="width:100%; max-height:450px; object-fit:cover; border-radius:12px; margin-bottom:1.5rem; display:none;" />
       <div id="modalContent" style="font-size: 1.1rem; line-height: 1.8; color: rgba(255,255,255,0.8);"></div>
     </div>
   </div>
