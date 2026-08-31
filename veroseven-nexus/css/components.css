@@ -109,24 +109,24 @@
 }
 
 .nav-link:hover {
-  color: var(--color-white);
-  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-accent);
+  background: rgba(212, 175, 55, 0.08);
 }
 
 .nav-link.active {
-  color: var(--color-white);
-  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-accent);
+  background: rgba(212, 175, 55, 0.12);
+  font-weight: 600;
 }
 
 .nav-link.active::after {
   content: '';
   position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
+  bottom: 0;
+  left: 15%;
+  right: 15%;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
   background: var(--color-accent);
 }
 
