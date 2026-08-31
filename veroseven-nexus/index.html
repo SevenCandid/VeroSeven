@@ -145,31 +145,81 @@
         <p style="font-size:1.1rem; color:rgba(255,255,255,0.8); max-width:600px; margin: 0 auto 3rem;">We build practical digital solutions for businesses, organizations, and individuals.</p>
       </div>
       
-      <div class="glass-panel card fade-up" style="padding:3rem; text-align:left; margin-bottom: 3rem;">
-        <div class="grid grid-3" style="gap:3rem;">
+      
+<style>
+  .services-unified-container {
+    padding: 0 !important;
+    overflow: hidden;
+  }
+  .service-division {
+    padding: 3rem 2.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.3s ease, transform 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .service-division:hover {
+    background: rgba(255,255,255,0.02);
+  }
+  .service-division:last-child {
+    border-bottom: none;
+  }
+  @media (min-width: 992px) {
+    .service-division {
+      border-bottom: none;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .service-division:last-child {
+      border-right: none;
+    }
+  }
+  .service-division-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05));
+    color: var(--color-accent);
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(212,175,55,0.2);
+  }
+</style>
+
+      <div class="glass-panel card fade-up services-unified-container" style="text-align:left; margin-bottom: 3rem; border-top:2px solid var(--color-accent);">
+        <div class="grid grid-3" style="gap: 0;">
           
           <!-- 01 Website Development -->
-          <div class="fade-up" style="animation-delay:0.1s;">
-            <div style="color:var(--color-accent); font-size:1.5rem; font-weight:700; margin-bottom:1rem; opacity:0.8;">01</div>
-            <h3 style="font-size:1.25rem; margin-bottom:0.75rem;">Website Development</h3>
-            <p style="font-size:0.95rem; color:rgba(255,255,255,0.7); line-height:1.5; margin:0;">Modern websites built around your brand and goals.</p>
+          <div class="service-division">
+            <div class="service-division-icon">
+              <i data-lucide="layout-template"></i>
+            </div>
+            <h3 style="font-size:1.35rem; margin-bottom:0.75rem;">Website Development</h3>
+            <p style="font-size:0.95rem; color:rgba(255,255,255,0.7); line-height:1.6; margin:0;">Modern, responsive websites built around your brand and organizational goals.</p>
           </div>
 
           <!-- 02 Application Development -->
-          <div class="fade-up" style="animation-delay:0.2s;">
-            <div style="color:var(--color-accent); font-size:1.5rem; font-weight:700; margin-bottom:1rem; opacity:0.8;">02</div>
-            <h3 style="font-size:1.25rem; margin-bottom:0.75rem;">Application Development</h3>
-            <p style="font-size:0.95rem; color:rgba(255,255,255,0.7); line-height:1.5; margin:0;">Custom applications designed around your needs.</p>
+          <div class="service-division" style="animation-delay:0.1s;">
+            <div class="service-division-icon">
+              <i data-lucide="smartphone"></i>
+            </div>
+            <h3 style="font-size:1.35rem; margin-bottom:0.75rem;">Application Development</h3>
+            <p style="font-size:0.95rem; color:rgba(255,255,255,0.7); line-height:1.6; margin:0;">Custom web and mobile applications designed precisely around your needs.</p>
           </div>
 
           <!-- 03 Software & Digital Solutions -->
-          <div class="fade-up" style="animation-delay:0.3s;">
-            <div style="color:var(--color-accent); font-size:1.5rem; font-weight:700; margin-bottom:1rem; opacity:0.8;">03</div>
-            <h3 style="font-size:1.25rem; margin-bottom:0.75rem;">Software & Digital Solutions</h3>
-            <p style="font-size:0.95rem; color:rgba(255,255,255,0.7); line-height:1.5; margin:0;">Purpose-built systems that solve real problems.</p>
+          <div class="service-division" style="animation-delay:0.2s;">
+            <div class="service-division-icon">
+              <i data-lucide="code-2"></i>
+            </div>
+            <h3 style="font-size:1.35rem; margin-bottom:0.75rem;">Software Solutions</h3>
+            <p style="font-size:0.95rem; color:rgba(255,255,255,0.7); line-height:1.6; margin:0;">Purpose-built systems and digital platforms that solve real business problems.</p>
           </div>
 
         </div>
+      </div>
       </div>
 
       <div class="fade-up" style="animation-delay:0.3s;">
