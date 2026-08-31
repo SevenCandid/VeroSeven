@@ -74,15 +74,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── Active Nav Link Highlighting ─────────────────────────────────
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('.nav-link').forEach(link => {
-    const href = link.getAttribute('href');
-    if (href === currentPage || (currentPage === '' && href === 'index.html')) {
-      link.classList.add('active');
-    } else {
-      link.classList.remove('active');
-    }
-  });
-
 });
