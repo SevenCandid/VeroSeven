@@ -285,16 +285,6 @@
           <p id="cms-flagship-card-sub" style="color:rgba(255,255,255,0.6); font-size:0.9rem; margin-bottom:0; line-height:1.5;">Bulk SMS & Messaging APIs</p>
         </div>
 
-        <!-- Tile 4: Feature 2 -->
-        <div class="bento-tile bento-feature-mini fade-up" style="animation-delay: 0.3s;">
-          <div style="color:var(--color-accent); margin-bottom:1rem; background: rgba(212,175,55,0.1); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-            <i data-lucide="zap" style="width:24px; height:24px;"></i>
-          </div>
-          <h3 style="font-size:1.2rem; margin-bottom:0.5rem;">Real-time Engine</h3>
-          <p style="color:rgba(255,255,255,0.6); font-size:0.9rem; margin-bottom:0; line-height:1.5;">Instant scalable notifications</p>
-          <div id="cms-flagship-card-status" class="status-soon" style="position:absolute; top: 1.5rem; right: 1.5rem; font-size:0.7rem; margin:0;">Launching Soon</div>
-        </div>
-
       </div>
 
     </div>
@@ -472,22 +462,12 @@
                     </div>
                     
                     <!-- Tile 3 -->
-                    <div class="bento-tile bento-feature-mini fade-up in-view" style="animation-delay: 0.2s; ${isReverse ? 'grid-column: 1 / 2;' : ''}">
+                    <div class="bento-tile bento-feature-mini fade-up in-view" style="animation-delay: 0.2s; ${isReverse ? 'grid-column: 1 / 3;' : ''}">
                       <div style="color:var(--color-accent); margin-bottom:1rem; background: rgba(212,175,55,0.1); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
                         <i data-lucide="${c.card_icon || 'radio'}" style="width:24px; height:24px;"></i>
                       </div>
                       <h3 style="font-size:1.2rem; margin-bottom:0.5rem;">${c.card_title || 'Next-Gen Connectivity'}</h3>
                       <p style="color:rgba(255,255,255,0.6); font-size:0.9rem; margin-bottom:0; line-height:1.5;">${c.card_subtitle || 'Bulk SMS & Messaging APIs'}</p>
-                    </div>
-
-                    <!-- Tile 4 -->
-                    <div class="bento-tile bento-feature-mini fade-up in-view" style="animation-delay: 0.3s; ${isReverse ? 'grid-column: 2 / 3;' : ''}">
-                      <div style="color:var(--color-accent); margin-bottom:1rem; background: rgba(212,175,55,0.1); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-                        <i data-lucide="zap" style="width:24px; height:24px;"></i>
-                      </div>
-                      <h3 style="font-size:1.2rem; margin-bottom:0.5rem;">Real-time Engine</h3>
-                      <p style="color:rgba(255,255,255,0.6); font-size:0.9rem; margin-bottom:0; line-height:1.5;">Instant scalable notifications</p>
-                      ${c.card_status ? `<div class="status-soon" style="position:absolute; top: 1.5rem; right: 1.5rem; font-size:0.7rem; margin:0;">${c.card_status}</div>` : ''}
                     </div>
                   `;
                   container.appendChild(itemDiv);
