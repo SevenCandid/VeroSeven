@@ -1230,3 +1230,205 @@ textarea.form-control {
     width: 100%;
   }
 }
+
+/* --- Bento Box Layout (Flagship) --- */
+.bento-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.bento-tile {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+}
+
+.bento-tile:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(212, 175, 55, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+}
+
+.bento-main {
+  grid-column: 1 / 2;
+  grid-row: 1 / 3;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+}
+
+.bento-mockup {
+  grid-column: 2 / 4;
+  grid-row: 1 / 2;
+  min-height: 280px;
+  background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.08), transparent 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.bento-feature-mini {
+  padding: 1.75rem;
+}
+
+.bento-feature-mini:nth-child(3) {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+}
+
+.bento-feature-mini:nth-child(4) {
+  grid-column: 3 / 4;
+  grid-row: 2 / 3;
+}
+
+/* UI Mockup Details */
+.ui-mockup-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mockup-window {
+  width: 220px;
+  height: 160px;
+  background: rgba(8, 18, 35, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+
+.mockup-header {
+  height: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 5px;
+}
+
+.mockup-header .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.mockup-header .dot.red { background: #ff5f56; }
+.mockup-header .dot.yellow { background: #ffbd2e; }
+.mockup-header .dot.green { background: #27c93f; }
+
+.mockup-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex-grow: 1;
+}
+
+.mockup-msg {
+  height: 24px;
+  border-radius: 12px;
+  opacity: 0.8;
+}
+
+.mockup-msg.msg-left {
+  width: 60%;
+  background: rgba(255, 255, 255, 0.1);
+  align-self: flex-start;
+}
+
+.mockup-msg.msg-right {
+  width: 50%;
+  background: var(--color-accent);
+  align-self: flex-end;
+}
+
+.mockup-bar {
+  height: 8px;
+  width: 40%;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  margin-top: auto;
+  align-self: center;
+}
+
+.mockup-card.floating-glass {
+  position: absolute;
+  top: 15%;
+  right: 15%;
+  width: 120px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 3;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  animation: floatMockup 4s ease-in-out infinite;
+}
+
+.mockup-card .icon-small {
+  color: var(--color-accent);
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.mockup-card .lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.mockup-card .line {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 2px;
+}
+.mockup-card .line.w-100 { width: 100%; }
+.mockup-card .line.w-50 { width: 50%; }
+
+@keyframes floatMockup {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@media (max-width: 900px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+  .bento-main, .bento-mockup, .bento-feature-mini {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+  }
+  .bento-main {
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+  .bento-main .badge {
+    margin: 0 auto;
+  }
+}
