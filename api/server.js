@@ -9,20 +9,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Setup Nodemailer transporter
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.SMTP_EMAIL,
-    pass: process.env.SMTP_PASSWORD
-  },
-  family: 4, // Force IPv4 to prevent Render ENETUNREACH on IPv6
-  connectionTimeout: 10000, // 10 seconds timeout
-  greetingTimeout: 10000,
-  socketTimeout: 15000
-});
+// (Nodemailer setup removed - Render blocks SMTP on free tier, using SendGrid HTTP API instead)
 
 app.use(cors());
 app.use(express.json());
@@ -549,23 +536,31 @@ app.post('/api/admin/applications/:id/notify', async (req, res) => {
       [new_status || null, JSON.stringify(currentHistory), id]
     );
 
-    // ACTUALLY SEND THE EMAIL
-    if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
-      throw new Error("SMTP credentials are not configured on the server.");
+    // ACTUALLY SEND THE EMAIL VIA SENDGRID HTTP API
+    if (!process.env.SENDGRID_API_KEY || !process.env.SMTP_EMAIL) {
+      throw new Error("SendGrid API key or sender email is missing in the server configuration.");
     }
 
-    const mailOptions = {
-      from: `"VeroSeven HQ" <${process.env.SMTP_EMAIL}>`,
-      to: appData.email,
-      subject: subject || 'Update on your VeroSeven Application',
-      text: `${message}\n\nYou can track your application status at any time by logging into the Applicant Portal:\nhttps://veroseven.com/login.html\n\nBest regards,\nThe VeroSeven Team`
-    };
-    
-    try {
-      await transporter.sendMail(mailOptions);
-    } catch (mailError) {
-      console.error('Nodemailer Error:', mailError);
-      throw new Error("Failed to send email via SMTP. Please check server email configuration.");
+    const emailContent = `${message}\n\nYou can track your application status at any time by logging into the Applicant Portal:\nhttps://veroseven.com/portal.html\n\nBest regards,\nThe VeroSeven Team`;
+
+    const sendgridRes = await fetch('https://api.sendgrid.com/v3/mail/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        personalizations: [{ to: [{ email: appData.email }] }],
+        from: { email: process.env.SMTP_EMAIL, name: "VeroSeven HQ" },
+        subject: subject || 'Update on your VeroSeven Application',
+        content: [{ type: 'text/plain', value: emailContent }]
+      })
+    });
+
+    if (!sendgridRes.ok) {
+      const errorData = await sendgridRes.json().catch(() => ({}));
+      console.error('SendGrid Error:', errorData);
+      throw new Error(`Failed to send email via SendGrid: ${JSON.stringify(errorData)}`);
     }
 
     await logActivity('Sent Applicant Notification', 'Application', id, {
