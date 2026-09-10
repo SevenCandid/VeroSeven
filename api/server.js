@@ -554,9 +554,9 @@ app.post('/api/admin/applications/:id/notify', async (req, res) => {
               <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
                 <!-- Header -->
                 <tr>
-                  <td style="background-color: #09090b; padding: 30px 40px; text-align: center;">
+                  <td style="background-color: #ffffff; border-bottom: 2px solid #f4f4f5; padding: 30px 40px; text-align: center;">
                     <h1 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -1px;">
-                      <span style="color: #D4AF37;">V</span><span style="color: #F97316;">E</span><span style="color: #FFFFFF;">R</span><span style="color: #D4AF37;">O</span><span style="color: #F97316;">S</span><span style="color: #FFFFFF;">E</span><span style="color: #D4AF37;">V</span><span style="color: #F97316;">E</span><span style="color: #FFFFFF;">N</span>
+                      <span style="color: #0A214E;">V</span><span style="color: #CE9329;">E</span><span style="color: #0A214E;">R</span><span style="color: #CE9329;">O</span><span style="color: #0A214E;">S</span><span style="color: #CE9329;">E</span><span style="color: #0A214E;">V</span><span style="color: #CE9329;">E</span><span style="color: #0A214E;">N</span>
                     </h1>
                   </td>
                 </tr>
