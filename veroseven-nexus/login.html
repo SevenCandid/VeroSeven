@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — VEROSEVEN Applicant Portal</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    .auth-container {
+      max-width: 450px;
+      margin: 8rem auto 4rem;
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      padding: 2.5rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+    .auth-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+    .auth-subtitle {
+      color: #94a3b8;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #cbd5e1;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      background: rgba(15, 23, 42, 0.8);
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 0.9rem;
+      margin-top: 1rem;
+    }
+    .auth-footer {
+      margin-top: 1.5rem;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+    .auth-footer a {
+      color: var(--color-accent);
+      text-decoration: none;
+    }
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="logo">VEROSEVEN</a>
+      <div class="nav-links" id="navLinks">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="opportunities.html" class="nav-link">Opportunities</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="auth-container">
+      <h1 class="auth-title">Welcome Back</h1>
+      <p class="auth-subtitle">Log in to your Applicant Portal</p>
+      
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input type="email" id="email" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" id="password" class="form-control" required />
+        </div>
+        <div id="errorMsg" class="error-msg"></div>
+        <button type="submit" class="btn btn-primary btn-submit">Log In</button>
+      </form>
+      
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Register here</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorMsg = document.getElementById('errorMsg');
+      
+      errorMsg.style.display = 'none';
+      
+      try {
+        const res = await fetch('http://localhost:3001/api/applicants/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+          localStorage.setItem('applicant_token', data.token);
+          // Check if there is a pending apply redirect
+          const pendingOpp = localStorage.getItem('pending_apply_opp_id');
+          if (pendingOpp) {
+             localStorage.removeItem('pending_apply_opp_id');
+             window.location.href = 'apply.html?id=' + pendingOpp;
+          } else {
+             window.location.href = 'portal.html';
+          }
+        } else {
+          errorMsg.textContent = data.error || 'Login failed';
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Network error. Please try again later.';
+        errorMsg.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

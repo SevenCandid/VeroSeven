@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — VEROSEVEN Applicant Portal</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    .portal-container {
+      max-width: 900px;
+      margin: 8rem auto 4rem;
+      padding: 0 2rem;
+    }
+    .portal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 1.5rem;
+    }
+    .portal-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .portal-subtitle {
+      color: #94a3b8;
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+    }
+    .logout-btn {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #cbd5e1;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+    
+    .application-card {
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+    .app-info {
+      flex: 1;
+    }
+    .app-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.3rem;
+    }
+    .app-date {
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+    .app-status {
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .status-submitted { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .status-under_review { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-interview { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .status-accepted { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .status-rejected { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: rgba(15, 23, 42, 0.4);
+      border-radius: 12px;
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+    .empty-state h3 {
+      color: #fff;
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    .empty-state p {
+      color: #94a3b8;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="logo">VEROSEVEN</a>
+      <div class="nav-links" id="navLinks">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="opportunities.html" class="nav-link">Opportunities</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="portal-container">
+    <div class="portal-header">
+      <div>
+        <h1 class="portal-title">My Dashboard</h1>
+        <p class="portal-subtitle" id="welcomeMsg">Welcome back.</p>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Log Out</button>
+    </div>
+
+    <div id="applicationsList">
+      <!-- Loading state -->
+      <div style="text-align: center; color: #94a3b8; padding: 2rem;">Loading applications...</div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('applicant_token');
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:3001/api/applicants/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) {
+          throw new Error('Unauthorized');
+        }
+        
+        const data = await res.json();
+        
+        document.getElementById('welcomeMsg').textContent = `Welcome back, ${data.profile.full_name}.`;
+        
+        const appsContainer = document.getElementById('applicationsList');
+        
+        if (data.applications.length === 0) {
+          appsContainer.innerHTML = `
+            <div class="empty-state">
+              <h3>No Applications Yet</h3>
+              <p>You haven't applied to any opportunities yet.</p>
+              <a href="opportunities.html" class="btn btn-primary">Browse Opportunities</a>
+            </div>
+          `;
+          return;
+        }
+        
+        appsContainer.innerHTML = '';
+        data.applications.forEach(app => {
+          const date = new Date(app.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+          const statusClass = `status-${(app.status || 'submitted').toLowerCase().replace(' ', '_')}`;
+          const displayStatus = (app.status || 'Submitted').replace('_', ' ');
+          
+          appsContainer.innerHTML += `
+            <div class="application-card">
+              <div class="app-info">
+                <div class="app-title">Application Reference: VS-APP-${String(app.id).padStart(5, '0')}</div>
+                <div class="app-date">Applied on ${date}</div>
+              </div>
+              <div class="app-status ${statusClass}">
+                ${displayStatus}
+              </div>
+            </div>
+          `;
+        });
+        
+      } catch (err) {
+        console.error(err);
+        localStorage.removeItem('applicant_token');
+        window.location.href = 'login.html';
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('applicant_token');
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>

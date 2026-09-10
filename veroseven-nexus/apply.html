@@ -729,12 +729,44 @@
                 return;
             }
 
+            const token = localStorage.getItem('applicant_token');
+            if (!token) {
+                localStorage.setItem('pending_apply_opp_id', oppId);
+                window.location.href = 'register.html';
+                return;
+            }
+
             try {
-                const res = await fetch(`https://veroseven-api.onrender.com/api/opportunities/${oppId}`);
+                // Fetch opportunity
+                const res = await fetch(`http://localhost:3001/api/opportunities/${oppId}`);
                 if (!res.ok) throw new Error('Opportunity not found');
 
                 currentOpportunity = await res.json();
                 renderOpportunityDetails(currentOpportunity);
+                
+                // Fetch applicant profile
+                const profileRes = await fetch('http://localhost:3001/api/applicants/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (profileRes.ok) {
+                    const profileData = await profileRes.json();
+                    const p = profileData.profile;
+                    document.getElementById('full_name').value = p.full_name || '';
+                    document.getElementById('email').value = p.email || '';
+                    document.getElementById('phone_number').value = p.phone_number || '';
+                    document.getElementById('location').value = p.location || '';
+                    document.getElementById('portfolio_url').value = p.portfolio_url || '';
+                    document.getElementById('resume_url').value = p.resume_url || '';
+                    
+                    // Make email read-only so they don't apply as someone else
+                    document.getElementById('email').readOnly = true;
+                } else {
+                    localStorage.removeItem('applicant_token');
+                    localStorage.setItem('pending_apply_opp_id', oppId);
+                    window.location.href = 'login.html';
+                    return;
+                }
             } catch (err) {
                 console.error(err);
                 showErrorState('Opportunity Not Found', 'The requested opportunity could not be found or is no longer available.');
@@ -1183,9 +1215,12 @@
             btn.innerHTML = `<div class="spinner" style="width:18px;height:18px;border-width:2px;margin:0;"></div> Submitting Application...`;
 
             try {
-                const response = await fetch('https://veroseven-api.onrender.com/api/applications', {
+                const response = await fetch('http://localhost:3001/api/applications', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('applicant_token')}`
+                    },
                     body: JSON.stringify(payload)
                 });
 

@@ -2,11 +2,21 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const db = require('./db');
+const nodemailer = require('nodemailer');
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Setup Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.SMTP_EMAIL,
+    pass: process.env.SMTP_PASSWORD
+  }
+});
 
 app.use(cors());
 app.use(express.json());
@@ -39,6 +49,7 @@ app.use(express.json());
       occupation VARCHAR(255),
       portfolio_url TEXT,
       resume_url TEXT,
+      password_hash VARCHAR(255),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`,
     `ALTER TABLE applications ADD COLUMN IF NOT EXISTS applicant_id INT`,
@@ -283,7 +294,26 @@ app.post('/api/applications', async (req, res) => {
   }
 });
 
-const { login, authenticateToken } = require('./auth');
+const { login, authenticateToken, applicantRegister, applicantLogin } = require('./auth');
+
+// Applicant Auth Routes
+app.post('/api/applicants/register', applicantRegister);
+app.post('/api/applicants/login', applicantLogin);
+app.get('/api/applicants/me', authenticateToken, async (req, res) => {
+  try {
+    const applicantRes = await db.query('SELECT id, full_name, email, phone_number, location, occupation, portfolio_url, resume_url FROM applicants WHERE id = $1', [req.user.id]);
+    if (applicantRes.rows.length === 0) return res.status(404).json({ error: 'Applicant not found' });
+    
+    const appsRes = await db.query('SELECT * FROM applications WHERE applicant_id = $1 ORDER BY created_at DESC', [req.user.id]);
+    
+    res.json({
+      profile: applicantRes.rows[0],
+      applications: appsRes.rows
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 // Modular Admin Login Route
 app.post('/api/admin/login', login);
@@ -384,6 +414,25 @@ app.get('/api/admin/applications/:id', async (req, res) => {
   }
 });
 
+const sendStatusEmail = async (applicantEmail, status, application) => {
+  if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
+    console.warn('SMTP credentials not configured. Skipping email notification.');
+    return;
+  }
+  const mailOptions = {
+    from: process.env.SMTP_EMAIL,
+    to: applicantEmail,
+    subject: `Update on your VeroSeven Application: ${status.replace('_', ' ').toUpperCase()}`,
+    text: `Hello,\n\nThere is an update on your application. Your application status has been changed to: ${status.replace('_', ' ').toUpperCase()}.\n\nPlease log in to the Applicant Portal to view more details:\nhttp://localhost:5173/portal.html\n\nBest,\nThe VeroSeven Team`,
+  };
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Notification email sent to ${applicantEmail}`);
+  } catch (error) {
+    console.error(`Failed to send email to ${applicantEmail}:`, error);
+  }
+};
+
 // Admin Route to update application status and append to status history
 app.patch('/api/admin/applications/:id/status', async (req, res) => {
   try {
@@ -427,6 +476,11 @@ app.patch('/api/admin/applications/:id/status', async (req, res) => {
     );
 
     await logActivity('Updated Application Status', 'Application', id, { status, note });
+    
+    if (currentApp.email) {
+      await sendStatusEmail(currentApp.email, status, currentApp);
+    }
+    
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error updating application status:', error);
@@ -566,6 +620,11 @@ app.put('/api/admin/applications/:id', async (req, res) => {
     );
 
     await logActivity('Updated Application Details', 'Application', id, { status, internal_notes });
+    
+    if (status && appData.email) {
+      await sendStatusEmail(appData.email, status, appData);
+    }
+    
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error modifying application:', error);

@@ -57,7 +57,70 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+const applicantRegister = async (req, res) => {
+  const { full_name, email, password } = req.body;
+
+  try {
+    const existing = await db.query('SELECT * FROM applicants WHERE email = $1', [email]);
+    if (existing.rows.length > 0) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+
+    const password_hash = await bcrypt.hash(password, 10);
+    const result = await db.query(
+      'INSERT INTO applicants (full_name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, full_name, email',
+      [full_name, email, password_hash]
+    );
+
+    const user = result.rows[0];
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: 'applicant' },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.status(201).json({ token, user });
+  } catch (err) {
+    console.error('Applicant register error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const applicantLogin = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const userResult = await db.query('SELECT * FROM applicants WHERE email = $1', [email]);
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const user = userResult.rows[0];
+    if (!user.password_hash) {
+      return res.status(401).json({ error: 'Account not setup. Please use the invite link to set a password.' });
+    }
+
+    const match = await bcrypt.compare(password, user.password_hash);
+    if (!match) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: 'applicant' },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({ token, user: { id: user.id, full_name: user.full_name, email: user.email } });
+  } catch (err) {
+    console.error('Applicant login error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   login,
-  authenticateToken
+  authenticateToken,
+  applicantRegister,
+  applicantLogin
 };
