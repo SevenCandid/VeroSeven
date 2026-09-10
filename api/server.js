@@ -543,6 +543,16 @@ app.post('/api/admin/applications/:id/notify', async (req, res) => {
       [new_status || null, JSON.stringify(currentHistory), id]
     );
 
+    // ACTUALLY SEND THE EMAIL
+    const mailOptions = {
+      from: `"VeroSeven HQ" <${process.env.SMTP_EMAIL}>`,
+      to: appData.email,
+      subject: subject || 'Update on your VeroSeven Application',
+      text: `${message}\n\nYou can track your application status at any time by logging into the Applicant Portal:\nhttps://veroseven.com/login.html\n\nBest regards,\nThe VeroSeven Team`
+    };
+    
+    await transporter.sendMail(mailOptions);
+
     await logActivity('Sent Applicant Notification', 'Application', id, {
       applicant_email: appData.email,
       subject,
