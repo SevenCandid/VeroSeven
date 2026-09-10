@@ -536,31 +536,31 @@ app.post('/api/admin/applications/:id/notify', async (req, res) => {
       [new_status || null, JSON.stringify(currentHistory), id]
     );
 
-    // ACTUALLY SEND THE EMAIL VIA SENDGRID HTTP API
-    if (!process.env.SENDGRID_API_KEY || !process.env.SMTP_EMAIL) {
-      throw new Error("SendGrid API key or sender email is missing in the server configuration.");
+    // ACTUALLY SEND THE EMAIL VIA BIRD HTTP API
+    if (!process.env.BIRD_API_KEY || !process.env.SMTP_EMAIL) {
+      throw new Error("Bird API key or sender email is missing in the server configuration.");
     }
 
-    const emailContent = `${message}\n\nYou can track your application status at any time by logging into the Applicant Portal:\nhttps://veroseven.com/portal.html\n\nBest regards,\nThe VeroSeven Team`;
+    const emailContent = `${message}<br><br>You can track your application status at any time by logging into the Applicant Portal:<br><a href="https://veroseven.com/portal.html">https://veroseven.com/portal.html</a><br><br>Best regards,<br>The VeroSeven Team`;
 
-    const sendgridRes = await fetch('https://api.sendgrid.com/v3/mail/send', {
+    const birdRes = await fetch('https://eu1.platform.bird.com/v1/emails', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`,
+        'Authorization': `AccessKey ${process.env.BIRD_API_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        personalizations: [{ to: [{ email: appData.email }] }],
         from: { email: process.env.SMTP_EMAIL, name: "VeroSeven HQ" },
+        to: [{ email: appData.email }],
         subject: subject || 'Update on your VeroSeven Application',
-        content: [{ type: 'text/plain', value: emailContent }]
+        html: emailContent
       })
     });
 
-    if (!sendgridRes.ok) {
-      const errorData = await sendgridRes.json().catch(() => ({}));
-      console.error('SendGrid Error:', errorData);
-      throw new Error(`Failed to send email via SendGrid: ${JSON.stringify(errorData)}`);
+    if (!birdRes.ok) {
+      const errorData = await birdRes.json().catch(() => ({}));
+      console.error('Bird Error:', errorData);
+      throw new Error(`Failed to send email via Bird: ${JSON.stringify(errorData)}`);
     }
 
     await logActivity('Sent Applicant Notification', 'Application', id, {
