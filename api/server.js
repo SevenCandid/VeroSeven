@@ -423,7 +423,7 @@ const sendStatusEmail = async (applicantEmail, status, application) => {
     from: process.env.SMTP_EMAIL,
     to: applicantEmail,
     subject: `Update on your VeroSeven Application: ${status.replace('_', ' ').toUpperCase()}`,
-    text: `Hello,\n\nThere is an update on your application. Your application status has been changed to: ${status.replace('_', ' ').toUpperCase()}.\n\nPlease log in to the Applicant Portal to view more details:\nhttp://localhost:5173/portal.html\n\nBest,\nThe VeroSeven Team`,
+    text: `Hello,\n\nThere is an update on your application. Your application status has been changed to: ${status.replace('_', ' ').toUpperCase()}.\n\nPlease log in to the Applicant Portal to view more details:\nhttps://veroseven.com/portal.html\n\nBest,\nThe VeroSeven Team`,
   };
   try {
     await transporter.sendMail(mailOptions);

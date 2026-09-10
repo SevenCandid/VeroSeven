@@ -145,7 +145,7 @@
       }
 
       try {
-        const res = await fetch('http://localhost:3001/api/applicants/me', {
+        const res = await fetch('https://veroseven-api.onrender.com/api/applicants/me', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         

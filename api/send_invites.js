@@ -31,7 +31,7 @@ async function run() {
         from: process.env.SMTP_EMAIL,
         to: applicant.email,
         subject: 'Welcome to the VeroSeven Applicant Portal',
-        text: `Hello ${applicant.full_name},\n\nWe have created a dedicated Applicant Portal for you to track your application status.\n\nYou can log in here: http://localhost:5173/login.html\n\nYour temporary credentials are:\nEmail: ${applicant.email}\nPassword: ${tempPassword}\n\nWe recommend you keep these safe. We will be adding a feature to change your password soon.\n\nBest,\nThe VeroSeven Team`
+        text: `Hello ${applicant.full_name},\n\nWe have created a dedicated Applicant Portal for you to track your application status.\n\nYou can log in here: https://veroseven.com/login.html\n\nYour temporary credentials are:\nEmail: ${applicant.email}\nPassword: ${tempPassword}\n\nWe recommend you keep these safe. We will be adding a feature to change your password soon.\n\nBest,\nThe VeroSeven Team`
       };
       
       await transporter.sendMail(mailOptions);

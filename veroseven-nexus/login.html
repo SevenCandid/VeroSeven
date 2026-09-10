@@ -128,7 +128,7 @@
       errorMsg.style.display = 'none';
       
       try {
-        const res = await fetch('http://localhost:3001/api/applicants/login', {
+        const res = await fetch('https://veroseven-api.onrender.com/api/applicants/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })

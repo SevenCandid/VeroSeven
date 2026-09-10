@@ -738,14 +738,14 @@
 
             try {
                 // Fetch opportunity
-                const res = await fetch(`http://localhost:3001/api/opportunities/${oppId}`);
+                const res = await fetch(`https://veroseven-api.onrender.com/api/opportunities/${oppId}`);
                 if (!res.ok) throw new Error('Opportunity not found');
 
                 currentOpportunity = await res.json();
                 renderOpportunityDetails(currentOpportunity);
                 
                 // Fetch applicant profile
-                const profileRes = await fetch('http://localhost:3001/api/applicants/me', {
+                const profileRes = await fetch('https://veroseven-api.onrender.com/api/applicants/me', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
@@ -1215,7 +1215,7 @@
             btn.innerHTML = `<div class="spinner" style="width:18px;height:18px;border-width:2px;margin:0;"></div> Submitting Application...`;
 
             try {
-                const response = await fetch('http://localhost:3001/api/applications', {
+                const response = await fetch('https://veroseven-api.onrender.com/api/applications', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
