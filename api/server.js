@@ -52,6 +52,7 @@ app.use(express.json());
       password_hash VARCHAR(255),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`,
+    `ALTER TABLE applicants ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255)`,
     `ALTER TABLE applications ADD COLUMN IF NOT EXISTS applicant_id INT`,
     `ALTER TABLE applications ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'submitted'`,
     `ALTER TABLE applications ADD COLUMN IF NOT EXISTS status_history JSONB DEFAULT '[]'::jsonb`,
