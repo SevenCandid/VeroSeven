@@ -324,45 +324,66 @@
       margin-bottom: 0;
     }
     
-    .application-card {
+    .apps-table-container {
       background: var(--color-card-bg);
       border: 1px solid var(--color-border);
       border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      overflow: hidden;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      transition: transform 0.2s, box-shadow 0.2s;
     }
-
-    .application-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      border-color: rgba(255,255,255,0.1);
+    
+    .apps-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
     }
-
-    .app-info {
-      flex: 1;
+    
+    .apps-table th {
+      background: rgba(15, 23, 42, 0.6);
+      color: #94a3b8;
+      font-weight: 500;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
-    .app-title {
-      font-size: 1.15rem;
-      font-weight: 600;
+    
+    .apps-table td {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       color: #fff;
-      margin-bottom: 0.4rem;
+      vertical-align: middle;
+    }
+    
+    .apps-table tbody tr {
+      transition: background 0.2s;
+    }
+    
+    .apps-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .apps-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .app-title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #fff;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
+    
     .app-date {
       color: #94a3b8;
       font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
     }
+    
     .app-status {
+      display: inline-block;
       padding: 0.4rem 1rem;
       border-radius: 20px;
       font-size: 0.85rem;
@@ -684,30 +705,53 @@
           return;
         }
         
-        appsContainer.innerHTML = '';
+        let tableHTML = `
+          <div class="apps-table-container">
+            <table class="apps-table">
+              <thead>
+                <tr>
+                  <th>Reference ID</th>
+                  <th>Date Applied</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+        
         data.applications.forEach(app => {
           const date = new Date(app.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
           const statusClass = `status-${(app.status || 'submitted').toLowerCase().replace(' ', '_')}`;
           const displayStatus = (app.status || 'Submitted').replace('_', ' ');
           
-          appsContainer.innerHTML += `
-            <div class="application-card">
-              <div class="app-info">
+          tableHTML += `
+            <tr>
+              <td>
                 <div class="app-title">
-                  <i data-lucide="file-text" style="width: 18px; height: 18px; color: #94a3b8;"></i>
-                  Reference: VS-APP-${String(app.id).padStart(5, '0')}
+                  <i data-lucide="file-text" style="width: 16px; height: 16px; color: #94a3b8;"></i>
+                  VS-APP-${String(app.id).padStart(5, '0')}
                 </div>
-                <div class="app-date">
-                  <i data-lucide="calendar" style="width: 14px; height: 14px;"></i>
-                  Applied on ${date}
-                </div>
-              </div>
-              <div class="app-status ${statusClass}">
-                ${displayStatus}
-              </div>
-            </div>
+              </td>
+              <td>
+                <div class="app-date">${date}</div>
+              </td>
+              <td>
+                <span class="app-status ${statusClass}">${displayStatus}</span>
+              </td>
+              <td>
+                <a href="#" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" onclick="alert('View details coming soon!')">View</a>
+              </td>
+            </tr>
           `;
         });
+        
+        tableHTML += `
+              </tbody>
+            </table>
+          </div>
+        `;
+        
+        appsContainer.innerHTML = tableHTML;
         
         lucide.createIcons();
         
