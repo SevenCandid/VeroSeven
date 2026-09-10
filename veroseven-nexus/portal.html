@@ -11,42 +11,317 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/components.css" />
   <style>
-    .portal-container {
-      max-width: 900px;
-      margin: 8rem auto 4rem;
-      padding: 0 2rem;
+    :root {
+      --sidebar-width: 260px;
+      --topbar-height: 70px;
     }
-    .portal-header {
+    
+    body {
+      background: var(--color-bg);
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    /* Layout */
+    .dashboard-layout {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: rgba(15, 23, 42, 0.6);
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    
+    .sidebar-header {
+      height: var(--topbar-height);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: #fff;
+      text-decoration: none;
+    }
+    
+    .sidebar-logo img {
+      height: 28px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      color: #94a3b8;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #f8fafc;
+    }
+
+    .nav-item.active {
+      background: var(--color-primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .sidebar-footer {
+      padding: 1.5rem 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: transparent;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .logout-btn:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Main Content Area */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0; /* Important for flex-child text truncation */
+    }
+
+    /* Topbar */
+    .topbar {
+      height: var(--topbar-height);
+      background: rgba(15, 23, 42, 0.6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      z-index: 5;
+    }
+
+    .topbar-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #fff;
+      margin: 0;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .action-icon {
+      position: relative;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: color 0.2s;
+      background: transparent;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 50%;
+    }
+
+    .action-icon:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .badge-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      background: #ef4444;
+      border-radius: 50%;
+      border: 2px solid #0f172a;
+    }
+
+    /* Dropdowns */
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      width: 280px;
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      padding: 0.5rem 0;
+    }
+
+    .dropdown.active .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-header {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .dropdown-header h4 {
+      margin: 0 0 0.25rem 0;
+      color: #f8fafc;
+      font-size: 0.95rem;
+    }
+
+    .dropdown-header p {
+      margin: 0;
+      color: #94a3b8;
+      font-size: 0.85rem;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    .dropdown-item i {
+      color: #94a3b8;
+    }
+
+    .profile-trigger {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 30px;
+      transition: background 0.2s;
+    }
+    
+    .profile-trigger:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-primary), #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .profile-info {
+      text-align: left;
+    }
+
+    .profile-name {
+      color: #f8fafc;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .profile-role {
+      color: #94a3b8;
+      font-size: 0.75rem;
+      margin: 0;
+    }
+
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+    
+    .content-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-bottom: 2.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
     }
-    .portal-title {
-      font-size: 2.5rem;
+    
+    .content-title {
+      font-size: 2rem;
       font-weight: 700;
       color: #fff;
+      margin: 0;
     }
-    .portal-subtitle {
+    
+    .content-subtitle {
       color: #94a3b8;
-      font-size: 1.1rem;
+      font-size: 1rem;
       margin-top: 0.5rem;
-    }
-    .logout-btn {
-      background: none;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #cbd5e1;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: all 0.2s ease;
-    }
-    .logout-btn:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
+      margin-bottom: 0;
     }
     
     .application-card {
@@ -59,21 +334,33 @@
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      -webkit-backdrop-filter: blur(12px);
-      backdrop-filter: blur(12px);
+      transition: transform 0.2s, box-shadow 0.2s;
     }
+
+    .application-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      border-color: rgba(255,255,255,0.1);
+    }
+
     .app-info {
       flex: 1;
     }
     .app-title {
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       font-weight: 600;
       color: #fff;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
     .app-date {
       color: #94a3b8;
       font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
     .app-status {
       padding: 0.4rem 1rem;
@@ -97,6 +384,10 @@
       border-radius: 12px;
       border: 1px dashed rgba(255, 255, 255, 0.1);
     }
+    .empty-state i {
+      color: #475569;
+      margin-bottom: 1rem;
+    }
     .empty-state h3 {
       color: #fff;
       font-size: 1.25rem;
@@ -106,37 +397,249 @@
       color: #94a3b8;
       margin-bottom: 1.5rem;
     }
+
+    /* Notification Item */
+    .notif-item {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      gap: 1rem;
+    }
+    .notif-item:last-child {
+      border-bottom: none;
+    }
+    .notif-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .notif-content p {
+      margin: 0 0 0.25rem 0;
+      color: #e2e8f0;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    .notif-time {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: -100%;
+        transition: left 0.3s ease;
+      }
+      .sidebar.open {
+        left: 0;
+      }
+      .topbar {
+        padding: 0 1rem;
+      }
+      .content-area {
+        padding: 1.5rem 1rem;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Navigation -->
-  <nav class="navbar" id="navbar">
-    <div class="container nav-container">
-      <a href="index.html" class="logo">VEROSEVEN</a>
-      <div class="nav-links" id="navLinks">
-        <a href="index.html" class="nav-link">Home</a>
-        <a href="opportunities.html" class="nav-link">Opportunities</a>
+  <div class="dashboard-layout">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-logo">
+          <img src="assets/vero_logo.png" alt="Logo" />
+          VEROSEVEN
+        </a>
       </div>
-    </div>
-  </nav>
-
-  <main class="portal-container">
-    <div class="portal-header">
-      <div>
-        <h1 class="portal-title">My Dashboard</h1>
-        <p class="portal-subtitle" id="welcomeMsg">Welcome back.</p>
+      
+      <nav class="sidebar-nav">
+        <a href="portal.html" class="nav-item active">
+          <i data-lucide="layout-dashboard" style="width: 20px; height: 20px;"></i>
+          My Applications
+        </a>
+        <a href="opportunities.html" class="nav-item">
+          <i data-lucide="briefcase" style="width: 20px; height: 20px;"></i>
+          Browse Roles
+        </a>
+        <a href="#" class="nav-item" onclick="alert('Feature coming soon!')">
+          <i data-lucide="user" style="width: 20px; height: 20px;"></i>
+          My Profile
+        </a>
+        <a href="#" class="nav-item" onclick="alert('Feature coming soon!')">
+          <i data-lucide="settings" style="width: 20px; height: 20px;"></i>
+          Settings
+        </a>
+        <a href="#" class="nav-item" onclick="alert('Feature coming soon!')">
+          <i data-lucide="help-circle" style="width: 20px; height: 20px;"></i>
+          Help & Support
+        </a>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <button class="logout-btn" id="logoutBtnSidebar">
+          <i data-lucide="log-out" style="width: 20px; height: 20px;"></i>
+          Log Out
+        </button>
       </div>
-      <button class="logout-btn" id="logoutBtn">Log Out</button>
-    </div>
+    </aside>
 
-    <div id="applicationsList">
-      <!-- Loading state -->
-      <div style="text-align: center; color: #94a3b8; padding: 2rem;">Loading applications...</div>
-    </div>
-  </main>
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+      
+      <!-- Topbar -->
+      <header class="topbar">
+        <h2 class="topbar-title">Dashboard</h2>
+        
+        <div class="topbar-actions">
+          
+          <!-- Notifications Dropdown -->
+          <div class="dropdown" id="notifDropdown">
+            <button class="action-icon" id="notifToggle" aria-label="Notifications">
+              <i data-lucide="bell" style="width: 20px; height: 20px;"></i>
+              <div class="badge-dot"></div>
+            </button>
+            
+            <div class="dropdown-menu" style="width: 320px;">
+              <div class="dropdown-header">
+                <h4>Notifications</h4>
+              </div>
+              <div class="notif-item">
+                <div class="notif-icon"><i data-lucide="check" style="width: 16px; height: 16px;"></i></div>
+                <div class="notif-content">
+                  <p>Welcome to the VeroSeven Applicant Portal! You can now track your applications here.</p>
+                  <p class="notif-time">Just now</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
+          <!-- Messages Dropdown -->
+          <div class="dropdown" id="msgDropdown">
+            <button class="action-icon" id="msgToggle" aria-label="Messages">
+              <i data-lucide="message-square" style="width: 20px; height: 20px;"></i>
+            </button>
+            <div class="dropdown-menu">
+              <div class="dropdown-header">
+                <h4>Messages</h4>
+              </div>
+              <div style="padding: 2rem 1rem; text-align: center; color: #64748b;">
+                <i data-lucide="inbox" style="width: 32px; height: 32px; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                <p style="margin: 0; font-size: 0.9rem;">No new messages</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Profile Dropdown -->
+          <div class="dropdown" id="profileDropdown">
+            <button class="profile-trigger" id="profileToggle">
+              <div class="avatar" id="userAvatar">VS</div>
+              <div class="profile-info" style="display: none;" id="desktopProfileInfo">
+                <p class="profile-name" id="topbarName">Applicant</p>
+                <p class="profile-role">Candidate</p>
+              </div>
+              <i data-lucide="chevron-down" style="width: 16px; height: 16px; color: #94a3b8; margin-left: 0.25rem;"></i>
+            </button>
+            
+            <div class="dropdown-menu">
+              <div class="dropdown-header">
+                <h4 id="dropdownName">Loading...</h4>
+                <p id="dropdownEmail">loading@veroseven.com</p>
+              </div>
+              <a href="#" class="dropdown-item" onclick="alert('Feature coming soon!')">
+                <i data-lucide="user" style="width: 16px; height: 16px;"></i> My Profile
+              </a>
+              <a href="#" class="dropdown-item" onclick="alert('Feature coming soon!')">
+                <i data-lucide="settings" style="width: 16px; height: 16px;"></i> Account Settings
+              </a>
+              <div style="height: 1px; background: rgba(255,255,255,0.05); margin: 0.5rem 0;"></div>
+              <a href="#" class="dropdown-item" id="logoutBtnTop" style="color: #ef4444;">
+                <i data-lucide="log-out" style="width: 16px; height: 16px; color: #ef4444;"></i> Log Out
+              </a>
+            </div>
+          </div>
+          
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <main class="content-area">
+        <div class="content-header">
+          <div>
+            <h1 class="content-title">My Applications</h1>
+            <p class="content-subtitle" id="welcomeMsg">Welcome back, let's check your status.</p>
+          </div>
+        </div>
+
+        <div id="applicationsList">
+          <!-- Loading state -->
+          <div style="text-align: center; color: #94a3b8; padding: 4rem 2rem;">
+            <i data-lucide="loader-2" style="width: 32px; height: 32px; animation: spin 1s linear infinite; margin-bottom: 1rem;"></i>
+            <p>Loading your applications...</p>
+          </div>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script>
+    // Initialize icons
+    lucide.createIcons();
+
+    // Dropdown Logic
+    const dropdowns = ['notifDropdown', 'msgDropdown', 'profileDropdown'];
+    
+    function closeAllDropdowns() {
+      dropdowns.forEach(id => {
+        document.getElementById(id).classList.remove('active');
+      });
+    }
+
+    document.getElementById('notifToggle').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const el = document.getElementById('notifDropdown');
+      const isActive = el.classList.contains('active');
+      closeAllDropdowns();
+      if (!isActive) el.classList.add('active');
+    });
+
+    document.getElementById('msgToggle').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const el = document.getElementById('msgDropdown');
+      const isActive = el.classList.contains('active');
+      closeAllDropdowns();
+      if (!isActive) el.classList.add('active');
+    });
+
+    document.getElementById('profileToggle').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const el = document.getElementById('profileDropdown');
+      const isActive = el.classList.contains('active');
+      closeAllDropdowns();
+      if (!isActive) el.classList.add('active');
+    });
+
+    document.addEventListener('click', () => {
+      closeAllDropdowns();
+    });
+
+    // Make profile info visible on larger screens
+    if (window.innerWidth > 768) {
+      document.getElementById('desktopProfileInfo').style.display = 'block';
+    }
+
+    // App Logic
     document.addEventListener('DOMContentLoaded', async () => {
       const token = localStorage.getItem('applicant_token');
       if (!token) {
@@ -155,32 +658,49 @@
         
         const data = await res.json();
         
-        document.getElementById('welcomeMsg').textContent = `Welcome back, ${data.profile.full_name}.`;
+        // Update Profile Info
+        const fullName = data.profile.full_name;
+        const initials = fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
         
+        document.getElementById('welcomeMsg').textContent = `Welcome back, ${fullName}.`;
+        document.getElementById('userAvatar').textContent = initials;
+        document.getElementById('topbarName').textContent = fullName.split(' ')[0]; // First name
+        document.getElementById('dropdownName').textContent = fullName;
+        document.getElementById('dropdownEmail').textContent = data.profile.email;
+        
+        // Render Applications
         const appsContainer = document.getElementById('applicationsList');
         
         if (data.applications.length === 0) {
           appsContainer.innerHTML = `
             <div class="empty-state">
+              <i data-lucide="inbox" style="width: 48px; height: 48px;"></i>
               <h3>No Applications Yet</h3>
               <p>You haven't applied to any opportunities yet.</p>
               <a href="opportunities.html" class="btn btn-primary">Browse Opportunities</a>
             </div>
           `;
+          lucide.createIcons();
           return;
         }
         
         appsContainer.innerHTML = '';
         data.applications.forEach(app => {
-          const date = new Date(app.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+          const date = new Date(app.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
           const statusClass = `status-${(app.status || 'submitted').toLowerCase().replace(' ', '_')}`;
           const displayStatus = (app.status || 'Submitted').replace('_', ' ');
           
           appsContainer.innerHTML += `
             <div class="application-card">
               <div class="app-info">
-                <div class="app-title">Application Reference: VS-APP-${String(app.id).padStart(5, '0')}</div>
-                <div class="app-date">Applied on ${date}</div>
+                <div class="app-title">
+                  <i data-lucide="file-text" style="width: 18px; height: 18px; color: #94a3b8;"></i>
+                  Reference: VS-APP-${String(app.id).padStart(5, '0')}
+                </div>
+                <div class="app-date">
+                  <i data-lucide="calendar" style="width: 14px; height: 14px;"></i>
+                  Applied on ${date}
+                </div>
               </div>
               <div class="app-status ${statusClass}">
                 ${displayStatus}
@@ -189,6 +709,8 @@
           `;
         });
         
+        lucide.createIcons();
+        
       } catch (err) {
         console.error(err);
         localStorage.removeItem('applicant_token');
@@ -196,10 +718,13 @@
       }
     });
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
+    const logout = () => {
       localStorage.removeItem('applicant_token');
       window.location.href = 'login.html';
-    });
+    };
+
+    document.getElementById('logoutBtnSidebar').addEventListener('click', logout);
+    document.getElementById('logoutBtnTop').addEventListener('click', logout);
   </script>
 </body>
 </html>
