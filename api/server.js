@@ -305,7 +305,13 @@ app.get('/api/applicants/me', authenticateToken, async (req, res) => {
     const applicantRes = await db.query('SELECT id, full_name, email, phone_number, location, occupation, portfolio_url, resume_url FROM applicants WHERE id = $1', [req.user.id]);
     if (applicantRes.rows.length === 0) return res.status(404).json({ error: 'Applicant not found' });
     
-    const appsRes = await db.query('SELECT * FROM applications WHERE applicant_id = $1 ORDER BY created_at DESC', [req.user.id]);
+    const appsRes = await db.query(`
+      SELECT a.*, o.title as opportunity_title 
+      FROM applications a 
+      LEFT JOIN opportunities o ON a.opportunity_id = o.id 
+      WHERE a.applicant_id = $1 
+      ORDER BY a.created_at DESC
+    `, [req.user.id]);
     
     res.json({
       profile: applicantRes.rows[0],

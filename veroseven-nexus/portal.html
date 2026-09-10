@@ -710,7 +710,7 @@
             <table class="apps-table">
               <thead>
                 <tr>
-                  <th>Reference ID</th>
+                  <th>Application</th>
                   <th>Date Applied</th>
                   <th>Status</th>
                   <th>Action</th>
@@ -728,8 +728,11 @@
             <tr>
               <td>
                 <div class="app-title">
-                  <i data-lucide="file-text" style="width: 16px; height: 16px; color: #94a3b8;"></i>
-                  VS-APP-${String(app.id).padStart(5, '0')}
+                  <i data-lucide="briefcase" style="width: 16px; height: 16px; color: #94a3b8;"></i>
+                  ${app.opportunity_title || 'General Application'}
+                </div>
+                <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem; padding-left: 1.5rem;">
+                  Ref: VS-APP-${String(app.id).padStart(5, '0')}
                 </div>
               </td>
               <td>
