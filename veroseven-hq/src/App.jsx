@@ -26,6 +26,15 @@ function App() {
     return localStorage.getItem('sidebar_collapsed') === 'true';
   });
 
+  const [emailProvider, setEmailProvider] = useState(() => {
+    return localStorage.getItem('email_provider') || 'sendgrid';
+  });
+
+  // Save email provider choice to local storage
+  useEffect(() => {
+    localStorage.setItem('email_provider', emailProvider);
+  }, [emailProvider]);
+
   const toggleSidebarCollapse = () => {
     setIsSidebarCollapsed(prev => {
       const next = !prev;
@@ -394,7 +403,7 @@ function App() {
       const res = await apiFetch(`https://veroseven-api.onrender.com/api/admin/applications/${appId}/notify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject, message, new_status: newStatus })
+        body: JSON.stringify({ subject, message, new_status: newStatus, provider: emailProvider })
       });
       if (res.ok) {
         showToast('Notification dispatched & logged to candidate timeline', 'success');
@@ -824,7 +833,12 @@ function App() {
               />
             ) : (
               <>
-                <Topbar setIsMobileSidebarOpen={setIsMobileSidebarOpen} logoUrl={logoUrl} />
+                <Topbar 
+                  setIsMobileSidebarOpen={setIsMobileSidebarOpen} 
+                  logoUrl={logoUrl}
+                  emailProvider={emailProvider}
+                  setEmailProvider={setEmailProvider}
+                />
                 <div className="dashboard-content">
                   {activeTab !== 'overview' && (
                     <h1 className="page-title">
