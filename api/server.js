@@ -555,7 +555,9 @@ app.post('/api/admin/applications/:id/notify', async (req, res) => {
                 <!-- Header -->
                 <tr>
                   <td style="background-color: #09090b; padding: 30px 40px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">VEROSEVEN</h1>
+                    <h1 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -1px;">
+                      <span style="color: #3b82f6;">V</span><span style="color: #10b981;">E</span><span style="color: #f59e0b;">R</span><span style="color: #f43f5e;">O</span><span style="color: #8b5cf6;">S</span><span style="color: #06b6d4;">E</span><span style="color: #f97316;">V</span><span style="color: #ec4899;">E</span><span style="color: #3b82f6;">N</span>
+                    </h1>
                   </td>
                 </tr>
                 
