@@ -539,7 +539,54 @@ app.post('/api/admin/applications/:id/notify', async (req, res) => {
     // ACTUALLY SEND THE EMAIL DYNAMICALLY BASED ON PROVIDER
     const emailProvider = provider || 'bird';
     const finalSubject = subject || 'Update on your VeroSeven Application';
-    const emailContentHTML = `${message}<br><br>You can track your application status at any time by logging into the Applicant Portal:<br><a href="https://veroseven.com/portal.html">https://veroseven.com/portal.html</a><br><br>Best regards,<br>The VeroSeven Team`;
+    const formattedMessage = message.replace(/\n/g, '<br>');
+    const emailContentHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f5; color: #18181b;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f5; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                <!-- Header -->
+                <tr>
+                  <td style="background-color: #09090b; padding: 30px 40px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">VEROSEVEN</h1>
+                  </td>
+                </tr>
+                
+                <!-- Body -->
+                <tr>
+                  <td style="padding: 40px; font-size: 16px; line-height: 1.6; color: #3f3f46;">
+                    ${formattedMessage}
+                  </td>
+                </tr>
+
+                <!-- Action Button -->
+                <tr>
+                  <td align="center" style="padding: 0 40px 40px 40px;">
+                    <a href="https://veroseven.com/portal.html" style="display: inline-block; padding: 14px 28px; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 500; border-radius: 6px; font-size: 16px;">Track Your Application</a>
+                  </td>
+                </tr>
+                
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #f8fafc; padding: 30px 40px; border-top: 1px solid #e2e8f0; text-align: center;">
+                    <p style="margin: 0 0 10px 0; font-size: 14px; color: #64748b;">Best regards,<br><strong style="color: #334155;">The VeroSeven Team</strong></p>
+                    <p style="margin: 0; font-size: 13px; color: #94a3b8;">Need help? Contact us at <a href="mailto:hello.veroseven@gmail.com" style="color: #2563eb; text-decoration: none;">hello.veroseven@gmail.com</a></p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
 
     if (emailProvider === 'bird') {
       if (!process.env.BIRD_API_KEY || !process.env.SMTP_EMAIL) throw new Error("Bird API key or sender email is missing in the server configuration.");
