@@ -544,6 +544,10 @@ app.post('/api/admin/applications/:id/notify', async (req, res) => {
     );
 
     // ACTUALLY SEND THE EMAIL
+    if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
+      throw new Error("SMTP credentials are not configured on the server.");
+    }
+
     const mailOptions = {
       from: `"VeroSeven HQ" <${process.env.SMTP_EMAIL}>`,
       to: appData.email,
@@ -551,7 +555,12 @@ app.post('/api/admin/applications/:id/notify', async (req, res) => {
       text: `${message}\n\nYou can track your application status at any time by logging into the Applicant Portal:\nhttps://veroseven.com/login.html\n\nBest regards,\nThe VeroSeven Team`
     };
     
-    await transporter.sendMail(mailOptions);
+    try {
+      await transporter.sendMail(mailOptions);
+    } catch (mailError) {
+      console.error('Nodemailer Error:', mailError);
+      throw new Error("Failed to send email via SMTP. Please check server email configuration.");
+    }
 
     await logActivity('Sent Applicant Notification', 'Application', id, {
       applicant_email: appData.email,
